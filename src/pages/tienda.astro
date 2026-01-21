@@ -3,30 +3,102 @@ import MotoCard from "../components/MotoCard.astro";
 import MainLayout from "../layouts/MainLayout.astro";
 
 const motos = [
-  { marca: "Yamaha", nombre: "MT-07", precio: 7499, imagen: "/images/mt07.jpg" },
-  { marca: "Kawasaki", nombre: "Z900", precio: 9299, imagen: "/images/z900.jpg" },
-  { marca: "Honda", nombre: "CB500X", precio: 6899, imagen: "/images/cb500x.jpg" },
-  { marca: "Yamaha", nombre: "R1", precio: 18999, imagen: "/images/r1.jpg" },
+ {
+    marca: "Sherco",
+    nombre: "ST 125",
+    precio: 4999,
+    imagen: "/images/sherco-st125.jpg",
+  },
+  {
+    marca: "Sherco",
+    nombre: "SE-R 300",
+    precio: 8499,
+    imagen: "/images/sherco-ser300.jpg",
+  },
+  {
+    marca: "Rieju",
+    nombre: "MR 300 PRO",
+    precio: 5999,
+    imagen: "/images/rieju-mr300.jpg",
+  },
+  {
+    marca: "Rieju",
+    nombre: "RS 125",
+    precio: 4499,
+    imagen: "/images/rieju-rs125.jpg",
+  },
 ];
 ---
-<MainLayout title="MOTOKASS - Tienda y Taller de Motos"
-  description="MOTOKASS es tu tienda y taller mecánico de motos. Venta, mantenimiento y reparación.">
+
+<MainLayout
+  title="MOTOKASS tienda - venta de motos nuevas"
+  description="Compra motos Sherco y Rieju o agenda tu cita en nuestro taller. Calidad y servicio profesional en Motokass."
+>
   <section class="section">
     <div class="container">
-      <h1>Tienda de Motos</h1>
-      <p class="section-subtitle">Motos nuevas y de ocasión seleccionadas para ti.</p>
-      
-      <div class="motos-grid">
-        {motos.map(moto => <MotoCard {...moto} />)}
+      <div class="top_header">
+        <h1>Catalogo Motos</h1>
+        <p class="section-subtitle">
+          Motos nuevas seleccionadas para ti.
+        </p>
       </div>
+      <div class="motos-grid">
+        {motos.map((moto) => <MotoCard {...moto} />)}
+      </div>
+      <section class="compra-section">
+        <h2>Comprar una moto</h2>
+        <p>
+          Más adelante podrás seleccionar tu moto favorita y realizar la compra
+          directamente desde aquí.
+        </p>
+      <button onclick="window.location.href='/contacto'" class="btn-primary">Solicitar información</button>
+      </section>
     </div>
   </section>
+
+
 </MainLayout>
 
 <style>
-.motos-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 2rem;
+  .motos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 2rem;
+  }
+  .top_header {
+    text-align: center;
+    padding-bottom: 1.5em;
+  }
+.compra-section {
+  text-align: center;
+  background: #f1f5f9;
+  padding: 2rem;
+  border-radius: 1rem;
+  margin-top: 3rem;
 }
+
+.compra-section h2 {
+  margin-bottom: 1rem;
+}
+
+.compra-section p {
+  margin-bottom: 1.5rem;
+}
+
+.compra-section .btn-primary {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  background: var(--color-secondary);
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.compra-section .btn-primary:hover {
+  background: #b91c1c; /* un tono más oscuro de tu color secundario */
+  transform: translateY(-2px);
+}
+
+
 </style>

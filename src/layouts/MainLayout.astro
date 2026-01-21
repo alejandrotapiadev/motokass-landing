@@ -25,11 +25,36 @@ const {
 
     <!-- Favicon (placeholder) -->
     <link rel="icon" href="/public/favicon.svg" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
   </head>
-  <body>
+  <body class="page-container">
     <Header></Header>
-    <slot />
+    <main class="content">
+      <slot />
+    </main>
     <ScrollTop />
     <Footer></Footer>
   </body>
 </html>
+
+<style>
+  /* Contenedor flex para todo el layout */
+.page-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* ocupa toda la altura de la pantalla */
+}
+
+/* Main crece para empujar el footer abajo */
+.content {
+  flex-grow: 1;
+}
+
+/* Footer */
+footer {
+  background: #f1f5f9;
+  padding: 1.5rem;
+  text-align: center;
+}
+</style>
