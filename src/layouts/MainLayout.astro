@@ -1,0 +1,60 @@
+---
+import "../styles/global.css";
+import ScrollTop from "../components/ScrollTop.astro";
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+
+const {
+  title = "MOTOKASS",
+  description = "Tienda y taller de motos en tu ciudad",
+} = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+
+    <!-- Favicon (placeholder) -->
+    <link rel="icon" href="/public/favicon.svg" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+  </head>
+  <body class="page-container">
+    <Header></Header>
+    <main class="content">
+      <slot />
+    </main>
+    <ScrollTop />
+    <Footer></Footer>
+  </body>
+</html>
+
+<style>
+  /* Contenedor flex para todo el layout */
+.page-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* ocupa toda la altura de la pantalla */
+}
+
+/* Main crece para empujar el footer abajo */
+.content {
+  flex-grow: 1;
+}
+
+/* Footer */
+footer {
+  background: #f1f5f9;
+  padding: 1.5rem;
+  text-align: center;
+}
+</style>

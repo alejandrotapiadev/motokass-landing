@@ -1,0 +1,33 @@
+---
+const { icon, titulo, descripcion } = Astro.props;
+---
+
+<div class="service-box">
+  <div class="icon">{icon}</div>
+  <h3>{titulo}</h3>
+  <p>{descripcion}</p>
+</div>
+
+<style>
+.service-box {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.service-box:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+}
+
+.service-box .icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.service-box h3 {
+  margin: 0.5rem 0;
+}
+</style>

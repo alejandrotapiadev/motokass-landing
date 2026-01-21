@@ -1,0 +1,76 @@
+<header class="header">
+  <div class="container header-content">
+    <a href="/" class="logo">MOTOKASS</a>
+
+    <nav aria-label="Navegación principal">
+      <a href="/">Inicio</a>
+      <a href="/tienda">Tienda</a>
+      <a href="/taller">Taller</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+  </div>
+</header>
+
+<style>
+.header {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  transition: box-shadow 0.3s ease, background 0.3s ease;
+}
+
+.header:hover {
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 72px;
+}
+
+.logo {
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--color-primary);
+  position: relative;
+}
+
+nav {
+  display: flex;
+  gap: 2rem;
+}
+
+nav a {
+  font-weight: 600;
+  color: var(--color-muted);
+  position: relative;
+  padding-bottom: 0.25rem;
+  transition: color 0.2s ease;
+}
+
+/* subrayado animado */
+nav a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0%;
+  height: 2px;
+  background: var(--color-secondary);
+  transition: width 0.3s ease;
+}
+
+nav a:hover {
+  color: var(--color-secondary);
+}
+
+nav a:hover::after {
+  width: 100%;
+}
+</style>

@@ -9,6 +9,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^5.16.12"
+    "astro": "^5.16.12",
+    "feather-icons": "^4.29.2",
+    "sweetalert2": "^11.26.17"
   }
 }

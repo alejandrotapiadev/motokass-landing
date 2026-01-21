@@ -1,0 +1,94 @@
+<footer class="footer">
+  <div class="container footer-grid">
+    <div>
+      <strong class="footer-logo">MOTOKASS</strong>
+      <p>Tienda y taller de motos de confianza.</p>
+    </div>
+
+    <div>
+      <h4>Servicios</h4>
+      <ul>
+        <li><a href="/tienda">Tienda de motos</a></li>
+        <li><a href="/taller">Taller mecánico</a></li>
+      </ul>
+    </div>
+
+    <!--SECCIONAR CONTACTO Y HORARIO MAIBE EN COMPONENTES MAS PEQUEÑOS -->
+    <div>
+      <h4>Contacto</h4>
+      <ul>
+        <li>📍 C. de la Virgen María, 20, Ávila</li> <!-- RECUPERAR DE UN ENV. O SIMILAR -->
+        <li>📞 920 25 40 44</li>
+        <li>✉️ motokass@gmail.com</li>
+      </ul>
+    </div>
+
+    <div>
+      <h4>Horario</h4>
+      <ul>
+        <li> L-J: <strong>10:00 - 14:00 | 15:00 - 19:00</strong></li>
+        <li>V: <strong>10:00 - 14:00</strong></li>
+        <li>S: <strong>Cerrado</strong></li>
+        <li>D: <strong>Cerrado</strong></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p>© {new Date().getFullYear()} MOTOKASS. Todos los derechos reservados.</p>
+  </div>
+</footer>
+
+<style>
+.footer {
+  background: #020617;
+  color: #cbd5f5;
+  padding: 4rem 0 2rem;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2rem;
+}
+
+.footer-logo {
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: white;
+}
+
+.footer h4 {
+  margin-bottom: 0.75rem;
+  color: white;
+}
+
+.footer ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer li {
+  margin-bottom: 0.5rem;
+}
+
+.footer a {
+  color: #cbd5f5;
+  transition: color 0.2s ease;
+}
+
+.footer a:hover {
+  color: var(--color-secondary);
+}
+
+.footer-bottom {
+  border-top: 1px solid #1e293b;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #94a3b8;
+}
+</style>
