@@ -1,6 +1,8 @@
 ---
 import "../styles/global.css";
 import ScrollTop from "../components/ScrollTop.astro";
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
 
 const {
   title = "MOTOKASS",
@@ -25,7 +27,9 @@ const {
     <link rel="icon" href="/public/favicon.svg" />
   </head>
   <body>
+    <Header></Header>
     <slot />
     <ScrollTop />
+    <Footer></Footer>
   </body>
 </html>

@@ -1,57 +1,32 @@
 ---
+import MotoCard from "../components/MotoCard.astro";
 import MainLayout from "../layouts/MainLayout.astro";
-import Header from "../components/Header.astro";
-import Footer from "../components/Footer.astro";
+
+const motos = [
+  { marca: "Yamaha", nombre: "MT-07", precio: 7499, imagen: "/images/mt07.jpg" },
+  { marca: "Kawasaki", nombre: "Z900", precio: 9299, imagen: "/images/z900.jpg" },
+  { marca: "Honda", nombre: "CB500X", precio: 6899, imagen: "/images/cb500x.jpg" },
+  { marca: "Yamaha", nombre: "R1", precio: 18999, imagen: "/images/r1.jpg" },
+];
 ---
-
-<MainLayout
-  title="Tienda de Motos - MOTOKASS"
-  description="Descubre nuestras motos nuevas y de ocasión en MOTOKASS."
->
-  <Header />
-
-<section class="section">
-  <div class="container">
-    <h1>Tienda de Motos</h1>
-    <p class="section-subtitle">
-      Motos nuevas y de ocasión seleccionadas para ti.
-    </p>
-
-    <div class="grid">
-      <div class="card moto-card">
-        <h3>Yamaha MT-07</h3>
-        <p>Potente, ligera y versátil.</p>
-        <span class="price">7.499 €</span>
-      </div>
-
-      <div class="card moto-card">
-        <h3>Kawasaki Z900</h3>
-        <p>Deportiva urbana con carácter.</p>
-        <span class="price">9.299 €</span>
-      </div>
-
-      <div class="card moto-card">
-        <h3>Honda CB500X</h3>
-        <p>Perfecta para viajes largos.</p>
-        <span class="price">6.899 €</span>
+<MainLayout title="MOTOKASS - Tienda y Taller de Motos"
+  description="MOTOKASS es tu tienda y taller mecánico de motos. Venta, mantenimiento y reparación.">
+  <section class="section">
+    <div class="container">
+      <h1>Tienda de Motos</h1>
+      <p class="section-subtitle">Motos nuevas y de ocasión seleccionadas para ti.</p>
+      
+      <div class="motos-grid">
+        {motos.map(moto => <MotoCard {...moto} />)}
       </div>
     </div>
-  </div>
-</section>
+  </section>
+</MainLayout>
 
 <style>
-.moto-card {
-  position: relative;
-}
-
-.moto-card .price {
-  position: absolute;
-  bottom: 1.25rem;
-  right: 1.25rem;
-  font-weight: 800;
-  color: var(--color-secondary);
+.motos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2rem;
 }
 </style>
-
-  <Footer />
-</MainLayout>

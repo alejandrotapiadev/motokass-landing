@@ -1,51 +1,96 @@
 ---
 import MainLayout from "../layouts/MainLayout.astro";
-import Header from "../components/Header.astro";
-import Footer from "../components/Footer.astro";
+const servicios = [
+  { titulo: "Cambio de aceite", descripcion: "Mantenimiento esencial para alargar la vida del motor." },
+  { titulo: "Frenos y suspensiones", descripcion: "Seguridad y control en cada curva." },
+  { titulo: "Diagnóstico electrónico", descripcion: "Revisión completa con herramientas profesionales." },
+  { titulo: "Revisión general", descripcion: "Puesta a punto completa de tu moto." },
+];
 ---
-
-<MainLayout
-  title="Taller Mecánico - MOTOKASS"
-  description="Servicios de mantenimiento y reparación de motos en MOTOKASS."
->
-  <Header />
-
-<section class="section">
-  <div class="container">
-    <h1>Taller Mecánico</h1>
-    <p class="section-subtitle">
-      Cuidamos tu moto como si fuera nuestra.
-    </p>
-
-    <div class="grid">
-      <div class="card service-box">
-        <h3>🔧 Cambio de aceite</h3>
-        <p>Mantenimiento esencial para alargar la vida del motor.</p>
+<MainLayout title="MOTOKASS - Tienda y Taller de Motos"
+  description="MOTOKASS es tu tienda y taller mecánico de motos. Venta, mantenimiento y reparación.">
+  <section class="section">
+    <div class="container">
+      <div class="top_header">
+        <h1>Taller Mecanico</h1>
+        <p class="section-subtitle">Cuidamos tu moto como si fuera nuestra.</p>
       </div>
-
-      <div class="card service-box">
-        <h3>🛞 Frenos y suspensiones</h3>
-        <p>Seguridad y control en cada curva.</p>
+  
+      <!-- Servicios -->
+      <div class="grid">
+        {servicios.map(s => (
+          <div class="service-card">
+            <h3>{s.titulo}</h3>
+            <p>{s.descripcion}</p>
+          </div>
+        ))}
       </div>
-
-      <div class="card service-box">
-        <h3>⚡ Diagnóstico electrónico</h3>
-        <p>Revisión completa con herramientas profesionales.</p>
-      </div>
-
-      <div class="card service-box">
-        <h3>🧰 Revisión general</h3>
-        <p>Puesta a punto completa de tu moto.</p>
-      </div>
+  
+      <!-- Sección Agendar cita -->
+      <section class="cita-section">
+        <h2>Agendar cita</h2>
+        <p>Más adelante podrás reservar una cita directamente desde aquí.</p>
+        <button class="btn-primary">Agendar cita</button>
+      </section>
     </div>
-  </div>
-</section>
+  </section>
+</MainLayout>
 
 <style>
-.service-box h3 {
-  font-size: 1.25rem;
+/* Grid de servicios */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
 }
-</style>
 
-  <Footer />
-</MainLayout>
+/* Tarjeta de servicio solo con texto */
+.service-card {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-align: center;
+}
+
+.service-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+}
+
+/* Tipografía y jerarquía */
+.service-card h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--color-secondary);
+}
+
+.service-card p {
+  font-size: 0.95rem;
+  color: var(--color-muted);
+}
+
+/* Sección cita */
+.cita-section {
+  text-align: center;
+  background: #f1f5f9;
+  padding: 2rem;
+  border-radius: 1rem;
+}
+
+.cita-section h2 {
+  margin-bottom: 1rem;
+}
+
+.cita-section p {
+  margin-bottom: 1.5rem;
+}
+.top_header{
+  text-align: center;
+  padding-bottom: 1.5em;
+}
+
+</style>
