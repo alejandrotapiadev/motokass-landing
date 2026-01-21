@@ -1,21 +1,50 @@
-<section id="inicio" class="hero">
+<section id="inicio" class="hero fade-in">
   <div class="container hero-content">
-    <div>
-      <h1>Tu tienda de motos de confianza</h1>
-      <p>Si con tu moto quieres volar, vente a Moto Kass!!!! 🚀</p>
-      <a href="#contacto" class="btn-primary">Contactar</a>
+    <div class="hero-text">
+      <h1>MOTOKASS</h1>
+      <p>Si con tu moto quieres volar vente a Moto Kass!!!! 🚀</p>
+      <div class="hero-actions">
+        <a href="/tienda" class="btn-primary">Ver tienda</a>
+        <a href="/taller" class="btn-secondary">Ver taller</a>
+      </div>
     </div>
   </div>
 </section>
 
 <style>
 .hero {
-  background: linear-gradient(120deg, #020617, #0f172a);
+  background: radial-gradient(circle at top, #1e293b, #020617);
   color: white;
-  padding: 6rem 0;
+  padding: 7rem 0 6rem;
 }
 
-.hero-content {
-  max-width: 600px;
+.hero-text h1 {
+  font-size: 3rem;
+  letter-spacing: 0.12em;
+}
+
+.hero-text p {
+  font-size: 1.2rem;
+  color: #cbd5f5;
+}
+
+.hero-actions {
+  margin-top: 2rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-secondary {
+  border: 2px solid white;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: white;
+  color: #020617;
 }
 </style>

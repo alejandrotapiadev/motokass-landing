@@ -3,7 +3,7 @@
 :root {
   --color-primary: #0f172a;
   --color-secondary: #dc2626;
-  --color-bg: #f8fafc;
+  --color-bg: #e5e7eb;
   --color-text: #0f172a;
   --color-muted: #64748b;
   --container-width: 1200px;
@@ -12,7 +12,9 @@
 * {
   box-sizing: border-box;
 }
-
+html{
+    scroll-behavior: smooth;
+}
 body {
   margin: 0;
   font-family: Inter, sans-serif;
@@ -62,5 +64,20 @@ a {
   .hero-content {
     text-align: center;
   }
+.fade-in {
+  animation: fadeIn 0.8s ease both;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 }
 

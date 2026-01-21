@@ -1,0 +1,83 @@
+<section id="contacto" class="section contact-section">
+  <div class="container contact-grid">
+    <div class="contact-info">
+      <h2>¿Tienes alguna duda?</h2>
+      <p>
+        ¿Quieres información sobre motos o pedir cita en el taller?
+      </p>
+      <p>
+        Escríbenos y te responderemos lo antes posible.
+      </p>
+    </div>
+
+    <form class="contact-form">
+      <label>
+        Nombre
+        <input type="text" name="name" required />
+      </label>
+
+      <label>
+        Email
+        <input type="email" name="email" required />
+      </label>
+
+      <label>
+        Mensaje
+        <textarea name="message" rows="4" required></textarea>
+      </label>
+
+      <button type="submit" class="btn-primary">
+        Enviar mensaje
+      </button>
+    </form>
+  </div>
+</section>
+
+<style>
+.contact-section {
+  background: #f1f5f9;
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+
+.contact-info p {
+  color: var(--color-muted);
+}
+
+.contact-form {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 1.5rem;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.contact-form label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+}
+
+.contact-form input,
+.contact-form textarea {
+  margin-top: 0.25rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  outline: none;
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 0 3px rgba(220,38,38,0.15);
+}
+</style>
