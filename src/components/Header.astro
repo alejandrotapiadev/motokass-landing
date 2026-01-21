@@ -1,0 +1,43 @@
+<header class="header">
+  <div class="container header-content">
+    <strong class="logo">MOTOKASS</strong>
+    <nav>
+      <a href="#inicio">Inicio</a>
+      <a href="#motos">Motos</a>
+      <a href="#horario">Horario</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+  </div>
+</header>
+
+<style>
+.header {
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 64px;
+}
+
+.logo {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+nav a {
+  margin-left: 1.5rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+nav a:hover {
+  color: var(--color-secondary);
+}
+</style>

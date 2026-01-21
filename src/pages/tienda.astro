@@ -1,0 +1,30 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+---
+
+<MainLayout title="Tienda de Motos - MOTOKASS">
+  <Header />
+
+  <section class="section">
+    <div class="container">
+      <h1>Tienda de Motos</h1>
+      <p>Descubre nuestras motos nuevas y de ocasión.</p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Yamaha MT-07</h3>
+          <p>Potente, ligera y versátil.</p>
+        </div>
+
+        <div class="card">
+          <h3>Kawasaki Z900</h3>
+          <p>Deportiva urbana con carácter.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <Footer />
+</MainLayout>
