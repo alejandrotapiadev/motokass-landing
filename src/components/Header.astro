@@ -1,27 +1,34 @@
 <header class="header">
   <div class="container header-content">
-    <a href="/" class="logo">MOTOKASS</a>
-
     <nav aria-label="Navegación principal">
       <a href="/">Inicio</a>
       <a href="/tienda">Tienda</a>
       <a href="/taller">Taller</a>
-      <a href="#contacto">Contacto</a>
+      <a href="/contacto">Contacto</a>
     </nav>
   </div>
 </header>
 
 <style>
 .header {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 1);
   border-bottom: 1px solid #e5e7eb;
   position: sticky;
   top: 0;
   z-index: 100;
-  transition: box-shadow 0.3s ease, background 0.3s ease;
+
+  transition:
+    background 0.3s ease,
+    backdrop-filter 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
+/* Estado cuando hay scroll */
+.header.scrolled {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
+}
 .header:hover {
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
 }
@@ -33,17 +40,25 @@
   height: 72px;
 }
 
+/* CONTENEDOR DEL LOGO */
 .logo {
-  font-size: 1.4rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  color: var(--color-primary);
-  position: relative;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+/* IMAGEN CONTROLADA */
+.logo img {
+  max-height: 100%;        /* nunca supera el header */
+  width: auto;
+  object-fit: contain;
+  display: block;
 }
 
 nav {
+  width: 100%;
   display: flex;
-  gap: 2rem;
+  justify-content: space-around;
 }
 
 nav a {
