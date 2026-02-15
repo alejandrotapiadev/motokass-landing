@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Previsualización de Tipografías</title>
+  
+  <!-- Cargar cada fuente en su propio enlace -->
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Teko:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+  
+  <style>
+  :root {
+  --color-primary: #1F3F7A;
+  --color-primary-dark: #142C57;
+  --color-primary-light: #2E5AA6;
+
+  --color-white: #FFFFFF;
+  --color-gray-light: #F4F6FA;
+  --color-gray-medium: #D6DCE5;
+  --color-gray-dark: #1A1A1A;
+}
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: var(--color-gray-light);
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .card {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 250px;
+      text-align: center;
+    }
+
+    .titulo-oswald {
+      font-family: 'Oswald', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .titulo-teko {
+      font-family: 'Teko', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .texto-rajdhani {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 18px;
+    }
+
+    .texto-montserrat {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 18px;
+    }
+
+    .titulo-bebas {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+    }
+
+    .title {
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <h1 style="text-align: center;">Previsualización de Tipografías</h1>
+
+  <div class="container">
+    <div class="card">
+      <div class="titulo-oswald">
+        <p class="title">Oswald</p>
+        <hr>
+        <p>Estilo: Condensada, deportiva, fuerte</p>
+        <p>Texto de ejemplo con la fuente Oswald.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="titulo-teko">
+        <p class="title">Teko</p>
+        <hr>
+        <p>Estilo: Agresiva, estilo competición</p>
+        <p>Texto de ejemplo con la fuente Teko.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="texto-rajdhani">
+        <p class="title">Rajdhani</p>
+        <hr>
+        <p>Estilo: Moderna, tecnológica, limpia</p>
+        <p>Texto de ejemplo con la fuente Rajdhani.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="texto-montserrat">
+        <p class="title">Montserrat</p>
+        <hr>
+        <p>Estilo: Corporativa, elegante, versátil</p>
+        <p>Texto de ejemplo con la fuente Montserrat.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="titulo-bebas">
+        <p class="title">Bebas Neue</p>
+        <hr>
+        <p>Estilo: Ultra impactante para headers</p>
+        <p>Texto de ejemplo con la fuente Bebas Neue.</p>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

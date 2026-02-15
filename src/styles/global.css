@@ -1,12 +1,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@600;700&display=swap');
 
-:root {
+/*:root {
   --color-primary: #0f172a;
   --color-secondary: #dc2626;
   --color-bg: #e5e7eb;
   --color-text: #0f172a;
   --color-muted: #64748b;
   --container-width: 1200px;
+}*/
+/*paleta de colores con colores corporatios de la marca*/
+:root {
+  --color-primary: #1F3F7A;
+  --color-primary-dark: #142C57;
+  --color-primary-light: #2E5AA6;
+
+  --color-white: #FFFFFF;
+  --color-gray-light: #F4F6FA;
+  --color-gray-medium: #D6DCE5;
+  --color-gray-dark: #1A1A1A;
 }
 
 * {
