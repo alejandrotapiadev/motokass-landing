@@ -1,83 +1,80 @@
 ---
 import MotoCard from "../components/MotoCard.astro";
 import MainLayout from "../layouts/MainLayout.astro";
+import FilteredMotoList from "../components/FilteredMotoList.jsx";
+import RiejuCatalogo from "../resources/RiejuCatalogo.json";
 
-const motos = [
- {
-    marca: "Sherco",
-    nombre: "ST 125",
-    precio: 4999,
-    imagen: "/images/sherco-st125.jpg",
-  },
-  {
-    marca: "Sherco",
-    nombre: "SE-R 300",
-    precio: 8499,
-    imagen: "/images/sherco-ser300.jpg",
-  },
-  {
-    marca: "Rieju",
-    nombre: "MR 300 PRO",
-    precio: 5999,
-    imagen: "/images/rieju-mr300.jpg",
-  },
-  {
-    marca: "Rieju",
-    nombre: "RS 125",
-    precio: 4499,
-    imagen: "/images/rieju-rs125.jpg",
-  },
-];
+const motos = RiejuCatalogo.catalogo.modelos.map((moto) => ({
+  marca: RiejuCatalogo.catalogo.marca,
+  nombre: moto.modelo,
+  precio: moto.precio_eur,
+  imagen: moto.imagen,
+  specs: moto.specs
+}));
 ---
 
-<MainLayout
-  title="MOTOKASS tienda - venta de motos nuevas"
-  description="Compra motos Sherco y Rieju o agenda tu cita en nuestro taller. Calidad y servicio profesional en Motokass."
->
+<MainLayout ...>
   <section class="section">
     <div class="container">
-      <div class="top_header">
-        <h1>Catalogo Motos</h1>
-        <p class="section-subtitle">
-          Motos nuevas seleccionadas para ti.
-        </p>
-      </div>
-      <div class="motos-grid">
-        {motos.map((moto) => <MotoCard {...moto} />)}
-      </div>
-      <section class="compra-section">
-        <h2>Comprar una moto</h2>
-        <p>
-          Más adelante podrás seleccionar tu moto favorita y realizar la compra
-          directamente desde aquí.
-        </p>
-      <button onclick="window.location.href='/contacto'" class="btn-primary">Solicitar información</button>
-      </section>
+      <FilteredMotoList motos={motos} client:load />
     </div>
   </section>
-
-
 </MainLayout>
 
 <style>
-  .motos-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 2rem;
-  }
-  .top_header {
-    text-align: center;
-    padding-bottom: 1.5em;
-  }
+body {
+  background-color: var(--color-gray-light);
+  color: var(--color-gray-dark);
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.top_header {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.top_header h1 {
+  color: var(--color-primary);
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.top_header .section-subtitle {
+  color: var(--color-gray-dark);
+  font-size: 1.125rem;
+}
+
+.motos-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.moto-link {
+  display: block;
+  width: 100%;
+  text-decoration: none;
+}
+
+.moto-link:hover {
+  transform: translateY(-2px);
+  transition: transform 0.2s ease;
+}
+
 .compra-section {
   text-align: center;
-  background: #f1f5f9;
+  background: var(--color-white);
   padding: 2rem;
   border-radius: 1rem;
   margin-top: 3rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 .compra-section h2 {
+  color: var(--color-primary);
   margin-bottom: 1rem;
 }
 
@@ -88,17 +85,16 @@ const motos = [
 .compra-section .btn-primary {
   padding: 0.75rem 1.5rem;
   border-radius: 0.5rem;
-  background: var(--color-secondary);
-  color: white;
+  background: var(--color-primary);
+  color: var(--color-white);
   font-weight: 700;
   cursor: pointer;
   transition: background 0.3s ease, transform 0.2s ease;
+  border: none;
 }
 
 .compra-section .btn-primary:hover {
-  background: #b91c1c; /* un tono más oscuro de tu color secundario */
+  background: var(--color-primary-dark);
   transform: translateY(-2px);
 }
-
-
 </style>
