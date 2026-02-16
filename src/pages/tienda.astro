@@ -3,14 +3,28 @@ import MotoCard from "../components/MotoCard.astro";
 import MainLayout from "../layouts/MainLayout.astro";
 import FilteredMotoList from "../components/FilteredMotoList.jsx";
 import RiejuCatalogo from "../resources/RiejuCatalogo.json";
+import ShercoCatalogo from "../resources/ShercoCatalogo.json";
 
-const motos = RiejuCatalogo.catalogo.modelos.map((moto) => ({
+// Mapeamos Rieju
+const motosRieju = RiejuCatalogo.catalogo.modelos.map((moto) => ({
   marca: RiejuCatalogo.catalogo.marca,
   nombre: moto.modelo,
   precio: moto.precio_eur,
   imagen: moto.imagen,
   specs: moto.specs
 }));
+
+// Mapeamos Sherco
+const motosSherco = ShercoCatalogo.catalogo.modelos.map((moto) => ({
+  marca: ShercoCatalogo.catalogo.marca,
+  nombre: moto.modelo,
+  precio: moto.precio_eur,
+  imagen: moto.imagen,
+  specs: moto.specs
+}));
+
+// Combinamos ambas listas
+const motos = [...motosRieju, ...motosSherco];
 ---
 
 <MainLayout ...>
@@ -33,6 +47,12 @@ body {
 .top_header {
   text-align: center;
   padding: 2rem 0;
+}
+.section{
+  padding: 0;
+}
+.container{
+  padding: 2em;
 }
 
 .top_header h1 {

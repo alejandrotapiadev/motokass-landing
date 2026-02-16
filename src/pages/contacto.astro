@@ -3,81 +3,202 @@ import MainLayout from "../layouts/MainLayout.astro";
 ---
 
 <MainLayout>
-  <section class="contacto-section">
-    <div class="container">
-      <h1>Contacto</h1>
-      <p class="section-subtitle">Elige cómo quieres ponerte en contacto con nosotros</p>
+  <section class="contact">
+    <div class="contact__overlay">
+      <div class="contact__container">
 
-      <div class="contact-buttons">
-        <a href="mailto:motokass@gmail.com" class="btn-primary">Enviar correo</a>
-        <a href="tel:+34123456789" class="btn-secondary">Llamar por teléfono</a>
+        <header class="contact__header">
+          <h1>Contacto</h1>
+          <p>
+            Cuéntanos qué necesita tu moto y te responderemos lo antes posible.
+          </p>
+        </header>
+
+        <div class="contact__card">
+
+          <form class="form" method="POST" action="#">
+            
+            <div class="form__group">
+              <input type="text" id="name" name="name" required placeholder=" " />
+              <label for="name">Nombre</label>
+            </div>
+
+            <div class="form__group">
+              <input type="email" id="email" name="email" required placeholder=" " />
+              <label for="email">Email</label>
+            </div>
+
+            <div class="form__group">
+              <input type="tel" id="phone" name="phone" placeholder=" " />
+              <label for="phone">Teléfono (opcional)</label>
+            </div>
+
+            <div class="form__group">
+              <textarea id="message" name="message" rows="5" required placeholder=" "></textarea>
+              <label for="message">Mensaje</label>
+            </div>
+
+            <button type="submit" class="btn-primary">
+              Enviar mensaje
+            </button>
+
+          </form>
+
+          <aside class="contact__info">
+            <p><strong>Horario</strong></p>
+            <p>L-J: 10:00 - 14:00 | 15:00 - 19:00</p>
+            <p>V: 10:00 - 14:00</p>
+            <p>S: Cerrado</p>
+            <p>D: Cerrado</p>
+          </aside>
+
+        </div>
       </div>
     </div>
   </section>
 </MainLayout>
 
 <style>
-.contacto-section {
-  padding: 4rem 1rem;
-  text-align: center;
+/* ====== LAYOUT ====== */
+
+.contact {
+  min-height: 100vh;
+  padding: 6rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: url('/src/assets/img/backgrounds/contacto2.webp') center/cover no-repeat;
 }
 
-.contacto-section h1 {
-  font-size: 2rem;
+.contact__overlay {
+  width: 100%;
+  backdrop-filter: brightness(0.95);
+}
+
+.contact__container {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+  color: var(--color-white);
+}
+
+.contact__header h1 {
+  font-size: 3rem;
+  font-weight: 800;
   margin-bottom: 1rem;
 }
 
-.contacto-section .section-subtitle {
-  font-size: 1rem;
-  color: var(--color-muted);
-  margin-bottom: 2rem;
+.contact__header p {
+  font-size: 1.15rem;
+  opacity: 0.9;
+  margin-bottom: 3rem;
 }
 
-.contact-buttons {
+/* ====== CARD ====== */
+
+.contact__card {
+  background: rgba(255,255,255,0.95);
+  border-radius: 1.2rem;
+  padding: 3rem 2.5rem;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+  text-align: left;
+  color: var(--color-gray-dark);
+  animation: fadeInUp .6s ease forwards;
+}
+
+/* ====== FORM ====== */
+
+.form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  justify-content: center;
-  align-items: center;
-  margin-top: 2rem;
+  gap: 1.8rem;
+  margin-bottom: 2.5rem;
 }
 
-.contact-buttons a {
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  font-weight: 700;
-  text-decoration: none;
-  min-width: 220px;
-  text-align: center;
-  transition: transform 0.2s ease, background 0.3s ease;
+.form__group {
+  position: relative;
 }
+
+.form__group input,
+.form__group textarea {
+  width: 100%;
+  padding: 1.2rem 1rem .8rem;
+  border-radius: .8rem;
+  border: 1px solid transparent;
+  background: #f5f7f8;
+  font-size: 1rem;
+  transition: .25s ease;
+}
+
+.form__group textarea {
+  resize: none;
+}
+
+.form__group label {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  font-size: .9rem;
+  color: #777;
+  pointer-events: none;
+  transition: .2s ease;
+}
+
+/* FLOAT */
+
+.form__group input:focus,
+.form__group textarea:focus,
+.form__group input:not(:placeholder-shown),
+.form__group textarea:not(:placeholder-shown) {
+  border-color: var(--color-primary);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(0,107,117,.1);
+}
+
+.form__group input:focus + label,
+.form__group textarea:focus + label,
+.form__group input:not(:placeholder-shown) + label,
+.form__group textarea:not(:placeholder-shown) + label {
+  top: .4rem;
+  font-size: .7rem;
+  color: var(--color-primary);
+}
+
+/* BUTTON */
 
 .btn-primary {
-  background: var(--color-secondary);
-  color: white;
+  padding: 1.1rem;
+  border-radius: .8rem;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 1rem;
+  background: linear-gradient(135deg,var(--color-primary),var(--color-primary-dark));
+  color: var(--color-white);
+  transition: .25s ease;
+  box-shadow: 0 10px 25px rgba(0,107,117,.25);
 }
 
 .btn-primary:hover {
-  background: #00474f; /* tono más oscuro de tu color secundario */
-  transform: translateY(-2px);
+  transform: translateY(-4px);
+  box-shadow: 0 15px 35px rgba(0,107,117,.35);
 }
 
-.btn-secondary {
-  background: white;
-  color: var(--color-secondary);
-  border: 2px solid var(--color-secondary);
+/* INFO */
+
+.contact__info {
+  border-top: 1px solid #e5e5e5;
+  padding-top: 1.5rem;
+  text-align: center;
+  font-size: .95rem;
 }
 
-.btn-secondary:hover {
-  background: var(--color-secondary);
-  color: white;
-  transform: translateY(-2px);
+.contact__info p {
+  margin: .4rem 0;
 }
 
-/* En escritorio, botones horizontal */
-@media(min-width: 640px) {
-  .contact-buttons {
-    flex-direction: row;
-  }
+
+@media (min-width:768px){
+  .contact__header h1 { font-size: 3.4rem; }
 }
 </style>

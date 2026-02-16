@@ -4,7 +4,11 @@ import MotoCard from './MotoCard.jsx';
 export default function FilteredMotoList({ motos }) {
   const [busqueda, setBusqueda] = useState('');
   const [marcaSeleccionada, setMarcaSeleccionada] = useState('');
-  const [precioMax, setPrecioMax] = useState('');
+
+  // Obtenemos precio máximo dinámico
+  const precioMaximoDisponible = Math.max(...motos.map(m => m.precio))+1001; // +1000 para dar un margen
+
+  const [precioMax, setPrecioMax] = useState(precioMaximoDisponible);
 
   const marcasUnicas = [...new Set(motos.map(m => m.marca))];
 
@@ -18,7 +22,7 @@ export default function FilteredMotoList({ motos }) {
         marcaSeleccionada === '' || moto.marca === marcaSeleccionada;
 
       const coincidePrecio =
-        precioMax === '' || moto.precio <= Number(precioMax);
+        moto.precio <= precioMax;
 
       return coincideBusqueda && coincideMarca && coincidePrecio;
     });
@@ -27,12 +31,11 @@ export default function FilteredMotoList({ motos }) {
   const limpiarFiltros = () => {
     setBusqueda('');
     setMarcaSeleccionada('');
-    setPrecioMax('');
+    setPrecioMax(precioMaximoDisponible);
   };
 
   return (
     <>
-      {/* FILTROS */}
       <div class="filtro-container">
         <div class="filtro-group">
           <input
@@ -54,13 +57,22 @@ export default function FilteredMotoList({ motos }) {
             ))}
           </select>
 
-          <input
-            type="number"
-            placeholder="Precio máximo €"
-            value={precioMax}
-            onInput={(e) => setPrecioMax(e.target.value)}
-            class="input-filtro"
-          />
+          {/* SLIDER PRECIO */}
+          <div class="slider-container">
+            <label class="slider-label">
+              Precio máximo: <strong>{precioMax.toLocaleString()} €</strong>
+            </label>
+
+            <input
+              type="range"
+              min="0"
+              max={precioMaximoDisponible}
+              step="500"
+              value={precioMax}
+              onInput={(e) => setPrecioMax(Number(e.target.value))}
+              class="slider-precio"
+            />
+          </div>
 
           <button onClick={limpiarFiltros} class="btn-limpiar">
             Limpiar
@@ -72,19 +84,14 @@ export default function FilteredMotoList({ motos }) {
         </div>
       </div>
 
-      {/* LISTADO EN TABLA / GRID */}
       <div class="motos-grid">
         {motosFiltradas.map(moto => (
-          <a
-            href={'/under-construction'}
-            class="moto-link"
-          >
+          <a href={'/under-construction'} class="moto-link">
             <MotoCard {...moto} />
           </a>
         ))}
       </div>
 
-      {/* ESTILOS */}
       <style>
         {`
         .filtro-container {
@@ -110,30 +117,34 @@ export default function FilteredMotoList({ motos }) {
           font-size: 0.95rem;
           flex: 1;
           min-width: 180px;
-          transition: all 0.2s ease;
         }
 
-        .input-filtro:focus,
-        .select-filtro:focus {
-          outline: none;
-          border-color: var(--color-primary);
-          box-shadow: 0 0 0 3px rgba(0,0,0,0.05);
+        .slider-container {
+          display: flex;
+          flex-direction: column;
+          min-width: 220px;
+          flex: 1;
+        }
+
+        .slider-label {
+          font-size: 0.9rem;
+          margin-bottom: 0.4rem;
+          color: var(--color-primary);
+        }
+
+        .slider-precio {
+          width: 100%;
+          cursor: pointer;
         }
 
         .btn-limpiar {
           background: var(--color-secondary);
-          color: white;
+          color: var(--color-primary);
           border: none;
           padding: 0.7rem 1.2rem;
           border-radius: 0.6rem;
           cursor: pointer;
           font-weight: 600;
-          transition: all 0.2s ease;
-        }
-
-        .btn-limpiar:hover {
-          opacity: 0.9;
-          transform: translateY(-2px);
         }
 
         .resultado-count {
@@ -144,21 +155,14 @@ export default function FilteredMotoList({ motos }) {
 
         .motos-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
           gap: 2rem;
-          animation: fadeIn 0.3s ease;
         }
 
         .moto-link {
           display: block;
           text-decoration: none;
         }
-
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(6px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
         `}
       </style>
     </>

@@ -1,0 +1,112 @@
+{
+  "catalogo": {
+    "marca": "Sherco",
+    "fecha_actualizacion": "2026-02-16",
+    "modelos": [
+      {
+        "modelo": "Sherco 125 SE-R",
+        "specs": {
+          "cilindrada_cc": 125,
+          "tipo_motor": "2T monocilíndrico",
+          "potencia_cv": 36,
+          "transmision": "Manual 6 velocidades",
+          "refrigeracion": "Líquida",
+          "peso_kg": 96
+        },
+        "precio_eur": 6999,
+        "imagen": "https://www.sherco.com/wp-content/uploads/125-SE-2025-3679X2456-2-600x400.jpg"
+      },
+      {
+        "modelo": "Sherco 250 SEF-R",
+        "specs": {
+          "cilindrada_cc": 250,
+          "tipo_motor": "4T monocilíndrico",
+          "potencia_cv": 36,
+          "transmision": "Manual 6 velocidades",
+          "refrigeracion": "Líquida",
+          "peso_kg": 104
+        },
+        "precio_eur": 7999,
+        "imagen": "https://www.sherco.com/wp-content/uploads/01-250-SE-FACTORY-2026-1200-600x400.jpg"
+      },
+      {
+        "modelo": "Sherco 300 SE-R",
+        "specs": {
+          "cilindrada_cc": 300,
+          "tipo_motor": "2T monocilíndrico",
+          "potencia_cv": 46,
+          "transmision": "Manual 6 velocidades",
+          "refrigeracion": "Líquida",
+          "peso_kg": 98
+        },
+        "precio_eur": 7599,
+        "imagen": "https://www.sherco.com/wp-content/uploads/01-300-SEF-FACTORY-2026-1200-600x400.jpg"
+      },
+      {
+        "modelo": "Sherco 450 SEF-R",
+        "specs": {
+          "cilindrada_cc": 449,
+          "tipo_motor": "4T monocilíndrico",
+          "potencia_cv": 58,
+          "transmision": "Manual 6 velocidades",
+          "refrigeracion": "Líquida",
+          "peso_kg": 111
+        },
+        "precio_eur": 8999,
+        "imagen": "https://www.sherco.com/wp-content/uploads/01-450-SEF-FACTORY-2026-1200-600x400.jpg"
+      },
+      {
+        "modelo": "Sherco 500 SEF-R",
+        "specs": {
+          "cilindrada_cc": 500,
+          "tipo_motor": "4T monocilíndrico",
+          "potencia_cv": 60,
+          "transmision": "Manual 6 velocidades",
+          "refrigeracion": "Líquida",
+          "peso_kg": 113
+        },
+        "precio_eur": 9499,
+        "imagen": "https://www.sherco.com/wp-content/uploads/01-500-SEF-FACTORY-2026-1200-600x400.jpg"
+      },
+      {
+        "modelo": "Sherco 125 ST-R Enduro",
+        "specs": {
+          "cilindrada_cc": 125,
+          "tipo_motor": "2T monocilíndrico",
+          "potencia_cv": 36,
+          "transmision": "Manual 6 velocidades",
+          "refrigeracion": "Líquida",
+          "peso_kg": 93
+        },
+        "precio_eur": 7199,
+        "imagen": "https://www.sherco.com/wp-content/uploads/01-125-SE-FACTORY-2026-1200x800-1-600x400.jpg"
+      },
+      {
+        "modelo": "Sherco 300 SEF Factory",
+        "specs": {
+          "cilindrada_cc": 300,
+          "tipo_motor": "2T monocilíndrico",
+          "potencia_cv": 46,
+          "transmision": "Manual 6 velocidades",
+          "refrigeracion": "Líquida",
+          "peso_kg": 97
+        },
+        "precio_eur": 9999,
+        "imagen": "https://www.sherco.com/wp-content/uploads/01-300-SEF-FACTORY-2026-1200-600x400.jpg"
+      },
+      {
+        "modelo": "Sherco 450 SEF Factory",
+        "specs": {
+          "cilindrada_cc": 449,
+          "tipo_motor": "4T monocilíndrico",
+          "potencia_cv": 58,
+          "transmision": "Manual 6 velocidades",
+          "refrigeracion": "Líquida",
+          "peso_kg": 112
+        },
+        "precio_eur": 10999,
+        "imagen": "https://www.sherco.com/wp-content/uploads/01-450-SEF-FACTORY-2026-1200-600x400.jpg"
+      }
+    ]
+  }
+}
