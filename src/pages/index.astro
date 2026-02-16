@@ -1,17 +1,213 @@
 ---
-import MainLayout from "../layouts/MainLayout.astro";
-import Header from "../components/Header.astro";
-import Hero from "../components/Hero.astro";
-import ServiceSelector from "../components/ServiceSelector.astro";
-import Schedule from "../components/Schedule.astro";
-import Contact from "../components/Contact.astro";
-import Footer from "../components/Footer.astro";
+const targetDate = new Date();
+targetDate.setDate(targetDate.getDate() + 14);
 ---
 
-<MainLayout title="MOTOKASS - Tienda y Taller de Motos"
-  description="MOTOKASS es tu tienda y taller mecánico de motos. Venta, mantenimiento y reparación.">
-  <Hero />
-  <ServiceSelector />
-  <Schedule />
-  <Contact />
-</MainLayout>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Próxima apertura</title>
+
+<style>
+:root {
+  --primary: #1F3F7A;          /* color-primary */
+  --primary-dark: #142C57;     /* color-primary-dark */
+  --primary-light: #2E5AA6;    /* color-primary-light */
+  --white: #FFFFFF;             /* color-white */
+  --gray-light: #F4F6FA;       /* color-gray-light */
+  --gray-medium: #D6DCE5;      /* color-gray-medium */
+  --gray-dark: #1A1A1A;        /* color-gray-dark */
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: var(--gray-dark);
+  color: var(--white);
+  overflow: hidden;
+}
+
+.hero {
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  background-image: url('/mnt/data/5ed07273-71f3-4bef-ae98-462b948ee931.png');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    rgba(0,0,0,0.7),
+    rgba(20,44,87,0.8)
+  );
+}
+
+.content {
+  position: relative;
+  text-align: center;
+  padding: 2rem;
+  backdrop-filter: blur(10px);
+  background: rgba(255,255,255,0.08);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  animation: fadeIn 1.2s ease-out;
+  max-width: 700px;
+}
+
+h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  margin-bottom: 1rem;
+  background: linear-gradient(45deg, var(--primary-light), var(--white));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+p {
+  font-size: 1.2rem;
+  opacity: 0.9;
+  margin-bottom: 2rem;
+}
+
+.countdown {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.time-box {
+  background: var(--primary-dark);
+  padding: 1rem 1.2rem;
+  border-radius: 12px;
+  min-width: 80px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+  transition: transform 0.3s ease;
+}
+
+.time-box:hover {
+  transform: translateY(-5px);
+}
+
+.time-value {
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+.time-label {
+  font-size: 0.8rem;
+  opacity: 0.7;
+  margin-top: 5px;
+}
+
+button {
+  margin-top: 2rem;
+  padding: 0.8rem 2rem;
+  border: none;
+  border-radius: 30px;
+  font-size: 1rem;
+  cursor: pointer;
+  background: linear-gradient(45deg, var(--primary-light), var(--primary));
+  color: var(--white);
+  transition: 0.3s ease;
+}
+
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 30px rgba(46,90,166,0.5);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="hero">
+  <div class="overlay"></div>
+
+  <div class="content">
+    <h1>¡Próxima apertura!</h1>
+    <p>Estamos preparando algo increíble. Muy pronto podrás descubrirlo.</p>
+
+    <div class="countdown">
+      <div class="time-box">
+        <div id="days" class="time-value">00</div>
+        <div class="time-label">DÍAS</div>
+      </div>
+
+      <div class="time-box">
+        <div id="hours" class="time-value">00</div>
+        <div class="time-label">HORAS</div>
+      </div>
+
+      <div class="time-box">
+        <div id="minutes" class="time-value">00</div>
+        <div class="time-label">MIN</div>
+      </div>
+
+      <div class="time-box">
+        <div id="seconds" class="time-value">00</div>
+        <div class="time-label">SEG</div>
+      </div>
+    </div>
+
+    <button onclick="alert('¡Te avisaremos pronto!')">
+      Quiero enterarme primero
+    </button>
+  </div>
+</div>
+
+<script>
+const daysEl = document.getElementById('days');
+const hoursEl = document.getElementById('hours');
+const minutesEl = document.getElementById('minutes');
+const secondsEl = document.getElementById('seconds');
+
+const targetDate = new Date();
+targetDate.setDate(targetDate.getDate() + 14);
+
+function updateCountdown() {
+  const now = new Date();
+  const diff = targetDate.getTime() - now.getTime();
+
+  if (diff <= 0) {
+    const countdownEl = document.querySelector('.countdown');
+    if (countdownEl) {
+      countdownEl.innerHTML = 
+        "<h2>¡Ya estamos abiertos!</h2>";
+    }
+    return;
+  }
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+  const minutes = Math.floor((diff / (1000 * 60)) % 60);
+  const seconds = Math.floor((diff / 1000) % 60);
+
+  if (daysEl) daysEl.textContent = String(days).padStart(2, '0');
+  if (hoursEl) hoursEl.textContent = String(hours).padStart(2, '0');
+  if (minutesEl) minutesEl.textContent = String(minutes).padStart(2, '0');
+  if (secondsEl) secondsEl.textContent = String(seconds).padStart(2, '0');
+}
+
+setInterval(updateCountdown, 1000);
+updateCountdown();
+</script>
+
+</body>
+</html>
