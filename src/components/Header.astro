@@ -1,76 +1,107 @@
 <header class="header">
-  <div class="container header-content">
-    <a href="/" class="logo">MOTOKASS</a>
-
-    <nav aria-label="Navegación principal">
-      <a href="/">Inicio</a>
-      <a href="/tienda">Tienda</a>
-      <a href="/taller">Taller</a>
-      <a href="#contacto">Contacto</a>
-    </nav>
+  <div class="header-content">
+    <div class="header-left">
+      <img src="/src/assets/img/concept/logoHeaderPulido-Photoroom.png" alt="logotipo de la tienda de motos" class="logo">
+      <a href="/"><h1>MOT<span class="highlight">O</span>KASS</h1></a>
+    </div>
+    <div class="header-right">
+      <nav>
+        <ul class="nav-links">
+          <li><a href="/tienda">Tienda</a></li>
+          <li><a href="/under-construction">Taller</a></li>
+          <li><a href="/under-construction">Contacto</a></li>
+          <li><a href="/under-construction">Novedades</a></li>
+        </ul>
+      </nav>
+    </div>
   </div>
 </header>
 
 <style>
-.header {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid #e5e7eb;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  transition: box-shadow 0.3s ease, background 0.3s ease;
+header{
+  background-color: var(--color-primary);
+  width: 100%;
 }
-
-.header:hover {
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
-}
-
 .header-content {
+width: 100%;
+display: flex;
+justify-content: space-around;
+}
+.header-left {
+  width: 40%; 
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  height: 72px;
 }
 
-.logo {
-  font-size: 1.4rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  color: var(--color-primary);
-  position: relative;
+.header-left img{
+  width: 100px;
+  height: auto;
+}
+.header-left h1{
+  margin-left: 0,5em;
+  margin-bottom: 0;
+  color: var(--color-white);
+}
+.header-left span {
+  color: var(--color-white);
 }
 
-nav {
+.header-right {
+  width: 45%; 
   display: flex;
-  gap: 2rem;
+  justify-content: center;
+  align-items: center;
+}
+/* Lista */
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 6rem;
+  margin: 0;
+  padding: 0;
 }
 
-nav a {
-  font-weight: 600;
-  color: var(--color-muted);
+/* Links */
+.nav-links a {
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1.3rem;
+  color: var(--color-white);
   position: relative;
-  padding-bottom: 0.25rem;
-  transition: color 0.2s ease;
+  padding: 5px 0;
+  transition: color 0.3s ease;
 }
 
-/* subrayado animado */
-nav a::after {
+/* Color principal */
+.nav-links a:hover {
+  opacity: 0.5;
+}
+
+/* Línea animada debajo */
+.nav-links a::after {
   content: "";
   position: absolute;
   left: 0;
   bottom: -4px;
   width: 0%;
   height: 2px;
-  background: var(--color-secondary);
+  background-color: var(--color-white);
   transition: width 0.3s ease;
 }
 
-nav a:hover {
-  color: var(--color-secondary);
+.nav-links a:hover::after {
+  width: 100%;
 }
 
-nav a:hover::after {
-  width: 100%;
+/* Responsive */
+@media (max-width: 768px) {
+  .nav-links {
+    gap: 1rem;
+  }
+
+  .nav-links a {
+    font-size: 0.9rem;
+  }
 }
 </style>

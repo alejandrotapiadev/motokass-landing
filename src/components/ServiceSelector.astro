@@ -1,91 +1,66 @@
 <section class="section fade-in">
   <div class="container">
-    <h2 class="section-title">¿Qué es MOTOKASS?</h2>
-    <p class="section-subtitle">
-      Somos tienda de motos y taller mecánico especializado.
-    </p>
-
-    <div class="services-grid">
-      <a href="/tienda" class="service-card tienda">
-        <div class="icon">🏍️</div>
-        <h3>Tienda de Motos</h3>
-        <p>Descubre nuestras motos nuevas y de ocasión.</p>
-        <span>Ver tienda →</span>
+    <div class="services">
+      <a href="/tienda" class="service-card service-tienda">
+        <h1>TIENDA</h1>
       </a>
 
-      <a href="/taller" class="service-card taller">
-        <div class="icon">🛠️</div>
-        <h3>Taller Mecánico</h3>
-        <p>Mantenimiento, revisiones y reparaciones.</p>
-        <span>Ver taller →</span>
+      <a href="/taller" class="service-card service-taller">
+        <h1>TALLER</h1>
       </a>
     </div>
   </div>
 </section>
 
+
 <style>
-.section-title {
-  text-align: center;
-  font-size: 2rem;
-}
-
-.section-subtitle {
-  text-align: center;
-  color: var(--color-muted);
-  margin-bottom: 3rem;
-}
-
-.services-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 2.5rem;
+.services {
+  display: flex;
+  justify-content: space-around;
+  gap: 2%; /* espacio entre servicios */
 }
 
 .service-card {
-  position: relative;
-  background: linear-gradient(135deg, #ffffff, #f1f5f9);
-  border-radius: 1.5rem;
-  padding: 2.5rem 2rem;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+  background: var(--color-white);
+  text-align: center;
+  width: 48%;
+  text-decoration: none;
+  color: var(--color-black);
+  padding: 2em;
+  font-size: 2em;
+  height: 80vh;
+  display: flex;  
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  overflow: hidden;
 }
 
-.service-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at top right, rgba(220,38,38,0.15), transparent 60%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.service-card:hover::before {
-  opacity: 1;
+.service-card h1 {
+  color: var(--color-white);
+  font-size: 5em;
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
 }
 
 .service-card:hover {
   transform: translateY(-10px);
-  box-shadow: 0 30px 60px rgba(0,0,0,0.12);
 }
 
-.service-card .icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
+.service-tienda {
+  background-image: url('/src/assets/img/backgrounds/tienda.png');
+  background-size: cover;
+  background-position: center;
 }
 
-.service-card h3 {
-  font-size: 1.5rem;
+.service-taller {
+  background-image: url('/src/assets/img/backgrounds/taller.png');
+  background-size: cover;
+  background-position: center;
 }
 
-.service-card p {
-  color: var(--color-muted);
-}
-
-.service-card span {
-  display: inline-block;
-  margin-top: 1rem;
-  font-weight: 700;
-  color: var(--color-secondary);
-}
 </style>
+

@@ -1,0 +1,111 @@
+{
+  "catalogo": {
+    "marca": "Rieju",
+    "fecha_actualizacion": "2026-02-16",
+    "modelos": [
+      {
+        "modelo": "Rieju Century 125",
+        "specs": {
+          "cilindrada_cc": 125,
+          "tipo_motor": "4T monocilíndrico",
+          "potencia_cv": 15,
+          "transmision": "Manual 6 velocidades",
+          "refrigeracion": "Líquida",
+          "peso_kg": 135
+        },
+        "precio_eur": 3999,
+        "imagen": "https://www.motostarragona.com/cdn/shop/products/rieju-century-125-promociones-rieju-motos-tarragona-concesionario-oficial-21_2048x.jpg?v=1672676420"
+      },
+      {
+        "modelo": "Rieju Aventura 125",
+        "specs": {
+          "cilindrada_cc": 125,
+          "tipo_motor": "4T monocilíndrico",
+          "potencia_cv": null,
+          "transmision": "Manual",
+          "refrigeracion": "Líquida",
+          "peso_kg": 138
+        },
+        "precio_eur": 3595,
+        "imagen": "https://enduro21.com/images/2023/february-2023/first-look-rieju-adventure-125/rieju-aventura-125-3.jpg"
+      },
+      {
+        "modelo": "Rieju MRT 50 SM",
+        "specs": {
+          "cilindrada_cc": 50,
+          "tipo_motor": "2T",
+          "potencia_cv": null,
+          "transmision": "Manual",
+          "refrigeracion": "Aire",
+          "peso_kg": null
+        },
+        "precio_eur": 3449,
+        "imagen": "https://cdn.rieju.com/uploads/_CGSmartImage/img-0bdb75dd14a4589f6f1b211f85aef05a.jpg"
+      },
+      {
+        "modelo": "Rieju MRT 50 Trophy SM Pro",
+        "specs": {
+          "cilindrada_cc": 50,
+          "tipo_motor": "2T",
+          "potencia_cv": null,
+          "transmision": "Manual",
+          "refrigeracion": "Aire",
+          "peso_kg": null
+        },
+        "precio_eur": 4199,
+        "imagen": "https://cdn.rieju.com/uploads/_CGSmartImage/img-1b8127a51f223ac7a6b356efb6112eec.jpg"
+      },
+      {
+        "modelo": "Rieju Marathon 125 Pro",
+        "specs": {
+          "cilindrada_cc": 125,
+          "tipo_motor": "4T monocilíndrico",
+          "potencia_cv": null,
+          "transmision": "Manual",
+          "refrigeracion": "Líquida",
+          "peso_kg": null
+        },
+        "precio_eur": 5070,
+        "imagen": "https://cdn.rieju.com/uploads/_CGSmartImage/img-38c1653bb81282beceb97b2b19437a36.jpg"
+      },
+      {
+        "modelo": "Rieju E-CITY 3KW",
+        "specs": {
+          "tipo_motor": "Eléctrico",
+          "potencia_kw": 3,
+          "autonomia_km": null,
+          "transmision": "Automática",
+          "peso_kg": null
+        },
+        "precio_eur": 3748,
+        "imagen": "https://cdn.rieju.com/uploads/_CGSmartImage/img-5cbd1bba52774ec51e608e7e0098ea51.jpg"
+      },
+      {
+        "modelo": "Rieju Xplora 557 S",
+        "specs": {
+          "cilindrada_cc": 554,
+          "tipo_motor": "4T bicilíndrico",
+          "potencia_cv": null,
+          "transmision": "Manual",
+          "refrigeracion": "Líquida",
+          "peso_kg": 215
+        },
+        "precio_eur": 5499,
+        "imagen": "https://cdn.rieju.com/uploads/_CGSmartImage/img-cc12e5171d8c56952f540d934dec481b.jpg"
+      },
+      {
+        "modelo": "Rieju MR PRO 300i",
+        "specs": {
+          "cilindrada_cc": 300,
+          "tipo_motor": "4T monocilíndrico",
+          "potencia_cv": null,
+          "transmision": "Manual",
+          "refrigeracion": "Líquida",
+          "peso_kg": null
+        },
+        "precio_eur": 10299,
+        "imagen": "https://cdn.rieju.com/uploads/_CGSmartImage/img-746082c610752cd6dfef1d296f5a20da.jpg"
+      }
+    ]
+  }
+}
