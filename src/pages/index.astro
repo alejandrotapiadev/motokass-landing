@@ -178,18 +178,17 @@ const hoursEl = document.getElementById('hours');
 const minutesEl = document.getElementById('minutes');
 const secondsEl = document.getElementById('seconds');
 
-const targetDate = new Date();
-targetDate.setDate(targetDate.getDate() + 14);
+// Fecha fija de apertura a las 00:00 del 2 de marzo de 2026
+const targetDate = new Date('2026-03-02T00:00:00');
 
 function updateCountdown() {
   const now = new Date();
-  const diff = targetDate.getTime() - now.getTime();
+  let diff = targetDate.getTime() - now.getTime();
 
   if (diff <= 0) {
     const countdownEl = document.querySelector('.countdown');
     if (countdownEl) {
-      countdownEl.innerHTML = 
-        "<h2>¡Ya estamos abiertos!</h2>";
+      countdownEl.innerHTML = "<h2>¡Ya estamos abiertos!</h2>";
     }
     return;
   }
@@ -205,6 +204,7 @@ function updateCountdown() {
   if (secondsEl) secondsEl.textContent = String(seconds).padStart(2, '0');
 }
 
+// Actualiza cada segundo
 setInterval(updateCountdown, 1000);
 updateCountdown();
 </script>
