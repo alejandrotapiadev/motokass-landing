@@ -9,8 +9,12 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/vercel": "^9.0.4",
+    "@supabase/functions-js": "^2.97.0",
+    "@supabase/supabase-js": "^2.97.0",
     "astro": "^5.16.12",
     "feather-icons": "^4.29.2",
-    "sweetalert2": "^11.26.17"
+    "sweetalert2": "^11.26.17",
+    "tslib": "^2.8.1"
   }
 }
