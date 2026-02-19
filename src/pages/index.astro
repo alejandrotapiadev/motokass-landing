@@ -446,15 +446,31 @@
       const msg = document.getElementById("msg");
 
       if (form && msg) {
-        form.addEventListener("submit", (e) => {
-          e.preventDefault();
-          const emailInput = document.getElementById("email") as HTMLInputElement | null;
-          const email = emailInput?.value.trim() || "";
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const emailInput = document.getElementById("email") as HTMLInputElement | null;
+            if (!emailInput) return;
+            const email = emailInput.value.trim();
 
-          // Aquí conectarías a tu backend o Mailchimp, etc.
-          msg.textContent = `Perfecto. Te avisaremos a: ${email}`;
-          form.reset();
-        });
+            try {
+              const res = await fetch("/api/subscribe", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email }),
+              });
+
+              const data = await res.json();
+
+              if (res.ok) {
+                msg.textContent = `Perfecto. Te avisaremos a: ${email}`;
+                form.reset();
+              } else {
+                msg.textContent = data.error || "Ha ocurrido un error";
+              }
+            } catch (err) {
+              msg.textContent = "Ha ocurrido un error de red";
+            }
+          });
       }
     </script>
   </body>
