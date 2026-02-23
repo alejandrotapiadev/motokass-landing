@@ -39,7 +39,7 @@ export default function MotoCard({ marca, nombre, precio, imagen }) {
 
         .moto-card img {
           width: 100%;
-          height: 180px;
+          height: 220px;
           object-fit: cover;
         }
 
