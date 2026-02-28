@@ -13,22 +13,122 @@ const {
 <!DOCTYPE html>
 <html lang="es">
   <head>
+    <!--script JSON-LD de la app -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": [
+          "MotorcycleDealer",
+          "LocalBusiness"
+        ],
+        "name": "Motokass",
+        "alternateName": [
+          "Moto Kass",
+          "MotoKass",
+          "Kass Moto",
+          "Kass Motos",
+          "Moto Kass Online",
+          "Motokas",
+          "Motos Kass",
+          "MotosKass",
+          "KassMoto",
+          "KassMotos",
+          "MotoKassOnline",
+          "KassBikes",
+          "MotosKassShop",
+          "MotoKassStore",
+          "MotokassMX",
+          "MotosKass.com",
+          "KassMotoStore",
+          "MotokasMotos",
+          "MotoKassWorld",
+          "MotoKassShopOnline",
+          "KassMotosOnline",
+          "MotosKassOnlineShop",
+          "MotoKassTienda",
+          "KassMotosShop",
+          "MotokassTiendaOnline",
+          "MotosKassWorld",
+          "KassMotoWorld"
+        ],
+        "url": "https://motokass.com",
+        "logo": "https://motokass.com/favicon.svg",
+        "image": "https://motokass.com/fachada.png",
+        "description": "Motokass es una tienda y taller mecánico de motos especializada en venta, mantenimiento y reparación.",
+        "telephone": "+34920254044",
+        "priceRange": "€€",
+        "areaServed": "ES",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "C. de la Virgen María, 20",
+          "addressLocality": "Ávila",
+          "addressRegion": "Ávila",
+          "postalCode": "05003",
+          "addressCountry": "ES"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 40.6525721,
+          "longitude": -4.6851359
+        },
+        "hasMap": "https://www.google.com/maps/place/Moto+Kass/@40.6525761,-4.6877108,17z/data=!3m1!4b1!4m6!3m5!1s0xd40f313ac754745:0xcfeb50ee9c5664c1!8m2!3d40.6525721!4d-4.6851359!16s%2Fg%2F11kl1070yk?entry=ttu&g_ep=EgoyMDI2MDIxOC4wIKXMDSoASAFQAw%3D%3D",
+        "openingHoursSpecification": [
+          {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": [
+              "Monday",
+              "Tuesday",
+              "Wednesday",
+              "Thursday"
+            ],
+            "opens": "10:00",
+            "closes": "13:45"
+          },
+          {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": [
+              "Monday",
+              "Tuesday",
+              "Wednesday",
+              "Thursday"
+            ],
+            "opens": "15:30",
+            "closes": "19:00"
+          },
+          {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": "Friday",
+            "opens": "10:00",
+            "closes": "14:00"
+          }
+        ],
+        "sameAs": [
+          "https://instagram.com/moto_kass/",
+          "https://facebook.com/MOTO_KASS"
+        ]
+      }
+    </script>
+    <!-- Meta tags -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta google-site-verification=LGtP0_svT6qHUjXgeFwugHSspMv_9X8iOq1i5e_LKVY>
     <meta name="google-site-verification" content="LGtP0_svT6qHUjXgeFwugHSspMv_9X8iOq1i5e_LKVY">
-    <title>{title}</title>
     <meta name="description" content={description} />
 
     <!-- Open Graph -->
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://motokass.com">
+    <meta property="og:type" content="website">
+
+    <title>{title}</title>
 
     <!-- Favicon (placeholder) -->
-    <link rel="icon" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"
+    />
   </head>
   <body class="page-container">
     <Header></Header>
