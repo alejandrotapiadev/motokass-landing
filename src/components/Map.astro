@@ -1,0 +1,153 @@
+---
+const direccion = "Moto Kass, Ávila";
+const lat = 40.6525721;
+const lng = -4.6851359;
+
+const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+//const googleMapsUrl = "https://www.google.com/maps/dir/?api=1&destination=Moto+Kass+Avila";
+---
+
+<section class="location-section">
+  <div class="container">
+    <div class="location-content">
+      
+      <div class="location-text">
+        <h2>Dónde estamos</h2>
+        <p>
+          Encuentra nuestro taller fácilmente. Estamos en una ubicación accesible,
+          con espacio para estacionar y atención personalizada.
+        </p>
+
+        <div class="address-box">
+          <strong>Dirección:</strong>
+          <span>{direccion}</span>
+        </div>
+
+        <a 
+          href={googleMapsUrl} 
+          target="_blank" 
+          class="btn-route"
+        >
+          Iniciar ruta en Google Maps
+        </a>
+      </div>
+
+      <div id="map"></div>
+
+    </div>
+  </div>
+</section>
+
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+
+<script
+  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  is:inline
+></script>
+
+<script is:inline>
+    const map = L.map("map").setView([40.6525721, -4.6851359], 16);
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "&copy; OpenStreetMap contributors",
+  }).addTo(map);
+
+  const customIcon = L.divIcon({
+    className: "custom-marker",
+    html: `<div class="marker-pin"></div>`,
+    iconSize: [30, 30],
+    iconAnchor: [15, 30],
+  });
+
+
+    L.marker([40.6525721, -4.6851359], { icon: customIcon })
+    .addTo(map)
+    .bindPopup("<b>Motokass</b><br/>Tu taller de confianza")
+    .openPopup();
+</script>
+
+<style>
+  .location-section {
+    background: var(--color-gray-light);
+    padding: 6rem 2rem;
+  }
+
+  .container {
+    width: 80%;
+    margin: auto;
+  }
+
+  .location-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+  }
+
+  .location-text h2 {
+    font-size: 2.5rem;
+    color: var(--color-primary);
+    margin-bottom: 1rem;
+  }
+
+  .location-text p {
+    color: var(--color-gray-dark);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+  }
+
+  .address-box {
+    background: var(--color-white);
+    padding: 1rem;
+    border-left: 4px solid var(--color-primary);
+    margin-bottom: 2rem;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+  }
+
+  .btn-route {
+    display: inline-block;
+    background: var(--color-primary);
+    color: var(--color-white);
+    padding: 0.9rem 1.6rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.3s ease;
+  }
+
+  .btn-route:hover {
+    background: var(--color-primary-dark);
+    transform: translateY(-2px);
+  }
+
+  #map {
+    width: 100%;
+    height: 420px;
+    border-radius: 16px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+  }
+
+  /* Marcador personalizado */
+  .marker-pin {
+    width: 24px;
+    height: 24px;
+    background: var(--color-primary);
+    border-radius: 50%;
+    border: 4px solid white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .location-content {
+      grid-template-columns: 1fr;
+    }
+
+    #map {
+      height: 350px;
+    }
+  }
+</style>

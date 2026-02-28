@@ -26,7 +26,7 @@ const {
     <meta property="og:type" content="website" />
 
     <!-- Favicon (placeholder) -->
-    <link rel="icon" href="/public/favicon.svg" />
+    <link rel="icon" href="/favicon.svg" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
   </head>
@@ -41,16 +41,25 @@ const {
 </html>
 
 <style>
-  /* Contenedor flex para todo el layout */
+/* Contenedor flex para todo el layout */
 .page-container {
   display: flex;
   flex-direction: column;
   min-height: 100vh; /* ocupa toda la altura de la pantalla */
+  /*background: #395A99;
+  background: linear-gradient(
+    140deg,
+    rgba(57, 90, 153, 0.81) 0%,
+    rgba(57, 90, 153, 1) 26%,
+    rgba(102, 153, 242, 1) 100%
+  );*/
+  background-color: var(--color-gray-medium);
 }
 
 /* Main crece para empujar el footer abajo */
 .content {
-  flex-grow: 1;
+  flex: 1; /* permite que main crezca para empujar footer al final */
+  min-height: 100vh;
 }
 
 /* Footer */
@@ -59,4 +68,5 @@ footer {
   padding: 1.5rem;
   text-align: center;
 }
+
 </style>

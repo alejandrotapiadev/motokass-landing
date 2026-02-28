@@ -566,3 +566,19 @@ import { SpeedInsights } from '@vercel/speed-insights/react';
     <SpeedInsights />
   </body>
 </html>
+import MainLayout from "../layouts/MainLayout.astro";
+import Header from "../components/Header.astro";
+import Hero from "../components/Hero.astro";
+import ServiceSelector from "../components/ServiceSelector.astro";
+import Schedule from "../components/Schedule.astro";
+import Contact from "../components/Contact.astro";
+import Footer from "../components/Footer.astro";
+import Map from "../components/Map.astro";
+---
+
+<MainLayout title="MOTOKASS - Tienda y Taller de Motos"
+  description="MOTOKASS es tu tienda y taller mecánico de motos. Venta, mantenimiento y reparación.">
+  <ServiceSelector />
+  <!-- <Contact /> -->
+  <Map></Map>
+</MainLayout>
