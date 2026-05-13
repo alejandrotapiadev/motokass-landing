@@ -1,14 +1,18 @@
+---
+import logo from "../assets/img/concept/logoHeaderPulido-Photoroom.png";
+---
+
 <header class="header">
   <div class="header-content">
     <div class="header-left">
-      <img src="/src/assets/img/concept/logoHeaderPulido-Photoroom.png" alt="logotipo de la tienda de motos" class="logo">
+      <img src={logo.src} alt="Logotipo Motokass" class="logo" />
       <a href="/"><h1>MOT<span class="highlight">O</span>KASS</h1></a>
     </div>
     <div class="header-right">
       <nav>
         <ul class="nav-links">
           <li><a href="/tienda">Tienda</a></li>
-          <li><a href="/under-construction">Taller</a></li>
+          <li><a href="/taller">Taller</a></li>
           <li><a href="/contacto">Contacto</a></li>
           <li><a href="/under-construction">Novedades</a></li>
         </ul>
@@ -18,42 +22,46 @@
 </header>
 
 <style>
-header{
+header {
   background-color: var(--color-primary);
   width: 100%;
 }
+
 .header-content {
-width: 100%;
-display: flex;
-justify-content: space-around;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
 }
+
 .header-left {
-  width: 40%; 
+  width: 40%;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.header-left img{
+.header-left img {
   width: 100px;
   height: auto;
 }
-.header-left h1{
-  margin-left: 0,5em;
+
+.header-left h1 {
+  margin-left: 0.5em;
   margin-bottom: 0;
   color: var(--color-white);
 }
+
 .header-left span {
   color: var(--color-white);
 }
 
 .header-right {
-  width: 45%; 
+  width: 45%;
   display: flex;
   justify-content: center;
   align-items: center;
 }
-/* Lista */
+
 .nav-links {
   list-style: none;
   display: flex;
@@ -62,7 +70,6 @@ justify-content: space-around;
   padding: 0;
 }
 
-/* Links */
 .nav-links a {
   text-decoration: none;
   font-weight: 500;
@@ -73,12 +80,10 @@ justify-content: space-around;
   transition: color 0.3s ease;
 }
 
-/* Color principal */
 .nav-links a:hover {
   opacity: 0.5;
 }
 
-/* Línea animada debajo */
 .nav-links a::after {
   content: "";
   position: absolute;
@@ -94,10 +99,21 @@ justify-content: space-around;
   width: 100%;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem 0;
+  }
+
+  .header-left,
+  .header-right {
+    width: 100%;
+    justify-content: center;
+  }
+
   .nav-links {
-    gap: 1rem;
+    gap: 1.5rem;
   }
 
   .nav-links a {
