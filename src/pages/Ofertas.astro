@@ -1,0 +1,541 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+import riejuData from "../resources/RiejuCatalogo.json";
+import shercoData from "../resources/ShercoCatalogo.json";
+
+const serviciosOferta = [
+  {
+    titulo: "Revisión completa + Cambio de aceite",
+    descripcion: "Puesta a punto integral: filtros, frenos, cadena, niveles y cambio de aceite incluido.",
+    precioOriginal: 110,
+    precioOferta: 79,
+    badge: "Ahorra 31€",
+    icono: "🔧",
+  },
+  {
+    titulo: "Kit frenos completo",
+    descripcion: "Sustitución de pastillas delanteras y traseras + purga y recarga de líquido de frenos.",
+    precioOriginal: 120,
+    precioOferta: 89,
+    badge: "Oferta primavera",
+    icono: "🛑",
+  },
+  {
+    titulo: "Diagnóstico electrónico",
+    descripcion: "Lectura de errores ECU, reset de códigos de fallo y informe completo del estado de tu moto.",
+    precioOriginal: 59,
+    precioOferta: 39,
+    badge: "Precio especial",
+    icono: "💻",
+  },
+];
+
+const motosDestacadas = [
+  riejuData.catalogo.modelos[0],
+  riejuData.catalogo.modelos[1],
+  shercoData.catalogo.modelos[0],
+];
+---
+
+<MainLayout
+  title="Ofertas | MOTOKASS Taller y Tienda de Motos"
+  description="Descubre las mejores ofertas en motos y servicios de taller en MOTOKASS Ávila. Promociones en revisiones, frenos, diagnósticos y motos destacadas."
+>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero__content">
+      <span class="hero__badge">Ofertas activas</span>
+      <h1>Aprovecha nuestras <br />promociones</h1>
+      <p>Servicios de taller con descuento y motos con las mejores condiciones. Disponibles hasta fin de existencias.</p>
+    </div>
+  </section>
+
+  <!-- SERVICIOS CON DESCUENTO -->
+  <section class="section section--light">
+    <div class="container">
+      <div class="section__header">
+        <h2>Servicios de taller con descuento</h2>
+        <p>Promociones de temporada en nuestros servicios más solicitados.</p>
+      </div>
+      <div class="servicios-grid">
+        {serviciosOferta.map((s) => (
+          <div class="servicio-card">
+            <div class="servicio-card__badge">{s.badge}</div>
+            <div class="servicio-card__icono">{s.icono}</div>
+            <h3>{s.titulo}</h3>
+            <p>{s.descripcion}</p>
+            <div class="servicio-card__precio">
+              <span class="precio-original">{s.precioOriginal}€</span>
+              <span class="precio-oferta">{s.precioOferta}€</span>
+            </div>
+            <a href="/citaPrevia" class="btn-card">Reservar cita</a>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- MOTOS DESTACADAS -->
+  <section class="section">
+    <div class="container">
+      <div class="section__header">
+        <h2>Motos destacadas del mes</h2>
+        <p>Selección de modelos con las mejores condiciones de financiación disponibles ahora.</p>
+      </div>
+      <div class="motos-grid">
+        {motosDestacadas.map((moto) => (
+          <div class="moto-card">
+            <div class="moto-card__img-wrapper">
+              <img src={moto.imagen} alt={moto.modelo} loading="lazy" />
+              <span class="moto-card__tag">Disponible</span>
+            </div>
+            <div class="moto-card__body">
+              <h3>{moto.modelo}</h3>
+              <ul class="moto-card__specs">
+                <li><strong>Motor</strong> {moto.specs.tipo_motor}</li>
+                <li><strong>Cilindrada</strong> {moto.specs.cilindrada_cc} cc</li>
+                <li><strong>Peso</strong> {moto.specs.peso_kg} kg</li>
+              </ul>
+              <div class="moto-card__footer">
+                <span class="moto-card__precio">{moto.precio_eur.toLocaleString("es-ES")} €</span>
+                <a href="/contacto" class="btn-card btn-card--outline">Consultar</a>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div class="ver-mas">
+        <a href="/tienda" class="btn-primary">Ver catálogo completo</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA NEWSLETTER -->
+  <section class="section section--cta">
+    <div class="container">
+      <div class="cta-box">
+        <div class="cta-box__text">
+          <h2>¿No te quieres perder ninguna oferta?</h2>
+          <p>Suscríbete y te avisamos en cuanto publiquemos nuevas promociones.</p>
+        </div>
+        <form id="subscribe-form" class="cta-box__form">
+          <input type="email" id="sub-email" name="email" placeholder="Tu email" required />
+          <button type="submit" id="sub-btn">
+            <span id="sub-text">Suscribirme</span>
+            <span id="sub-loading" hidden>Enviando...</span>
+          </button>
+        </form>
+        <p id="sub-success" class="cta-feedback cta-feedback--ok" hidden>¡Suscrito! Te avisaremos de las próximas ofertas.</p>
+        <p id="sub-error" class="cta-feedback cta-feedback--err" hidden></p>
+      </div>
+    </div>
+  </section>
+
+</MainLayout>
+
+<script>
+  const form = document.getElementById("subscribe-form") as HTMLFormElement;
+  const subBtn = document.getElementById("sub-btn") as HTMLButtonElement;
+  const subText = document.getElementById("sub-text")!;
+  const subLoading = document.getElementById("sub-loading")!;
+  const subSuccess = document.getElementById("sub-success")!;
+  const subError = document.getElementById("sub-error")!;
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    subError.hidden = true;
+    subBtn.disabled = true;
+    subText.hidden = true;
+    subLoading.hidden = false;
+
+    const email = (document.getElementById("sub-email") as HTMLInputElement).value;
+    try {
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const json = await res.json();
+      if (res.ok) {
+        form.hidden = true;
+        subSuccess.hidden = false;
+      } else {
+        subError.textContent = json.error || "Error al suscribirse. Inténtalo de nuevo.";
+        subError.hidden = false;
+      }
+    } catch {
+      subError.textContent = "Error de conexión. Inténtalo de nuevo.";
+      subError.hidden = false;
+    } finally {
+      subBtn.disabled = false;
+      subText.hidden = false;
+      subLoading.hidden = true;
+    }
+  });
+</script>
+
+<style>
+/* HERO */
+.hero {
+  background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 60%, #2E5AA6 100%);
+  padding: 5rem 1.5rem 4rem;
+  text-align: center;
+  color: white;
+}
+
+.hero__badge {
+  display: inline-block;
+  background: var(--color-secondary);
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 0.35rem 1rem;
+  border-radius: 999px;
+  margin-bottom: 1.25rem;
+}
+
+.hero h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 1rem;
+}
+
+.hero p {
+  font-size: 1.05rem;
+  opacity: 0.85;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+/* SECTIONS */
+.section {
+  padding: 4rem 1.5rem;
+}
+
+.section--light {
+  background: #f8fafc;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.section__header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.section__header h2 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: 0.5rem;
+}
+
+.section__header p {
+  color: #64748b;
+  font-size: 1rem;
+}
+
+/* SERVICIOS */
+.servicios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.servicio-card {
+  background: white;
+  border-radius: 14px;
+  padding: 1.75rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+
+.servicio-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+}
+
+.servicio-card__badge {
+  position: absolute;
+  top: -12px;
+  left: 1.25rem;
+  background: var(--color-secondary);
+  color: white;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  letter-spacing: 0.5px;
+}
+
+.servicio-card__icono {
+  font-size: 2.2rem;
+  margin-bottom: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.servicio-card h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.servicio-card p {
+  font-size: 0.9rem;
+  color: #64748b;
+  line-height: 1.6;
+  flex: 1;
+  margin-bottom: 1.25rem;
+}
+
+.servicio-card__precio {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.precio-original {
+  font-size: 1rem;
+  color: #94a3b8;
+  text-decoration: line-through;
+}
+
+.precio-oferta {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--color-secondary);
+}
+
+/* MOTOS */
+.motos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.75rem;
+  margin-bottom: 2.5rem;
+}
+
+.moto-card {
+  background: white;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+
+.moto-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+}
+
+.moto-card__img-wrapper {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+  background: #f1f5f9;
+}
+
+.moto-card__img-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s;
+}
+
+.moto-card:hover .moto-card__img-wrapper img {
+  transform: scale(1.04);
+}
+
+.moto-card__tag {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #16a34a;
+  color: white;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.moto-card__body {
+  padding: 1.25rem 1.5rem 1.5rem;
+}
+
+.moto-card__body h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.75rem;
+}
+
+.moto-card__specs {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.moto-card__specs li {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.moto-card__specs strong {
+  color: #374151;
+  margin-right: 0.3rem;
+}
+
+.moto-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.moto-card__precio {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--color-primary);
+}
+
+.ver-mas {
+  text-align: center;
+}
+
+/* BUTTONS */
+.btn-card {
+  display: inline-block;
+  background: var(--color-primary);
+  color: white;
+  padding: 0.65rem 1.25rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: filter 0.2s, transform 0.15s;
+}
+
+.btn-card:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.btn-card--outline {
+  background: transparent;
+  border: 2px solid var(--color-primary);
+  color: var(--color-primary);
+}
+
+.btn-card--outline:hover {
+  background: var(--color-primary);
+  color: white;
+  filter: none;
+}
+
+.btn-primary {
+  display: inline-block;
+  background: var(--color-primary);
+  color: white;
+  padding: 0.9rem 2.5rem;
+  border-radius: 10px;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: filter 0.2s, transform 0.15s;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+}
+
+/* CTA NEWSLETTER */
+.section--cta {
+  background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary));
+  color: white;
+}
+
+.cta-box {
+  max-width: 620px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.cta-box__text h2 {
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.cta-box__text p {
+  opacity: 0.85;
+  margin-bottom: 1.75rem;
+}
+
+.cta-box__form {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.cta-box__form input {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.85rem 1.1rem;
+  border-radius: 8px;
+  border: none;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.cta-box__form button {
+  background: var(--color-secondary);
+  color: white;
+  border: none;
+  padding: 0.85rem 1.75rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: filter 0.2s;
+  white-space: nowrap;
+}
+
+.cta-box__form button:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.cta-box__form button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.cta-feedback {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.cta-feedback--ok { color: #a7f3d0; }
+.cta-feedback--err { color: #fca5a5; }
+</style>
