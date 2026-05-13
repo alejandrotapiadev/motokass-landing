@@ -2,55 +2,138 @@
 import MainLayout from "../layouts/MainLayout.astro";
 ---
 
-<MainLayout>
+<MainLayout
+  title="Contacto | MOTOKASS Taller y Tienda de Motos"
+  description="Contacta con MOTOKASS en Ávila. Resuelve tus dudas sobre nuestras motos y servicios de taller. Te respondemos en el menor tiempo posible."
+>
   <section class="contact">
     <div class="contact__overlay">
       <div class="contact__container">
 
         <header class="contact__header">
           <h1>Contacto</h1>
-          <p>
-            Cuéntanos qué necesita tu moto y te responderemos lo antes posible.
-          </p>
+          <p>Cuéntanos qué necesita tu moto y te responderemos lo antes posible.</p>
         </header>
 
         <div class="contact__card">
 
-          <form class="form" method="POST" action="#">
-            
+          <div id="success-msg" class="alert alert--success" hidden aria-live="polite">
+            Mensaje enviado correctamente. Te responderemos en breve.
+          </div>
+          <div id="error-msg" class="alert alert--error" hidden aria-live="polite"></div>
+
+          <form class="form" id="contact-form" novalidate>
+
             <div class="form__group">
-              <input type="text" id="name" name="name" required placeholder=" " />
-              <label for="name">Nombre</label>
+              <input type="text" id="name" name="name" required placeholder=" " autocomplete="name" />
+              <label for="name">Nombre <span class="required">*</span></label>
+              <span class="field-error" id="name-error" role="alert"></span>
             </div>
 
             <div class="form__group">
-              <input type="email" id="email" name="email" required placeholder=" " />
-              <label for="email">Email</label>
+              <input type="email" id="email" name="email" required placeholder=" " autocomplete="email" />
+              <label for="email">Email <span class="required">*</span></label>
+              <span class="field-error" id="email-error" role="alert"></span>
             </div>
 
             <div class="form__group">
-              <input type="tel" id="phone" name="phone" placeholder=" " />
+              <input type="tel" id="phone" name="phone" placeholder=" " autocomplete="tel" />
               <label for="phone">Teléfono (opcional)</label>
             </div>
 
             <div class="form__group">
               <textarea id="message" name="message" rows="5" required placeholder=" "></textarea>
-              <label for="message">Mensaje</label>
+              <label for="message">Mensaje <span class="required">*</span></label>
+              <span class="field-error" id="message-error" role="alert"></span>
             </div>
 
-            <button type="submit" class="btn-primary">
-              Enviar mensaje
+            <button type="submit" id="submit-btn" class="btn-primary">
+              <span id="btn-text">Enviar mensaje</span>
+              <span id="btn-loading" hidden>Enviando...</span>
             </button>
-            <div class="linea"></div>
-            <button type="submit" class="btn-primary btn-llamar">
-              llamar
-            </button>
+
           </form>
+
+          <div class="linea"></div>
+
+          <a href="tel:+34920000000" class="btn-primary btn-llamar">Llamar</a>
+
         </div>
       </div>
     </div>
   </section>
 </MainLayout>
+
+<script>
+  const form = document.getElementById("contact-form") as HTMLFormElement;
+  const submitBtn = document.getElementById("submit-btn") as HTMLButtonElement;
+  const btnText = document.getElementById("btn-text")!;
+  const btnLoading = document.getElementById("btn-loading")!;
+  const successMsg = document.getElementById("success-msg")!;
+  const errorMsg = document.getElementById("error-msg")!;
+
+  function clearErrors() {
+    document.querySelectorAll<HTMLElement>(".field-error").forEach((el) => (el.textContent = ""));
+    document.querySelectorAll<HTMLElement>(".input--error").forEach((el) => el.classList.remove("input--error"));
+  }
+
+  function showFieldError(id: string, msg: string) {
+    const err = document.getElementById(`${id}-error`);
+    const field = document.getElementById(id);
+    if (err) err.textContent = msg;
+    if (field) field.classList.add("input--error");
+  }
+
+  function validate(data: Record<string, string>): boolean {
+    let ok = true;
+    clearErrors();
+    if (!data.name.trim()) { showFieldError("name", "Campo obligatorio"); ok = false; }
+    if (!data.email.trim()) { showFieldError("email", "Campo obligatorio"); ok = false; }
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) { showFieldError("email", "Introduce un email válido"); ok = false; }
+    if (!data.message.trim()) { showFieldError("message", "Campo obligatorio"); ok = false; }
+    else if (data.message.trim().length < 10) { showFieldError("message", "El mensaje es demasiado corto"); ok = false; }
+    return ok;
+  }
+
+  function setLoading(loading: boolean) {
+    submitBtn.disabled = loading;
+    btnText.hidden = loading;
+    btnLoading.hidden = !loading;
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    successMsg.hidden = true;
+    errorMsg.hidden = true;
+
+    const data = Object.fromEntries(new FormData(form)) as Record<string, string>;
+    if (!validate(data)) return;
+
+    setLoading(true);
+    try {
+      const res = await fetch("/api/contacto", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+
+      if (res.ok) {
+        form.reset();
+        successMsg.hidden = false;
+        successMsg.scrollIntoView({ behavior: "smooth", block: "center" });
+      } else {
+        errorMsg.textContent = json.error || "Error al enviar. Inténtalo de nuevo.";
+        errorMsg.hidden = false;
+      }
+    } catch {
+      errorMsg.textContent = "Error de conexión. Comprueba tu internet e inténtalo de nuevo.";
+      errorMsg.hidden = false;
+    } finally {
+      setLoading(false);
+    }
+  });
+</script>
 
 <style>
 /* ====== LAYOUT ====== */
@@ -100,13 +183,35 @@ import MainLayout from "../layouts/MainLayout.astro";
   animation: fadeInUp .6s ease forwards;
 }
 
+/* ====== ALERTS ====== */
+
+.alert {
+  padding: 1rem 1.25rem;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.alert--success {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.alert--error {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
 /* ====== FORM ====== */
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: 1.8rem;
-  margin-bottom: 2.5rem;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .form__group {
@@ -118,10 +223,11 @@ import MainLayout from "../layouts/MainLayout.astro";
   width: 100%;
   padding: 1.2rem 1rem .8rem;
   border-radius: .8rem;
-  border: 1px solid transparent;
+  border: 1.5px solid transparent;
   background: #f5f7f8;
   font-size: 1rem;
   transition: .25s ease;
+  box-sizing: border-box;
 }
 
 .form__group textarea {
@@ -138,6 +244,10 @@ import MainLayout from "../layouts/MainLayout.astro";
   transition: .2s ease;
 }
 
+.required {
+  color: var(--color-secondary);
+}
+
 /* FLOAT */
 
 .form__group input:focus,
@@ -146,6 +256,7 @@ import MainLayout from "../layouts/MainLayout.astro";
 .form__group textarea:not(:placeholder-shown) {
   border-color: var(--color-primary);
   background: #fff;
+  outline: none;
 }
 
 .form__group input:focus + label,
@@ -157,45 +268,59 @@ import MainLayout from "../layouts/MainLayout.astro";
   color: var(--color-primary);
 }
 
+.form__group input.input--error,
+.form__group textarea.input--error {
+  border-color: #dc2626;
+}
+
+.field-error {
+  color: #dc2626;
+  font-size: 0.78rem;
+  margin-top: 0.3rem;
+  display: block;
+  min-height: 1rem;
+}
+
 .linea {
   width: 100%;
   height: 1px;
-  background: black;
-  margin: 1em 0;
+  background: #ddd;
+  margin: 1.5rem 0;
 }
 
-/* BUTTON */
+/* BUTTONS */
 
 .btn-primary {
+  display: block;
+  width: 100%;
   padding: 1.1rem;
   border-radius: .8rem;
   border: none;
   font-weight: 700;
   cursor: pointer;
   font-size: 1rem;
-  background: linear-gradient(135deg,var(--color-primary),var(--color-primary-dark));
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
   color: var(--color-white);
   transition: .25s ease;
+  text-align: center;
+  text-decoration: none;
+  box-sizing: border-box;
 }
 
-.btn-primary:hover {
+.btn-primary:hover:not(:disabled) {
   transform: translateY(-4px);
 }
-/* INFO */
 
-.contact__info {
-  border-top: 1px solid #e5e5e5;
-  padding-top: 1.5rem;
-  text-align: center;
-  font-size: .95rem;
+.btn-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
-.contact__info p {
-  margin: .4rem 0;
+.btn-llamar {
+  background: linear-gradient(135deg, #16a34a, #15803d);
 }
 
-
-@media (min-width:768px){
+@media (min-width: 768px) {
   .contact__header h1 { font-size: 3.4rem; }
 }
 </style>
