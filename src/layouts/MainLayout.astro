@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import ScrollTop from "../components/ScrollTop.astro";
+import WhatsApp from "../components/WhatsApp.astro";
 import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 import { Analytics } from "@vercel/analytics/react";
@@ -139,6 +140,7 @@ const {
       <slot />
     </main>
     <ScrollTop />
+    <WhatsApp />
     <Footer></Footer>
     <Analytics client:only="react" />
     <SpeedInsights client:only="react" />
