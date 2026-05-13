@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'preact/hooks';
+import { useState, useMemo } from 'react';
 import MotoCard from './MotoCard.jsx';
 
 export default function FilteredMotoList({ motos }) {
