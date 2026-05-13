@@ -1,0 +1,318 @@
+============================================================
+  MOTOKASS — LISTADO DE TAREAS Y DETALLES PENDIENTES
+  Objetivo: segunda versión en producción 100% funcional
+  Generado: 2026-05-14
+============================================================
+
+
+────────────────────────────────────────────────────────────
+ 1. VARIABLES DE ENTORNO (Vercel → Settings → Environment)
+────────────────────────────────────────────────────────────
+
+[ ] WHATSAPP_NUMBER
+    Añadir número de móvil en formato internacional sin + ni espacios.
+    Ejemplo: 34612345678 (si el número es +34 612 345 678)
+    IMPORTANTE: WhatsApp no funciona con números de fijo (920...).
+    Necesita un número de móvil activo con cuenta de WhatsApp.
+    Archivo afectado: src/components/WhatsApp.astro
+
+[ ] TALLER_EMAIL
+    Email corporativo del taller para recibir notificaciones de citas
+    y formularios de contacto. Pendiente hasta tener el dominio
+    motokass.com configurado con Resend.
+    Afecta: /api/agendar-cita.ts y /api/contacto.ts
+
+[ ] RESEND_FROM
+    Email verificado en Resend (ej: noreply@motokass.com).
+    Hasta que no esté configurado, ningún email funcionará en producción.
+    Pasos: resend.com → Domains → añadir motokass.com → verificar DNS.
+
+[ ] ADMIN_PASSWORD
+    Cambiar el valor placeholder del .env.example por una contraseña
+    segura. No usar palabras del diccionario ni datos obvios.
+
+
+────────────────────────────────────────────────────────────
+ 2. SUPABASE — BASE DE DATOS
+────────────────────────────────────────────────────────────
+
+[ ] Crear tabla 'citas' si no se ha hecho ya
+    El SQL necesario está en la cabecera del archivo:
+    src/pages/api/agendar-cita.ts (primeras 14 líneas)
+
+[ ] Verificar que la tabla 'subscribers' existe
+    Necesaria para el newsletter (Ofertas + futura campaña de emails).
+    Campos mínimos: id, email, notified (bool), created_at.
+
+[ ] Revisar políticas RLS (Row Level Security) de Supabase
+    Las tablas 'citas' y 'subscribers' usan la service_role_key,
+    que bypassea RLS. Considerar configurar políticas de solo-lectura
+    para la anon_key como medida adicional de seguridad.
+
+
+────────────────────────────────────────────────────────────
+ 3. CONTENIDO — TEXTOS Y DATOS A ACTUALIZAR
+────────────────────────────────────────────────────────────
+
+[ ] Footer: email genérico → email corporativo
+    Archivo: src/components/Footer.astro, línea 31
+    Valor actual: motokass@gmail.com
+    Cambiar a: info@motokass.com (o el que se configure)
+
+[ ] Footer: horario inconsistente con JSON-LD
+    Archivo: src/components/Footer.astro, línea 38
+    Dice: L-J: 10:00 - 14:00 | 15:00 - 19:00
+    JSON-LD en MainLayout.astro dice: abre 15:30 (no 15:00)
+    Unificar ambos con el horario real del negocio.
+
+[ ] taller.astro: texto obsoleto
+    Archivo: src/pages/taller.astro, línea 32
+    Dice: "Más adelante podrás reservar una cita directamente desde aquí."
+    El sistema de citas YA existe. Cambiar a:
+    "Reserva tu cita de taller directamente desde aquí."
+
+[ ] Testimonios: número de clientes sin rellenar
+    Archivo: src/components/Testimonios.astro, línea 49 (aprox.)
+    Dice: "Más de X clientes satisfechos"
+    Sustituir la X por el número real cuando se tenga.
+
+[ ] Testimonios: reseñas ficticias
+    Los 3 testimonios actuales son de ejemplo.
+    Reemplazar con reseñas reales de clientes cuando las haya.
+    El componente está preparado, solo hay que editar el array
+    'reseñas' en src/components/Testimonios.astro.
+
+[ ] Ofertas: precios de servicios hardcodeados
+    Archivo: src/pages/Ofertas.astro
+    Los precios (79€, 89€, 39€) y los precios originales son de
+    ejemplo. Verificar y actualizar con los precios reales del taller.
+
+[ ] Sitemap: no incluye fichas individuales de moto
+    Archivo: public/sitemap.xml
+    Hay 13 modelos en los catálogos JSON, cada uno genera una ruta
+    /tienda/[slug]. Ninguna aparece en el sitemap.
+    Añadirlas manualmente o migrar a @astrojs/sitemap automático
+    (requiere output: hybrid o config adicional en modo SSR).
+
+[ ] MainLayout: fachada.png en JSON-LD
+    Archivo: src/layouts/MainLayout.astro, línea 59
+    La propiedad "image" apunta a https://motokass.com/fachada.png
+    Verificar que el archivo public/fachada.png es la foto correcta
+    del negocio (fachada exterior o logo) y que se ve bien.
+
+
+────────────────────────────────────────────────────────────
+ 4. CÓDIGO — LIMPIEZA Y DEUDA TÉCNICA
+────────────────────────────────────────────────────────────
+
+[ ] Hero.astro: componente sin usar
+    Archivo: src/components/Hero.astro
+    Existe en el proyecto pero no está importado en ninguna página.
+    Evaluar: eliminar o integrar en index.astro como sección de bienvenida.
+
+[ ] ServiceBox.astro: componente sin usar
+    Archivo: src/components/ServiceBox.astro
+    Mismo caso que Hero.astro. No está referenciado en ninguna página.
+    Eliminar si no se va a usar.
+
+[ ] FilteredMotoList.jsx: función toSlug duplicada
+    Archivo: src/components/FilteredMotoList.jsx, línea 4
+    La función toSlug() está copiada en este archivo en lugar de
+    importarse desde src/lib/slug.ts (que ya existe para este propósito).
+    Cambiar a: import { toSlug } from '../lib/slug.ts';
+    Nota: requiere verificar que Vite resuelve correctamente el import .ts
+    desde un archivo .jsx en el contexto del cliente.
+
+[ ] package.json: dependencias sin usar
+    @astrojs/preact y preact están instalados pero ningún componente
+    usa Preact actualmente. Ejecutar:
+    npm uninstall @astrojs/preact preact
+    Y eliminar la integración si la hubiera en astro.config.mjs.
+
+[ ] MainLayout: CSS de SweetAlert2 cargado globalmente sin necesidad
+    Archivo: src/layouts/MainLayout.astro, línea 129
+    <link rel="stylesheet" href=".../sweetalert2.min.css">
+    SweetAlert2 no se usa en ninguna página actualmente.
+    Eliminar esta línea para reducir el peso de carga inicial.
+
+[ ] global.css: media query con clases obsoletas
+    Archivo: src/styles/global.css, líneas 84-96
+    El bloque @media (max-width: 768px) referencia .header-content
+    y .hero-content, clases que ya no existen en el Header actual
+    (el Header tiene sus propios estilos con media query).
+    Limpiar ese bloque para evitar CSS muerto.
+
+[ ] taller.astro: HTML semántico incorrecto
+    Archivo: src/pages/taller.astro, línea 33
+    Usa <a href="/citaPrevia"><button>Agendar cita</button></a>
+    Un <button> dentro de un <a> no es HTML válido.
+    Cambiar a: <a href="/citaPrevia" class="btn-primary">Agendar cita</a>
+
+
+────────────────────────────────────────────────────────────
+ 5. SEO — MEJORAS TÉCNICAS
+────────────────────────────────────────────────────────────
+
+[ ] astro.config.mjs: falta la URL del sitio
+    Archivo: astro.config.mjs
+    Añadir: site: "https://motokass.com"
+    Esto habilita URLs canónicas automáticas y es necesario si en el
+    futuro se usa @astrojs/sitemap o integraciones que usan Astro.site.
+
+[ ] MainLayout: falta meta og:image
+    Archivo: src/layouts/MainLayout.astro
+    No hay <meta property="og:image" content="..."> global.
+    Añadir una imagen por defecto (logo o fachada) para que aparezca
+    cuando alguien comparte un enlace en redes sociales.
+
+[ ] Fichas de moto: meta og:image específica
+    Archivo: src/pages/tienda/[slug].astro
+    Cada ficha podría usar la imagen de la moto como og:image para
+    que al compartir en redes se vea la foto del modelo.
+    Aprovechar que ya se tiene la URL de imagen de cada moto.
+
+[ ] Footer: teléfono sin enlace tel:
+    Archivo: src/components/Footer.astro, línea 30
+    El teléfono 920 25 40 44 es texto plano. Convertirlo en:
+    <a href="tel:+34920254044">920 25 40 44</a>
+    para facilitar llamadas directas desde móvil.
+
+
+────────────────────────────────────────────────────────────
+ 6. PANEL DE ADMINISTRACIÓN
+────────────────────────────────────────────────────────────
+
+[ ] Añadir botón de logout
+    Archivo: src/pages/admin/citas.astro
+    No hay forma de cerrar sesión. Añadir un enlace o botón que
+    llame a una ruta /admin/logout que borre la cookie admin_session
+    y redirija a /admin.
+    Crear: src/pages/admin/logout.astro
+
+[ ] Paginación en la tabla de citas
+    Si el negocio tiene muchas citas, la tabla se vuelve muy larga.
+    Añadir paginación básica (ej. 25 por página con query param ?page=N).
+
+[ ] Vista de suscriptores del newsletter
+    Actualmente el panel solo muestra citas. Sería útil tener
+    /admin/suscriptores que muestre la tabla subscribers de Supabase
+    con el conteo de emails y cuántos están notificados.
+
+[ ] Template de email de lanzamiento
+    Archivo: src/pages/api/send-launch-emails.ts, línea 23
+    Tiene un comentario TODO para preparar la plantilla del email
+    de lanzamiento. Si se va a usar esta funcionalidad, diseñar
+    un email HTML coherente con el resto de templates.
+
+
+────────────────────────────────────────────────────────────
+ 7. UX / PEQUEÑOS DETALLES VISUALES
+────────────────────────────────────────────────────────────
+
+[ ] Footer bottom: sin padding
+    Archivo: src/components/Footer.astro
+    La sección .footer-bottom no tiene padding vertical suficiente.
+    El copyright queda muy pegado al borde inferior.
+    Añadir: padding: 1rem 0; en .footer-bottom
+
+[ ] Taller: servicios sin iconos
+    Archivo: src/pages/taller.astro
+    Las tarjetas de servicio (cambio aceite, frenos, etc.) solo tienen
+    texto. Añadir un icono SVG o emoji representativo mejoraría
+    la legibilidad y el atractivo visual de la sección.
+
+[ ] Tarjetas de moto: mostrar spec clave
+    Archivo: src/components/MotoCard.jsx
+    Las tarjetas del catálogo muestran solo marca, nombre y precio.
+    Añadir la cilindrada (ej. "125 cc") como dato rápido ayudaría
+    al usuario a filtrar visualmente sin abrir la ficha.
+
+[ ] CitaPrevia: horas disponibles hardcodeadas
+    Archivo: src/pages/CitaPrevia.astro
+    El select de horas ofrece: 09:00, 10:00, 11:00, 12:00, 16:00, 17:00
+    Verificar que estas horas corresponden al horario real del taller
+    y ajustar si es necesario (ej. añadir 18:00, quitar horas no disponibles).
+
+[ ] Página de error 404: verificar enlace
+    Archivo: src/pages/404.astro
+    Revisar que el enlace "Volver al inicio" apunta a "/" y funciona.
+
+
+────────────────────────────────────────────────────────────
+ 8. A TENER EN CUENTA (notas importantes)
+────────────────────────────────────────────────────────────
+
+⚠ Los emails NO funcionan en producción hasta que:
+  1. Se tenga un dominio verificado en Resend (motokass.com)
+  2. Se configuren las variables RESEND_FROM y TALLER_EMAIL en Vercel
+  Mientras tanto, el formulario guarda la cita en Supabase pero
+  no envía confirmaciones.
+
+⚠ Las imágenes del catálogo son URLs externas
+  Las imágenes de Rieju y Sherco en los JSON provienen de CDNs de
+  terceros (cdn.rieju.com, sherco.com, motostarragona.com, etc.).
+  Pueden cambiar o caducar sin aviso. Si una URL falla, la tarjeta
+  queda sin imagen. Solución a largo plazo: descargar las imágenes
+  y alojarlas en el propio proyecto o en un bucket de almacenamiento.
+
+⚠ Cuando se añadan nuevas motos al catálogo JSON, hay que:
+  1. Actualizar public/sitemap.xml con las nuevas URLs /tienda/[slug]
+  2. Actualizar la fecha lastmod en el sitemap
+  3. Hacer deploy para que el servidor SSR reconozca las nuevas rutas
+
+⚠ La seguridad del panel /admin es básica (cookie sin firmar)
+  Es suficiente para uso interno de propietario, pero no para múltiples
+  usuarios ni datos muy sensibles. No compartir la URL /admin ni la
+  ADMIN_PASSWORD con terceros. En el futuro considerar Supabase Auth.
+
+⚠ WhatsApp con número de fijo no funcionará
+  Si WHATSAPP_NUMBER se configura con el número 920... (fijo),
+  el enlace wa.me abrirá WhatsApp pero el envío fallará porque
+  WhatsApp no opera en líneas fijas. Usar obligatoriamente un móvil.
+
+⚠ El campo 'stock' en los JSON es manual
+  El inventario no se sincroniza automáticamente con ningún sistema.
+  Cuando una moto se venda o llegue nueva, hay que editar el JSON
+  manualmente y hacer un nuevo deploy para que se refleje en la web.
+
+⚠ La tabla 'citas' necesita índices para rendimiento futuro
+  Si el negocio crece, añadir índice en la columna 'fecha' y 'estado'
+  para que las consultas del panel admin sean rápidas:
+  CREATE INDEX idx_citas_fecha ON citas(fecha);
+  CREATE INDEX idx_citas_estado ON citas(estado);
+
+
+────────────────────────────────────────────────────────────
+ 9. MEJORAS FUTURAS (no urgentes, post v2)
+────────────────────────────────────────────────────────────
+
+[ ] Galería de fotos por moto en la ficha individual
+    Las fichas /tienda/[slug] tienen una sola imagen. Añadir soporte
+    para múltiples fotos (array de imágenes en el JSON).
+
+[ ] Gestión de stock desde el panel admin
+    Actualmente el stock se cambia editando los JSON a mano.
+    Mover el catálogo a Supabase y añadir CRUD en el panel admin.
+
+[ ] Sección de accesorios y recambios
+    Productos de ticket bajo (cascos, guantes, aceites) que se pueden
+    vender directamente online sin proceso de compra complejo.
+
+[ ] Integración Google Analytics / eventos de conversión
+    Saber cuántas personas rellenan el formulario de cita vs cuántas
+    lo abandonan. Vercel Analytics ya está activo pero no rastrea
+    eventos de formularios.
+
+[ ] Aviso de cookies / política de privacidad
+    Requerido legalmente (RGPD) si se usa Google Analytics o se
+    almacenan datos de usuarios (emails de suscriptores, citas).
+    Añadir banner de cookies y páginas /privacidad y /cookies.
+
+[ ] SEO local: fichas de moto en sitemap automático
+    Migrar a @astrojs/sitemap con output: hybrid o crear un endpoint
+    /sitemap.xml.ts que genere el XML dinámicamente a partir de los JSON.
+
+============================================================
+  Total de tareas identificadas: 34
+  Categorías: 9
+============================================================
