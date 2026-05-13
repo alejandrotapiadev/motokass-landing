@@ -3,6 +3,8 @@ import "../styles/global.css";
 import ScrollTop from "../components/ScrollTop.astro";
 import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 const {
   title = "MOTOKASS",
@@ -137,6 +139,8 @@ const {
     </main>
     <ScrollTop />
     <Footer></Footer>
+    <Analytics client:only="react" />
+    <SpeedInsights client:only="react" />
   </body>
 </html>
 
