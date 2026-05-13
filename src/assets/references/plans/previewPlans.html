@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Servicios y Planes Contratados</title>
+
+<style>
+:root {
+  --color-primary: #1F3F7A;
+  --color-primary-dark: #142C57;
+  --color-primary-light: #2E5AA6;
+
+  --color-white: #FFFFFF;
+  --color-gray-light: #F4F6FA;
+  --color-gray-medium: #D6DCE5;
+  --color-gray-dark: #1A1A1A;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-gray-light);
+}
+
+h1 {
+  text-align: center;
+  margin-top: 40px;
+  color: var(--color-gray-dark);
+}
+
+.container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+  padding: 40px;
+}
+
+.service-card {
+  background-color: var(--color-white);
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border: 1px solid var(--color-gray-medium);
+  transition: 0.3s ease;
+}
+
+.service-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.15);
+}
+
+.service-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--color-primary);
+  margin-bottom: 15px;
+}
+
+.service-detail {
+  font-size: 14px;
+  color: var(--color-gray-dark);
+  margin-bottom: 8px;
+}
+
+.plan {
+  margin-top: 15px;
+  padding: 8px 12px;
+  background-color: var(--color-primary-light);
+  color: var(--color-white);
+  border-radius: 8px;
+  display: inline-block;
+  font-size: 13px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Servicios y Planes Contratados</h1>
+
+<div class="container">
+
+  <div class="service-card">
+    <div class="service-title">Vercel</div>
+    <div class="service-detail">Servicio: Servidor de despliegue</div>
+    <div class="service-detail">Uso: Hosting del proyecto Astro</div>
+    <div class="service-detail"><strong>Precio: $0/mes</strong></div>
+    <div class="plan">Plan Gratuito</div>
+  </div>
+
+  <div class="service-card">
+    <div class="service-title">Supabase</div>
+    <div class="service-detail">Servicio: Base de datos</div>
+    <div class="service-detail">Uso: Backend y almacenamiento</div>
+    <div class="service-detail"><strong>Precio: $0/mes</strong></div>
+    <div class="plan">Plan Gratuito</div>
+  </div>
+
+  <div class="service-card">
+    <div class="service-title">Resend</div>
+    <div class="service-detail">Servicio: Envío de correos</div>
+    <div class="service-detail">Uso: Correos transaccionales</div>
+    <div class="service-detail"><strong>Precio: $0/mes</strong></div>
+    <div class="plan">Plan Gratuito</div>
+  </div>
+
+  <div class="service-card">
+    <div class="service-title">Hostinger</div>
+    <div class="service-detail">Servicio: Dominio</div>
+    <div class="service-detail">Dominio: motokass.com</div>
+    <div class="service-detail">Incluye: Correo profesional</div>
+    <div class="service-detail"> <strong> Precio: $12/anio </strong></div>
+    <div class="plan">Plan Activo</div>
+  </div>
+
+</div>
+
+</body>
+</html>

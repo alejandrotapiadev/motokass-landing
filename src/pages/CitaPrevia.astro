@@ -1,0 +1,119 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+---
+
+<MainLayout
+  title="Agendar Cita | MOTOKASS Taller de Motos"
+  description="Reserva tu cita en el taller de MOTOKASS. Mantenimiento, revisión, reparación y diagnóstico para tu moto."
+>
+  <div class="container">
+    <h1>Agendar una cita</h1>
+
+    <form method="post" action="/api/agendar-cita">
+      <label for="fecha">Fecha de la cita</label>
+      <input type="date" id="fecha" name="fecha" required />
+
+      <label for="hora">Hora</label>
+      <select id="hora" name="hora" required>
+        <option value="">Selecciona una hora</option>
+        <option value="09:00">09:00</option>
+        <option value="10:00">10:00</option>
+        <option value="11:00">11:00</option>
+        <option value="12:00">12:00</option>
+        <option value="16:00">16:00</option>
+        <option value="17:00">17:00</option>
+      </select>
+
+      <label for="vehiculo">Vehículo</label>
+      <input
+        type="text"
+        id="vehiculo"
+        name="vehiculo"
+        placeholder="Ej: Rieju MRT 50 2023"
+        required
+      />
+
+      <label for="motivo">Motivo</label>
+      <select id="motivo" name="motivo" required>
+        <option value="">Selecciona un motivo</option>
+        <option value="mantenimiento">Mantenimiento</option>
+        <option value="revision">Revisión</option>
+        <option value="reparacion">Reparación</option>
+        <option value="diagnostico">Diagnóstico</option>
+        <option value="otro">Otro</option>
+      </select>
+
+      <label for="resumen">Resumen</label>
+      <textarea
+        id="resumen"
+        name="resumen"
+        placeholder="Describe brevemente el problema o servicio solicitado"
+      ></textarea>
+
+      <button type="submit">Agendar cita</button>
+    </form>
+  </div>
+</MainLayout>
+
+<style>
+.container {
+  max-width: 600px;
+  margin: 2rem auto;
+  background: var(--color-white);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+h1 {
+  color: var(--color-primary);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1.25rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-muted);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+button {
+  width: 100%;
+  padding: 0.9rem;
+  background: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.2s ease-in-out;
+}
+
+button:hover {
+  filter: brightness(0.9);
+}
+</style>

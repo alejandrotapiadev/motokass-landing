@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Previsualización Paleta Corporativa</title>
+
+<style>
+:root {
+  --color-primary: #1F3F7A;
+  --color-primary-dark: #142C57;
+  --color-primary-light: #2E5AA6;
+
+  --color-white: #FFFFFF;
+  --color-gray-light: #F4F6FA;
+  --color-gray-medium: #D6DCE5;
+  --color-gray-dark: #1A1A1A;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-gray-light);
+}
+h1 {
+  text-align: center;
+  margin-top: 40px;
+  color: var(--color-gray-dark);
+}
+.container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  padding: 40px;
+}
+
+.color-box {
+  padding: 30px 20px;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Colores */
+.primary {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+.primary-dark {
+  background-color: var(--color-primary-dark);
+  color: var(--color-white);
+}
+
+.primary-light {
+  background-color: var(--color-primary-light);
+  color: var(--color-white);
+}
+
+.white {
+  background-color: var(--color-white);
+  color: var(--color-gray-dark);
+  border: 1px solid var(--color-gray-medium);
+}
+
+.gray-light {
+  background-color: var(--color-gray-light);
+  color: var(--color-gray-dark);
+  border: 1px solid var(--color-gray-medium);
+}
+
+.gray-medium {
+  background-color: var(--color-gray-medium);
+  color: var(--color-gray-dark);
+}
+
+.gray-dark {
+  background-color: var(--color-gray-dark);
+  color: var(--color-white);
+}
+</style>
+</head>
+
+<body>
+
+  <H1>Previsualización Paleta Corporativa</H1>
+<div class="container">
+
+  <div class="color-box primary">
+    Primary<br>#1F3F7A
+  </div>
+
+  <div class="color-box primary-dark">
+    Primary Dark<br>#142C57
+  </div>
+
+  <div class="color-box primary-light">
+    Primary Light<br>#2E5AA6
+  </div>
+
+  <div class="color-box white">
+    White<br>#FFFFFF
+  </div>
+
+  <div class="color-box gray-light">
+    Gray Light<br>#F4F6FA
+  </div>
+
+  <div class="color-box gray-medium">
+    Gray Medium<br>#D6DCE5
+  </div>
+
+  <div class="color-box gray-dark">
+    Gray Dark<br>#1A1A1A
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -1,11 +1,10 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
-import vercel from '@astrojs/vercel/serverless'; // si usas Vercel
-
 import react from '@astrojs/react';
+import vercel from '@astrojs/vercel';
 
 export default defineConfig({
   output: "server",
-  adapter: vercel({}),
+  adapter: vercel(),
   integrations: [react()],
 });
