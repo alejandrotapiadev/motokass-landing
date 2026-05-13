@@ -48,7 +48,7 @@ function emailConfirmacionCliente(nombre: string, fecha: string, hora: string, v
       <p style="color:#444;">Hola <strong>${nombre}</strong>, tu cita ha quedado registrada. Aquí tienes el resumen:</p>
       <table style="width:100%;border-collapse:collapse;margin:20px 0;">${filasHtml}</table>
       <p style="color:#666;font-size:14px;margin-top:24px;">Si necesitas cancelar o modificar la cita, llámanos:</p>
-      <a href="tel:+34920000000" style="display:inline-block;background:#1F3F7A;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;">Llamar al taller</a>
+      <a href="tel:+34920254044" style="display:inline-block;background:#1F3F7A;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;">📞 +34 920 254 044</a>
     </div>
     <div style="background:#f8fafc;padding:16px;text-align:center;color:#aaa;font-size:13px;"><p style="margin:0;">MOTOKASS · Ávila, España · motokass.com</p></div>
   </div></body></html>`;
