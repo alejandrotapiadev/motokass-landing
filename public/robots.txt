@@ -1,6 +1,6 @@
-# robots.txt
 User-agent: *
-Disallow: /admin/
 Allow: /
+Disallow: /admin/
+Disallow: /api/
 
-Sitemap: https://www.motokass.com/sitemap.xml
+Sitemap: https://motokass.com/sitemap.xml
