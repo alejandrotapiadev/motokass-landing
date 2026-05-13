@@ -27,7 +27,10 @@ const motosSherco = ShercoCatalogo.catalogo.modelos.map((moto) => ({
 const motos = [...motosRieju, ...motosSherco];
 ---
 
-<MainLayout ...>
+<MainLayout
+  title="MOTOKASS - Tienda de Motos | Rieju y Sherco en Ávila"
+  description="Compra tu moto en MOTOKASS. Distribuidor oficial de Rieju y Sherco en Ávila. Amplio catálogo con filtros por marca y precio."
+>
   <section class="section">
     <div class="container">
       <FilteredMotoList motos={motos} client:load />

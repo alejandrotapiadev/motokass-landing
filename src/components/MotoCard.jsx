@@ -1,18 +1,17 @@
 export default function MotoCard({ marca, nombre, precio, imagen }) {
   return (
     <>
-      <div class="moto-card">
-        {/* Imagen opcional */}
+      <div className="moto-card">
         {imagen && <img src={imagen} alt={nombre} />}
 
-        <div class="moto-info">
-          <span class={`moto-brand ${marca.toLowerCase()}`}>
+        <div className="moto-info">
+          <span className={`moto-brand ${marca.toLowerCase()}`}>
             {marca}
           </span>
 
           <h3>{nombre}</h3>
 
-          <span class="price">
+          <span className="price">
             {precio} €
           </span>
         </div>
