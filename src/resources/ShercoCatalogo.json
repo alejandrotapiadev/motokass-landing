@@ -1,7 +1,7 @@
 {
   "catalogo": {
     "marca": "Sherco",
-    "fecha_actualizacion": "2026-02-16",
+    "fecha_actualizacion": "2026-05-14",
     "modelos": [
       {
         "modelo": "Sherco 125 SE-R",
@@ -14,7 +14,8 @@
           "peso_kg": 96
         },
         "precio_eur": 6999,
-        "imagen": "https://www.sherco.com/wp-content/uploads/125-SE-2025-3679X2456-2-600x400.jpg"
+        "imagen": "https://www.sherco.com/wp-content/uploads/125-SE-2025-3679X2456-2-600x400.jpg",
+        "stock": true
       },
       {
         "modelo": "Sherco 250 SEF-R",
@@ -27,7 +28,8 @@
           "peso_kg": 104
         },
         "precio_eur": 7999,
-        "imagen": "https://www.sherco.com/wp-content/uploads/01-250-SE-FACTORY-2026-1200-600x400.jpg"
+        "imagen": "https://www.sherco.com/wp-content/uploads/01-250-SE-FACTORY-2026-1200-600x400.jpg",
+        "stock": true
       },
       {
         "modelo": "Sherco 300 SE-R",
@@ -40,7 +42,8 @@
           "peso_kg": 98
         },
         "precio_eur": 7599,
-        "imagen": "https://www.sherco.com/wp-content/uploads/01-300-SEF-FACTORY-2026-1200-600x400.jpg"
+        "imagen": "https://www.sherco.com/wp-content/uploads/01-300-SEF-FACTORY-2026-1200-600x400.jpg",
+        "stock": false
       },
       {
         "modelo": "Sherco 450 SEF-R",
@@ -53,7 +56,8 @@
           "peso_kg": 111
         },
         "precio_eur": 8999,
-        "imagen": "https://www.sherco.com/wp-content/uploads/01-450-SEF-FACTORY-2026-1200-600x400.jpg"
+        "imagen": "https://www.sherco.com/wp-content/uploads/01-450-SEF-FACTORY-2026-1200-600x400.jpg",
+        "stock": true
       },
       {
         "modelo": "Sherco 500 SEF-R",
@@ -66,7 +70,8 @@
           "peso_kg": 113
         },
         "precio_eur": 9499,
-        "imagen": "https://www.sherco.com/wp-content/uploads/01-500-SEF-FACTORY-2026-1200-600x400.jpg"
+        "imagen": "https://www.sherco.com/wp-content/uploads/01-500-SEF-FACTORY-2026-1200-600x400.jpg",
+        "stock": true
       },
       {
         "modelo": "Sherco 125 ST-R Enduro",
@@ -79,7 +84,8 @@
           "peso_kg": 93
         },
         "precio_eur": 7199,
-        "imagen": "https://www.sherco.com/wp-content/uploads/01-125-SE-FACTORY-2026-1200x800-1-600x400.jpg"
+        "imagen": "https://www.sherco.com/wp-content/uploads/01-125-SE-FACTORY-2026-1200x800-1-600x400.jpg",
+        "stock": true
       },
       {
         "modelo": "Sherco 300 SEF Factory",
@@ -92,7 +98,8 @@
           "peso_kg": 97
         },
         "precio_eur": 9999,
-        "imagen": "https://www.sherco.com/wp-content/uploads/01-300-SEF-FACTORY-2026-1200-600x400.jpg"
+        "imagen": "https://www.sherco.com/wp-content/uploads/01-300-SEF-FACTORY-2026-1200-600x400.jpg",
+        "stock": false
       },
       {
         "modelo": "Sherco 450 SEF Factory",
@@ -105,7 +112,8 @@
           "peso_kg": 112
         },
         "precio_eur": 10999,
-        "imagen": "https://www.sherco.com/wp-content/uploads/01-450-SEF-FACTORY-2026-1200-600x400.jpg"
+        "imagen": "https://www.sherco.com/wp-content/uploads/01-450-SEF-FACTORY-2026-1200-600x400.jpg",
+        "stock": true
       }
     ]
   }

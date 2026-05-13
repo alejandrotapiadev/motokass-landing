@@ -4,95 +4,284 @@ import MainLayout from "../layouts/MainLayout.astro";
 
 <MainLayout
   title="Agendar Cita | MOTOKASS Taller de Motos"
-  description="Reserva tu cita en el taller de MOTOKASS. Mantenimiento, revisión, reparación y diagnóstico para tu moto."
+  description="Reserva tu cita en el taller de MOTOKASS. Mantenimiento, revisión, reparación y diagnóstico para tu moto en Ávila."
 >
-  <div class="container">
-    <h1>Agendar una cita</h1>
+  <div class="page-wrapper">
+    <div class="container">
+      <div class="form-header">
+        <h1>Agendar una cita</h1>
+        <p>Rellena el formulario y te confirmaremos la cita por email.</p>
+      </div>
 
-    <form method="post" action="/api/agendar-cita">
-      <label for="fecha">Fecha de la cita</label>
-      <input type="date" id="fecha" name="fecha" required />
+      <div id="success-msg" class="alert alert--success" hidden aria-live="polite">
+        Tu cita ha sido registrada correctamente. Recibirás un email de confirmación en breve.
+      </div>
+      <div id="error-msg" class="alert alert--error" hidden aria-live="polite"></div>
 
-      <label for="hora">Hora</label>
-      <select id="hora" name="hora" required>
-        <option value="">Selecciona una hora</option>
-        <option value="09:00">09:00</option>
-        <option value="10:00">10:00</option>
-        <option value="11:00">11:00</option>
-        <option value="12:00">12:00</option>
-        <option value="16:00">16:00</option>
-        <option value="17:00">17:00</option>
-      </select>
+      <form id="cita-form" novalidate>
 
-      <label for="vehiculo">Vehículo</label>
-      <input
-        type="text"
-        id="vehiculo"
-        name="vehiculo"
-        placeholder="Ej: Rieju MRT 50 2023"
-        required
-      />
+        <div class="form-row">
+          <div class="form-group">
+            <label for="nombre">Nombre completo <span class="required">*</span></label>
+            <input type="text" id="nombre" name="nombre" placeholder="Ej: Juan García" autocomplete="name" />
+            <span class="field-error" id="nombre-error" role="alert"></span>
+          </div>
+          <div class="form-group">
+            <label for="email">Email <span class="required">*</span></label>
+            <input type="email" id="email" name="email" placeholder="juan@email.com" autocomplete="email" />
+            <span class="field-error" id="email-error" role="alert"></span>
+          </div>
+        </div>
 
-      <label for="motivo">Motivo</label>
-      <select id="motivo" name="motivo" required>
-        <option value="">Selecciona un motivo</option>
-        <option value="mantenimiento">Mantenimiento</option>
-        <option value="revision">Revisión</option>
-        <option value="reparacion">Reparación</option>
-        <option value="diagnostico">Diagnóstico</option>
-        <option value="otro">Otro</option>
-      </select>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="telefono">Teléfono <span class="optional">(opcional)</span></label>
+            <input type="tel" id="telefono" name="telefono" placeholder="600 000 000" autocomplete="tel" />
+          </div>
+          <div class="form-group">
+            <label for="vehiculo">Vehículo <span class="required">*</span></label>
+            <input type="text" id="vehiculo" name="vehiculo" placeholder="Ej: Rieju MRT 50 2023" />
+            <span class="field-error" id="vehiculo-error" role="alert"></span>
+          </div>
+        </div>
 
-      <label for="resumen">Resumen</label>
-      <textarea
-        id="resumen"
-        name="resumen"
-        placeholder="Describe brevemente el problema o servicio solicitado"
-      ></textarea>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="fecha">Fecha de la cita <span class="required">*</span></label>
+            <input type="date" id="fecha" name="fecha" />
+            <span class="field-error" id="fecha-error" role="alert"></span>
+          </div>
+          <div class="form-group">
+            <label for="hora">Hora <span class="required">*</span></label>
+            <select id="hora" name="hora">
+              <option value="">Selecciona una hora</option>
+              <option value="09:00">09:00</option>
+              <option value="10:00">10:00</option>
+              <option value="11:00">11:00</option>
+              <option value="12:00">12:00</option>
+              <option value="16:00">16:00</option>
+              <option value="17:00">17:00</option>
+            </select>
+            <span class="field-error" id="hora-error" role="alert"></span>
+          </div>
+        </div>
 
-      <button type="submit">Agendar cita</button>
-    </form>
+        <div class="form-group">
+          <label for="motivo">Motivo <span class="required">*</span></label>
+          <select id="motivo" name="motivo">
+            <option value="">Selecciona un motivo</option>
+            <option value="mantenimiento">Mantenimiento</option>
+            <option value="revision">Revisión</option>
+            <option value="reparacion">Reparación</option>
+            <option value="diagnostico">Diagnóstico electrónico</option>
+            <option value="otro">Otro</option>
+          </select>
+          <span class="field-error" id="motivo-error" role="alert"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="resumen">Descripción <span class="optional">(opcional)</span></label>
+          <textarea id="resumen" name="resumen" placeholder="Describe brevemente el problema o el servicio que necesitas"></textarea>
+        </div>
+
+        <button type="submit" id="submit-btn" class="btn-submit">
+          <span id="btn-text">Agendar cita</span>
+          <span id="btn-loading" hidden>Enviando...</span>
+        </button>
+
+      </form>
+    </div>
   </div>
 </MainLayout>
 
+<script>
+  const form = document.getElementById("cita-form") as HTMLFormElement;
+  const submitBtn = document.getElementById("submit-btn") as HTMLButtonElement;
+  const btnText = document.getElementById("btn-text")!;
+  const btnLoading = document.getElementById("btn-loading")!;
+  const successMsg = document.getElementById("success-msg")!;
+  const errorMsg = document.getElementById("error-msg")!;
+
+  const fechaInput = document.getElementById("fecha") as HTMLInputElement;
+  fechaInput.min = new Date().toISOString().split("T")[0];
+
+  function clearErrors() {
+    document.querySelectorAll<HTMLElement>(".field-error").forEach((el) => (el.textContent = ""));
+    document.querySelectorAll<HTMLElement>(".input--error").forEach((el) => el.classList.remove("input--error"));
+  }
+
+  function showFieldError(id: string, msg: string) {
+    const err = document.getElementById(`${id}-error`);
+    const field = document.getElementById(id);
+    if (err) err.textContent = msg;
+    if (field) field.classList.add("input--error");
+  }
+
+  function validate(data: Record<string, string>): boolean {
+    let ok = true;
+    clearErrors();
+    if (!data.nombre.trim()) { showFieldError("nombre", "Campo obligatorio"); ok = false; }
+    if (!data.email.trim()) { showFieldError("email", "Campo obligatorio"); ok = false; }
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) { showFieldError("email", "Introduce un email válido"); ok = false; }
+    if (!data.vehiculo.trim()) { showFieldError("vehiculo", "Campo obligatorio"); ok = false; }
+    if (!data.fecha) { showFieldError("fecha", "Selecciona una fecha"); ok = false; }
+    if (!data.hora) { showFieldError("hora", "Selecciona una hora"); ok = false; }
+    if (!data.motivo) { showFieldError("motivo", "Selecciona un motivo"); ok = false; }
+    return ok;
+  }
+
+  function setLoading(loading: boolean) {
+    submitBtn.disabled = loading;
+    btnText.hidden = loading;
+    btnLoading.hidden = !loading;
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    successMsg.hidden = true;
+    errorMsg.hidden = true;
+
+    const data = Object.fromEntries(new FormData(form)) as Record<string, string>;
+    if (!validate(data)) return;
+
+    setLoading(true);
+    try {
+      const res = await fetch("/api/agendar-cita", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+
+      if (res.ok) {
+        form.reset();
+        successMsg.hidden = false;
+        successMsg.scrollIntoView({ behavior: "smooth", block: "center" });
+      } else {
+        errorMsg.textContent = json.error || "Error al enviar. Inténtalo de nuevo.";
+        errorMsg.hidden = false;
+      }
+    } catch {
+      errorMsg.textContent = "Error de conexión. Comprueba tu internet e inténtalo de nuevo.";
+      errorMsg.hidden = false;
+    } finally {
+      setLoading(false);
+    }
+  });
+</script>
+
 <style>
-.container {
-  max-width: 600px;
-  margin: 2rem auto;
-  background: var(--color-white);
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+.page-wrapper {
+  min-height: 100vh;
+  padding: 3rem 1rem;
+  background: #f8fafc;
 }
 
-h1 {
-  color: var(--color-primary);
-  margin-bottom: 1.5rem;
+.container {
+  max-width: 680px;
+  margin: 0 auto;
+  background: white;
+  padding: 2.5rem 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+.form-header {
   text-align: center;
+  margin-bottom: 2rem;
+}
+
+.form-header h1 {
+  color: var(--color-primary);
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.form-header p {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.alert {
+  padding: 1rem 1.25rem;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.alert--success {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.alert--error {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.25rem;
 }
 
 label {
-  display: block;
-  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
   font-weight: 600;
-  color: var(--color-text);
+  color: #374151;
+  margin-bottom: 0.4rem;
+}
+
+.required {
+  color: var(--color-secondary);
+}
+
+.optional {
+  font-weight: 400;
+  color: #9ca3af;
+  font-size: 0.8rem;
 }
 
 input,
 select,
 textarea {
   width: 100%;
-  padding: 0.75rem;
-  margin-bottom: 1.25rem;
-  border: 1px solid #ccc;
+  padding: 0.75rem 0.9rem;
+  border: 1.5px solid #e5e7eb;
   border-radius: 8px;
-  font-size: 1rem;
-  color: var(--color-text);
+  font-size: 0.95rem;
+  color: #111827;
+  background: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(31, 63, 122, 0.1);
+}
+
+input.input--error,
+select.input--error,
+textarea.input--error {
+  border-color: #dc2626;
 }
 
 input::placeholder,
 textarea::placeholder {
-  color: var(--color-muted);
+  color: #9ca3af;
 }
 
 textarea {
@@ -100,20 +289,44 @@ textarea {
   min-height: 100px;
 }
 
-button {
+.field-error {
+  color: #dc2626;
+  font-size: 0.78rem;
+  margin-top: 0.3rem;
+  min-height: 1rem;
+}
+
+.btn-submit {
   width: 100%;
   padding: 0.9rem;
   background: var(--color-primary);
-  color: var(--color-white);
+  color: white;
   border: none;
   border-radius: 8px;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: filter 0.2s ease-in-out;
+  transition: filter 0.2s, transform 0.15s;
+  margin-top: 0.5rem;
 }
 
-button:hover {
-  filter: brightness(0.9);
+.btn-submit:hover:not(:disabled) {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.btn-submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .container {
+    padding: 1.75rem 1.25rem;
+  }
 }
 </style>

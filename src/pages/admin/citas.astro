@@ -1,0 +1,252 @@
+---
+// Requiere env: ADMIN_PASSWORD
+import supabase from "../../lib/supabase.ts";
+
+if (Astro.cookies.get("admin_session")?.value !== "ok") {
+  return Astro.redirect("/admin");
+}
+
+// Actualizar estado de una cita via POST
+if (Astro.request.method === "POST") {
+  const data = await Astro.request.formData();
+  const id = data.get("id")?.toString();
+  const estado = data.get("estado")?.toString();
+  if (id && estado) {
+    await supabase.from("citas").update({ estado }).eq("id", id);
+  }
+  return Astro.redirect("/admin/citas");
+}
+
+// Filtros opcionales por estado
+const url = new URL(Astro.request.url);
+const filtroEstado = url.searchParams.get("estado") ?? "";
+
+let query = supabase
+  .from("citas")
+  .select("*")
+  .order("fecha", { ascending: true })
+  .order("hora", { ascending: true });
+
+if (filtroEstado) {
+  query = query.eq("estado", filtroEstado);
+}
+
+const { data: citas, error } = await query;
+
+const estados = ["pendiente", "confirmada", "completada", "cancelada"];
+
+const ESTADO_STYLE: Record<string, string> = {
+  pendiente:  "background:#fef9c3;color:#713f12;",
+  confirmada: "background:#dcfce7;color:#14532d;",
+  completada: "background:#e0f2fe;color:#075985;",
+  cancelada:  "background:#fee2e2;color:#7f1d1d;",
+};
+
+function formatFecha(fecha: string) {
+  return new Date(fecha + "T00:00:00").toLocaleDateString("es-ES", {
+    weekday: "short", day: "numeric", month: "short", year: "numeric",
+  });
+}
+---
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Citas · MOTOKASS Admin</title>
+  <link rel="icon" href="/favicon.svg" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f1f5f9; min-height: 100vh; }
+
+    .topbar {
+      background: #1F3F7A;
+      padding: .9rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: white;
+    }
+    .topbar h1 { font-size: 1.1rem; font-weight: 700; }
+    .topbar a { color: rgba(255,255,255,.75); font-size: .875rem; text-decoration: none; }
+    .topbar a:hover { color: white; }
+
+    .content { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 10px;
+      padding: 1.25rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+      text-align: center;
+    }
+    .stat-card .num { font-size: 2rem; font-weight: 800; color: #1F3F7A; }
+    .stat-card .lbl { font-size: .8rem; color: #64748b; margin-top: .2rem; text-transform: uppercase; letter-spacing: .5px; }
+
+    .filtros {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .filtros a {
+      padding: .45rem 1rem;
+      border-radius: 999px;
+      font-size: .85rem;
+      font-weight: 600;
+      text-decoration: none;
+      border: 1.5px solid #e5e7eb;
+      color: #374151;
+      background: white;
+      transition: .2s;
+    }
+    .filtros a:hover, .filtros a.active {
+      background: #1F3F7A;
+      border-color: #1F3F7A;
+      color: white;
+    }
+
+    .tabla-wrapper { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+    th { background: #f8fafc; padding: .9rem 1rem; font-size: .8rem; text-transform: uppercase; letter-spacing: .5px; color: #64748b; text-align: left; border-bottom: 1px solid #e5e7eb; }
+    td { padding: .85rem 1rem; font-size: .9rem; border-bottom: 1px solid #f1f5f9; color: #1e293b; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8fafc; }
+
+    .badge {
+      display: inline-block;
+      padding: .2rem .65rem;
+      border-radius: 999px;
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .estado-form select {
+      padding: .3rem .6rem;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 6px;
+      font-size: .8rem;
+      cursor: pointer;
+    }
+
+    .estado-form button {
+      background: #1F3F7A;
+      color: white;
+      border: none;
+      padding: .3rem .7rem;
+      border-radius: 6px;
+      font-size: .8rem;
+      cursor: pointer;
+      margin-left: .3rem;
+    }
+
+    .estado-form button:hover { filter: brightness(1.1); }
+
+    .empty { text-align: center; padding: 3rem; color: #94a3b8; }
+
+    .error-msg { background: #fef2f2; color: #991b1b; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>MOTOKASS Admin · Citas</h1>
+  <a href="/">← Volver a la web</a>
+</div>
+
+<div class="content">
+
+  {error && <div class="error-msg">Error al cargar las citas: {error.message}</div>}
+
+  <!-- Stats -->
+  <div class="stats">
+    {estados.map(e => {
+      const count = (citas ?? []).filter(c => (c.estado ?? "pendiente") === e).length;
+      return (
+        <div class="stat-card">
+          <div class="num">{count}</div>
+          <div class="lbl">{e}</div>
+        </div>
+      );
+    })}
+    <div class="stat-card">
+      <div class="num">{(citas ?? []).length}</div>
+      <div class="lbl">Total</div>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filtros">
+    <a href="/admin/citas" class={!filtroEstado ? "active" : ""}>Todas</a>
+    {estados.map(e => (
+      <a href={`/admin/citas?estado=${e}`} class={filtroEstado === e ? "active" : ""}>{e.charAt(0).toUpperCase() + e.slice(1)}</a>
+    ))}
+  </div>
+
+  <!-- Tabla -->
+  {(!citas || citas.length === 0) ? (
+    <div class="empty">No hay citas registradas{filtroEstado ? ` con estado "${filtroEstado}"` : ""}.</div>
+  ) : (
+    <div class="tabla-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Cliente</th>
+            <th>Contacto</th>
+            <th>Vehículo</th>
+            <th>Servicio</th>
+            <th>Descripción</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {citas.map(cita => {
+            const estado = cita.estado ?? "pendiente";
+            const style = ESTADO_STYLE[estado] ?? "";
+            return (
+              <tr>
+                <td>{formatFecha(cita.fecha)}</td>
+                <td>{cita.hora}</td>
+                <td><strong>{cita.nombre}</strong></td>
+                <td>
+                  <a href={`mailto:${cita.email}`}>{cita.email}</a>
+                  {cita.telefono && <><br/><a href={`tel:${cita.telefono}`}>{cita.telefono}</a></>}
+                </td>
+                <td>{cita.vehiculo}</td>
+                <td>{cita.motivo}</td>
+                <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title={cita.resumen ?? ""}>{cita.resumen ?? "—"}</td>
+                <td>
+                  <form class="estado-form" method="POST">
+                    <input type="hidden" name="id" value={cita.id} />
+                    <select name="estado">
+                      {estados.map(e => (
+                        <option value={e} selected={e === estado}>{e}</option>
+                      ))}
+                    </select>
+                    <button type="submit">OK</button>
+                  </form>
+                  <span class="badge" style={style}>{estado}</span>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  )}
+
+</div>
+</body>
+</html>

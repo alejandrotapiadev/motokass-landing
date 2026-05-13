@@ -1,13 +1,21 @@
 import { useState, useMemo } from 'react';
 import MotoCard from './MotoCard.jsx';
 
+function toSlug(str) {
+  return str
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
 export default function FilteredMotoList({ motos }) {
   const [busqueda, setBusqueda] = useState('');
   const [marcaSeleccionada, setMarcaSeleccionada] = useState('');
+  const [soloConStock, setSoloConStock] = useState(false);
 
-  // Obtenemos precio máximo dinámico
-  const precioMaximoDisponible = Math.max(...motos.map(m => m.precio))+1001; // +1000 para dar un margen
-
+  const precioMaximoDisponible = Math.max(...motos.map(m => m.precio)) + 1001;
   const [precioMax, setPrecioMax] = useState(precioMaximoDisponible);
 
   const marcasUnicas = [...new Set(motos.map(m => m.marca))];
@@ -17,52 +25,47 @@ export default function FilteredMotoList({ motos }) {
       const coincideBusqueda =
         moto.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
         moto.marca.toLowerCase().includes(busqueda.toLowerCase());
-
-      const coincideMarca =
-        marcaSeleccionada === '' || moto.marca === marcaSeleccionada;
-
-      const coincidePrecio =
-        moto.precio <= precioMax;
-
-      return coincideBusqueda && coincideMarca && coincidePrecio;
+      const coincideMarca = marcaSeleccionada === '' || moto.marca === marcaSeleccionada;
+      const coincidePrecio = moto.precio <= precioMax;
+      const coincideStock = !soloConStock || moto.stock !== false;
+      return coincideBusqueda && coincideMarca && coincidePrecio && coincideStock;
     });
-  }, [busqueda, marcaSeleccionada, precioMax, motos]);
+  }, [busqueda, marcaSeleccionada, precioMax, soloConStock, motos]);
 
   const limpiarFiltros = () => {
     setBusqueda('');
     setMarcaSeleccionada('');
     setPrecioMax(precioMaximoDisponible);
+    setSoloConStock(false);
   };
 
   return (
     <>
-      <div class="filtro-container">
-        <div class="filtro-group">
+      <div className="filtro-container">
+        <div className="filtro-group">
           <input
             type="text"
             placeholder="🔍 Buscar por modelo o marca..."
             value={busqueda}
             onInput={(e) => setBusqueda(e.target.value)}
-            class="input-filtro"
+            className="input-filtro"
           />
 
           <select
             value={marcaSeleccionada}
             onChange={(e) => setMarcaSeleccionada(e.target.value)}
-            class="select-filtro"
+            className="select-filtro"
           >
             <option value="">Todas las marcas</option>
             {marcasUnicas.map(marca => (
-              <option value={marca}>{marca}</option>
+              <option key={marca} value={marca}>{marca}</option>
             ))}
           </select>
 
-          {/* SLIDER PRECIO */}
-          <div class="slider-container">
-            <label class="slider-label">
-              Precio máximo: <strong>{precioMax.toLocaleString()} €</strong>
+          <div className="slider-container">
+            <label className="slider-label">
+              Precio máximo: <strong>{precioMax.toLocaleString('es-ES')} €</strong>
             </label>
-
             <input
               type="range"
               min="0"
@@ -70,23 +73,32 @@ export default function FilteredMotoList({ motos }) {
               step="500"
               value={precioMax}
               onInput={(e) => setPrecioMax(Number(e.target.value))}
-              class="slider-precio"
+              className="slider-precio"
             />
           </div>
 
-          <button onClick={limpiarFiltros} class="btn-limpiar">
+          <label className="label-stock">
+            <input
+              type="checkbox"
+              checked={soloConStock}
+              onChange={(e) => setSoloConStock(e.target.checked)}
+            />
+            Solo disponibles
+          </label>
+
+          <button onClick={limpiarFiltros} className="btn-limpiar">
             Limpiar
           </button>
         </div>
 
-        <div class="resultado-count">
-          {motosFiltradas.length} moto(s) encontrada(s)
+        <div className="resultado-count">
+          {motosFiltradas.length} moto{motosFiltradas.length !== 1 ? 's' : ''} encontrada{motosFiltradas.length !== 1 ? 's' : ''}
         </div>
       </div>
 
-      <div class="motos-grid">
+      <div className="motos-grid">
         {motosFiltradas.map(moto => (
-          <a href={'/under-construction'} class="moto-link">
+          <a key={moto.nombre} href={`/tienda/${toSlug(moto.nombre)}`} className="moto-link">
             <MotoCard {...moto} />
           </a>
         ))}
@@ -113,10 +125,16 @@ export default function FilteredMotoList({ motos }) {
         .select-filtro {
           padding: 0.7rem 1rem;
           border-radius: 0.6rem;
-          border: 1px solid #e5e7eb;
+          border: 1.5px solid #e5e7eb;
           font-size: 0.95rem;
           flex: 1;
           min-width: 180px;
+        }
+
+        .input-filtro:focus,
+        .select-filtro:focus {
+          outline: none;
+          border-color: #1F3F7A;
         }
 
         .slider-container {
@@ -129,39 +147,72 @@ export default function FilteredMotoList({ motos }) {
         .slider-label {
           font-size: 0.9rem;
           margin-bottom: 0.4rem;
-          color: var(--color-primary);
+          color: #1F3F7A;
         }
 
         .slider-precio {
           width: 100%;
           cursor: pointer;
+          accent-color: #1F3F7A;
+        }
+
+        .label-stock {
+          display: flex;
+          align-items: center;
+          gap: 0.4rem;
+          font-size: 0.9rem;
+          font-weight: 600;
+          color: #374151;
+          cursor: pointer;
+          white-space: nowrap;
+        }
+
+        .label-stock input {
+          accent-color: #1F3F7A;
+          width: 16px;
+          height: 16px;
+          cursor: pointer;
         }
 
         .btn-limpiar {
-          background: var(--color-secondary);
-          color: var(--color-primary);
-          border: none;
+          background: #f1f5f9;
+          color: #374151;
+          border: 1.5px solid #e5e7eb;
           padding: 0.7rem 1.2rem;
           border-radius: 0.6rem;
           cursor: pointer;
           font-weight: 600;
+          font-size: 0.9rem;
+          transition: background 0.2s;
+        }
+
+        .btn-limpiar:hover {
+          background: #e2e8f0;
         }
 
         .resultado-count {
           margin-top: 1rem;
           font-weight: 600;
-          color: var(--color-primary);
+          font-size: 0.875rem;
+          color: #64748b;
         }
 
         .motos-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
           gap: 2rem;
         }
 
         .moto-link {
           display: block;
           text-decoration: none;
+          border-radius: 1rem;
+          transition: outline 0.15s;
+        }
+
+        .moto-link:focus-visible {
+          outline: 3px solid #1F3F7A;
+          outline-offset: 2px;
         }
         `}
       </style>

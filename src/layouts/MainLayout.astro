@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import ScrollTop from "../components/ScrollTop.astro";
+import WhatsApp from "../components/WhatsApp.astro";
 import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 import { Analytics } from "@vercel/analytics/react";
@@ -124,8 +125,9 @@ const {
 
     <title>{title}</title>
 
-    <!-- Favicon (placeholder) -->
+    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -138,6 +140,7 @@ const {
       <slot />
     </main>
     <ScrollTop />
+    <WhatsApp />
     <Footer></Footer>
     <Analytics client:only="react" />
     <SpeedInsights client:only="react" />
