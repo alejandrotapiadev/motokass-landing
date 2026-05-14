@@ -1,0 +1,178 @@
+ ---
+  Cambios realizados (Sprints 1–4)
+
+  Sprint 1 — Formularios funcionales
+
+  Archivo: src/pages/api/agendar-cita.ts
+  Cambio: NUEVO — Endpoint POST: valida, guarda en Supabase citas, envía email al cliente y al taller
+  ────────────────────────────────────────
+  Archivo: src/pages/CitaPrevia.astro
+  Cambio: Reescrito — añade nombre/email/teléfono, grid 2 cols, validación por campo, loading state
+  ────────────────────────────────────────
+  Archivo: src/pages/api/contacto.ts
+  Cambio: NUEVO — Endpoint POST: valida y envía email al taller con replyTo del cliente
+  ────────────────────────────────────────
+  Archivo: src/pages/contacto.astro
+  Cambio: Wired con fetch, botón llamar convertido a <a href="tel:">, alerts inline
+  ────────────────────────────────────────
+  Archivo: src/pages/Ofertas.astro
+  Cambio: NUEVO — Servicios con descuento + motos destacadas + newsletter
+
+  Sprint 2 — SEO + stock
+
+  ┌──────────────────────────────────────────┬────────────────────────────────────────────────────┐
+  │                 Archivo                  │                       Cambio                       │
+  ├──────────────────────────────────────────┼────────────────────────────────────────────────────┤
+  │ public/sitemap.xml                       │ Actualizado — 6 páginas con lastmod y prioridades  │
+  ├──────────────────────────────────────────┼────────────────────────────────────────────────────┤
+  │ public/robots.txt                        │ Actualizado — desautoriza /admin/ y /api/          │
+  ├──────────────────────────────────────────┼────────────────────────────────────────────────────┤
+  │ src/layouts/MainLayout.astro             │ <link rel="sitemap"> en head                       │
+  ├──────────────────────────────────────────┼────────────────────────────────────────────────────┤
+  │ src/components/Header.astro              │ "Novedades" → "Ofertas"                            │
+  ├──────────────────────────────────────────┼────────────────────────────────────────────────────┤
+  │ RiejuCatalogo.json / ShercoCatalogo.json │ Campo stock: true/false por modelo                 │
+  ├──────────────────────────────────────────┼────────────────────────────────────────────────────┤
+  │ src/components/MotoCard.jsx              │ Badge "Sin stock", lazy loading, precio formateado │
+  ├──────────────────────────────────────────┼────────────────────────────────────────────────────┤
+  │ src/components/FilteredMotoList.jsx      │ Filtro "Solo disponibles", links a /tienda/[slug]  │
+  ├──────────────────────────────────────────┼────────────────────────────────────────────────────┤
+  │ src/lib/slug.ts                          │ NUEVO — utilidad toSlug() compartida               │
+  └──────────────────────────────────────────┴────────────────────────────────────────────────────┘
+
+  Sprint 3 — Ficha de moto + Admin
+
+  ┌───────────────────────────────┬─────────────────────────────────────────────────────────────────────────────────────┐
+  │            Archivo            │                                       Cambio                                        │
+  ├───────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────────┤
+  │ src/pages/tienda/[slug].astro │ NUEVO — Ficha SSR con imagen, specs, precio, badge stock y formulario "Me interesa" │
+  ├───────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────────┤
+  │ src/pages/admin/index.astro   │ NUEVO — Login con contraseña + cookie httpOnly 8h                                   │
+  ├───────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────────┤
+  │ src/pages/admin/citas.astro   │ NUEVO — Tabla de citas, cambio de estado inline, filtros, stats                     │
+  └───────────────────────────────┴─────────────────────────────────────────────────────────────────────────────────────┘
+
+  Sprint 4 — Pulido final
+
+  Archivo: src/components/WhatsApp.astro
+  Cambio: NUEVO — Botón flotante verde, configurable via WHATSAPP_NUMBER
+  ────────────────────────────────────────
+  Archivo: src/components/Map.astro
+  Cambio: Leaflet eliminado → Google Maps iframe (sin API key, lazy loading, dirección + teléfono + horario)
+  ────────────────────────────────────────
+  Archivo: src/components/Testimonios.astro
+  Cambio: NUEVO — 3 reseñas + botón a Google Reviews
+  ────────────────────────────────────────
+  Archivo: src/pages/index.astro
+  Cambio: Añade sección Testimonios entre ServiceSelector y Map
+  ────────────────────────────────────────
+  Archivo: .env.example
+  Cambio: NUEVO — 7 variables documentadas
+  ────────────────────────────────────────
+  Archivo: src/components/
+  Cambio: ELIMINADOS — MotoCard.astro, Contact.astro, Products.astro, Cita.astro, DondeEstamos.astro, Schedule.astro
+
+  ---
+  Plan de pruebas
+
+  Variables de entorno (antes de probar)
+
+  Añadir en Vercel: ADMIN_PASSWORD, WHATSAPP_NUMBER, TALLER_EMAIL (cuando tengas email)
+
+  ---
+  1. Formulario de cita previa (/citaPrevia)
+
+  - Enviar con todos los campos vacíos → deben aparecer errores por campo
+  - Email con formato inválido → error "Introduce un email válido"
+  - Fecha pasada (ej. ayer) → debe bloquearse
+  - Fecha mínima en el campo date = hoy (verificar en el picker)
+  - Rellenar todo correcto → mensaje de éxito, formulario se resetea
+  - Verificar en Supabase (tabla citas) que el registro aparece
+  - Verificar que llega email de confirmación al cliente
+  - Verificar que llega email de notificación al TALLER_EMAIL
+
+  2. Formulario de contacto (/contacto)
+
+  - Enviar vacío → errores por campo
+  - Mensaje menor de 10 caracteres → error
+  - Rellenar todo → mensaje de éxito
+  - Verificar que llega email al taller con replyTo del cliente
+  - Botón "Llamar" → abre marcador de teléfono (no envía formulario)
+
+  3. Tienda y catálogo (/tienda)
+
+  - Filtro de búsqueda por nombre (ej. "Century") → filtra correctamente
+  - Filtro por marca → muestra solo Rieju o solo Sherco
+  - Slider de precio → filtra por precio máximo
+  - Checkbox "Solo disponibles" → oculta las 4 motos sin stock
+  - Botón "Limpiar" → resetea todos los filtros
+  - Click en una tarjeta → navega a /tienda/[slug]
+  - Tarjetas sin stock → badge "Sin stock" visible + opacidad reducida
+
+  4. Ficha de moto (/tienda/[slug])
+
+  - Abrir cualquier moto desde el catálogo → carga correctamente
+  - Specs técnicas visibles y correctas
+  - Moto sin stock → badge "Sin stock" + CTA cambia a "Avisar cuando esté disponible"
+  - Formulario "Me interesa" → validación funciona (nombre y email obligatorios)
+  - Enviar formulario → mensaje de éxito + llega email al taller con nombre de la moto
+  - Botón "Agendar cita de prueba" → navega a /citaPrevia
+  - URL inventada /tienda/moto-que-no-existe → redirige a /404
+
+  5. Página Ofertas (/Ofertas)
+
+  - Carga correctamente con las 3 tarjetas de servicios
+  - Motos destacadas muestran imagen, precio y specs
+  - Botones "Reservar cita" → navegan a /citaPrevia
+  - Botones "Consultar" → navegan a /contacto
+  - Botón "Ver catálogo completo" → navega a /tienda
+  - Newsletter → suscripción funciona (verifica en tabla subscribers de Supabase)
+
+  6. Header y navegación
+
+  - Enlace "Ofertas" en el menú navega a /Ofertas
+  - Todos los enlaces del menú funcionan (Tienda, Taller, Contacto, Ofertas)
+  - Header responsive en móvil (menú visible)
+
+  7. Panel admin (/admin)
+
+  - Sin cookie → /admin/citas redirige a /admin
+  - Contraseña incorrecta → mensaje de error
+  - Contraseña correcta → redirige a /admin/citas
+  - /admin/citas muestra las citas agendadas en el paso 1
+  - Filtro por estado (pendiente/confirmada/etc.) funciona
+  - Cambiar estado de una cita → se actualiza en la tabla y en Supabase
+  - Botón "← Volver a la web" → navega a /
+
+  8. WhatsApp flotante
+
+  - Visible en todas las páginas (esquina inferior derecha, sobre el scroll-top)
+  - Click → abre WhatsApp con el número configurado y mensaje pre-escrito
+  - En móvil → abre la app de WhatsApp directamente
+  - En móvil → abre la app de WhatsApp directamente
+
+  9. Google Maps (/ sección Dónde estamos)
+
+  - El mapa carga correctamente mostrando Ávila
+  - Botón "Iniciar ruta en Google Maps" → abre Google Maps con ruta al destino
+  - Teléfono en el mapa es clickable (tel:+34920254044)
+  - El mapa es responsive en móvil
+
+  10. Testimonios (/)
+
+  - Sección visible entre ServiceSelector y el mapa
+  - 3 tarjetas de reseñas con nombre, texto y estrellas
+  - Botón "Ver todas las reseñas en Google" → abre el perfil de Google Maps en nueva pestaña
+
+  11. SEO
+
+  - https://motokass.com/sitemap.xml → XML válido con las 6 URLs
+  - https://motokass.com/robots.txt → desautoriza /admin/ y /api/
+  - Inspeccionar cualquier página → <link rel="sitemap"> en el <head>
+
+  12. Regresión general
+
+  - Home carga sin errores de consola
+  - /taller → botón "Agendar cita" navega a /citaPrevia
+  - /404 → página de error personalizada funciona
+  - ScrollTop visible al bajar y funciona en todas las páginas

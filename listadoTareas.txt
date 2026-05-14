@@ -1,8 +1,57 @@
 ============================================================
   MOTOKASS — LISTADO DE TAREAS Y DETALLES PENDIENTES
   Objetivo: segunda versión en producción 100% funcional
-  Generado: 2026-05-14
+  Actualizado: 2026-05-14  (sesión feature/integracionIA-3)
 ============================================================
+
+
+════════════════════════════════════════════════════════════
+ ✓ COMPLETADO EN FEATURE/integracionIA-3
+════════════════════════════════════════════════════════════
+
+[✓] Catálogo Rieju: 35 modelos reales scrapeados de rieju.com/es
+    Categorías: Off-Road (9), Travel (6), Classic (3), Naked (1),
+    Scooter (2), Supermotard (7), Eléctrico (7)
+    Specs completas: cilindrada, motor, potencia, par, peso, sillín,
+    depósito, neumáticos, ABS, batería, autonomía…
+    Imágenes desde cdn.rieju.com · precios 2026 · campo "nuevo"
+
+[✓] Catálogo Sherco: 32 modelos reales scrapeados de sherco.com/es
+    Categorías: Enduro (9), Trial (6), Leisure (2), Streetbike (5),
+    50cc (9), E-Bike (1)
+    Imágenes desde sherco.com/wp-content/uploads/
+    NOTA: Sherco no publica PVP → precio_eur: null en todos (ver sección 2)
+
+[✓] Precios ocultos en toda la web
+    MotoCard, ficha individual y Ofertas muestran "Consultar precio"
+    El slider de precio en filtros fue eliminado
+    Los precios siguen en los JSON para uso interno del taller
+
+[✓] Filtros avanzados en catálogo con selects custom
+    Nuevos filtros: categoría (auto-poblado), cilindrada por rangos,
+    tipo de motor (chips: 2T / 4T / Eléctrico)
+    Selects nativos reemplazados por componente React custom:
+    panel animado, opción activa con checkmark, ✕ para limpiar,
+    chevron rotatorio, cierre con Escape o clic fuera
+
+[✓] Paginación en catálogo (12 motos/página)
+    Controles numéricos con elipsis, scroll suave al cambiar página
+    Página se reinicia al cambiar cualquier filtro
+    Contador: "X motos encontradas · página N de M"
+
+[✓] Mezcla de marcas en catálogo
+    Intercalado R1,S1,R2,S2… en lugar de todos Rieju + todos Sherco
+
+[✓] Renombrado Tienda → Catálogo en toda la aplicación
+    Ficheros: tienda.astro → catalogo.astro (git mv, historial preservado)
+              tienda/[slug].astro → catalogo/[slug].astro
+    URLs: /tienda → /catalogo en nav, cards home, breadcrumb, sitemap
+    UI: texto "Tienda" → "Catálogo" en header, ServiceSelector, Hero
+
+[✓] .gitignore: .vercel/ excluido (build local no se sube al repo)
+
+[✓] Fix estética home: texto CATÁLOGO no desborda en las cards
+    font-size: 5em fijo → clamp(2.5rem, 4.5vw, 5rem) + white-space: nowrap
 
 
 ────────────────────────────────────────────────────────────
@@ -51,7 +100,34 @@
 
 
 ────────────────────────────────────────────────────────────
- 3. CONTENIDO — TEXTOS Y DATOS A ACTUALIZAR
+ 3. CATÁLOGOS — PRECIOS Y DATOS A COMPLETAR  (NUEVA SECCIÓN)
+────────────────────────────────────────────────────────────
+
+[ ] Sherco: rellenar precios en ShercoCatalogo.json
+    Los 32 modelos tienen precio_eur: null porque Sherco no publica
+    PVP en su web. Rellenar con la tarifa oficial del distribuidor
+    Sherco España. Cuando se rellenen, volver a activar el precio
+    visible en web (o dejarlo como "Consultar precio" si se prefiere).
+
+[ ] Rieju E-City 1.2KW: precio no publicado
+    Archivo: src/resources/RiejuCatalogo.json (modelo "Rieju E-City 1.2KW")
+    La página oficial no muestra PVP. Confirmar con Rieju España.
+
+[ ] Rieju XPLORA 557 S: verificar specs
+    La página rieju.com/es/travel/122/2034/xplora-557-S no cargó
+    correctamente durante el scraping. Las specs actuales (sillín 795mm,
+    neumáticos 120/70-R17 + 150/70-R17) son inferidas del modelo 707 S.
+    Confirmar en rieju.com.
+
+[✓] BUG RESUELTO: Sherco — categoria y nuevo ya se leen del JSON
+    Archivo: src/pages/catalogo.astro
+    El mapeo de motosSherco ahora usa (moto as any).categoria y
+    (moto as any).nuevo igual que motosRieju. El filtro de categoría
+    ya funciona para los 32 modelos Sherco.
+
+
+────────────────────────────────────────────────────────────
+ 4. CONTENIDO — TEXTOS Y DATOS A ACTUALIZAR
 ────────────────────────────────────────────────────────────
 
 [ ] Footer: email genérico → email corporativo
@@ -79,49 +155,42 @@
 [ ] Testimonios: reseñas ficticias
     Los 3 testimonios actuales son de ejemplo.
     Reemplazar con reseñas reales de clientes cuando las haya.
-    El componente está preparado, solo hay que editar el array
-    'reseñas' en src/components/Testimonios.astro.
 
 [ ] Ofertas: precios de servicios hardcodeados
     Archivo: src/pages/Ofertas.astro
-    Los precios (79€, 89€, 39€) y los precios originales son de
-    ejemplo. Verificar y actualizar con los precios reales del taller.
+    Los precios (79€, 89€, 39€) son de ejemplo.
+    Verificar y actualizar con los precios reales del taller.
 
 [ ] Sitemap: no incluye fichas individuales de moto
     Archivo: public/sitemap.xml
-    Hay 13 modelos en los catálogos JSON, cada uno genera una ruta
-    /tienda/[slug]. Ninguna aparece en el sitemap.
-    Añadirlas manualmente o migrar a @astrojs/sitemap automático
-    (requiere output: hybrid o config adicional en modo SSR).
+    Hay 67 modelos (35 Rieju + 32 Sherco), cada uno genera una ruta
+    /catalogo/[slug]. Ninguna aparece en el sitemap.
+    NOTA: la URL de catálogo ya fue actualizada de /tienda a /catalogo.
+    Añadirlas manualmente o migrar a @astrojs/sitemap automático.
 
 [ ] MainLayout: fachada.png en JSON-LD
     Archivo: src/layouts/MainLayout.astro, línea 59
-    La propiedad "image" apunta a https://motokass.com/fachada.png
-    Verificar que el archivo public/fachada.png es la foto correcta
-    del negocio (fachada exterior o logo) y que se ve bien.
+    Verificar que public/fachada.png es la foto correcta del negocio.
 
 
 ────────────────────────────────────────────────────────────
- 4. CÓDIGO — LIMPIEZA Y DEUDA TÉCNICA
+ 5. CÓDIGO — LIMPIEZA Y DEUDA TÉCNICA
 ────────────────────────────────────────────────────────────
 
 [ ] Hero.astro: componente sin usar
     Archivo: src/components/Hero.astro
-    Existe en el proyecto pero no está importado en ninguna página.
-    Evaluar: eliminar o integrar en index.astro como sección de bienvenida.
+    Existe pero no está importado en ninguna página.
+    Evaluar: eliminar o integrar en index.astro.
 
 [ ] ServiceBox.astro: componente sin usar
     Archivo: src/components/ServiceBox.astro
-    Mismo caso que Hero.astro. No está referenciado en ninguna página.
-    Eliminar si no se va a usar.
+    Mismo caso que Hero.astro. Eliminar si no se va a usar.
 
 [ ] FilteredMotoList.jsx: función toSlug duplicada
-    Archivo: src/components/FilteredMotoList.jsx, línea 4
+    Archivo: src/components/FilteredMotoList.jsx, línea 9
     La función toSlug() está copiada en este archivo en lugar de
     importarse desde src/lib/slug.ts (que ya existe para este propósito).
     Cambiar a: import { toSlug } from '../lib/slug.ts';
-    Nota: requiere verificar que Vite resuelve correctamente el import .ts
-    desde un archivo .jsx en el contexto del cliente.
 
 [ ] package.json: dependencias sin usar
     @astrojs/preact y preact están instalados pero ningún componente
@@ -131,16 +200,13 @@
 
 [ ] MainLayout: CSS de SweetAlert2 cargado globalmente sin necesidad
     Archivo: src/layouts/MainLayout.astro, línea 129
-    <link rel="stylesheet" href=".../sweetalert2.min.css">
     SweetAlert2 no se usa en ninguna página actualmente.
     Eliminar esta línea para reducir el peso de carga inicial.
 
 [ ] global.css: media query con clases obsoletas
     Archivo: src/styles/global.css, líneas 84-96
     El bloque @media (max-width: 768px) referencia .header-content
-    y .hero-content, clases que ya no existen en el Header actual
-    (el Header tiene sus propios estilos con media query).
-    Limpiar ese bloque para evitar CSS muerto.
+    y .hero-content, clases que ya no existen. Limpiar CSS muerto.
 
 [ ] taller.astro: HTML semántico incorrecto
     Archivo: src/pages/taller.astro, línea 33
@@ -150,169 +216,154 @@
 
 
 ────────────────────────────────────────────────────────────
- 5. SEO — MEJORAS TÉCNICAS
+ 6. SEO — MEJORAS TÉCNICAS
 ────────────────────────────────────────────────────────────
 
-[ ] astro.config.mjs: falta la URL del sitio
-    Archivo: astro.config.mjs
-    Añadir: site: "https://motokass.com"
-    Esto habilita URLs canónicas automáticas y es necesario si en el
-    futuro se usa @astrojs/sitemap o integraciones que usan Astro.site.
+[✓] astro.config.mjs: site: "https://motokass.com" añadido
 
-[ ] MainLayout: falta meta og:image
-    Archivo: src/layouts/MainLayout.astro
-    No hay <meta property="og:image" content="..."> global.
-    Añadir una imagen por defecto (logo o fachada) para que aparezca
-    cuando alguien comparte un enlace en redes sociales.
+[✓] MainLayout: og:image global (default fachada.png) + Twitter Card
+    También añadidos og:site_name, og:locale, og:url dinámico.
+    Eliminado CSS SweetAlert2 innecesario.
 
-[ ] Fichas de moto: meta og:image específica
-    Archivo: src/pages/tienda/[slug].astro
-    Cada ficha podría usar la imagen de la moto como og:image para
-    que al compartir en redes se vea la foto del modelo.
-    Aprovechar que ya se tiene la URL de imagen de cada moto.
+[✓] Fichas de moto: og:image específica por modelo
+    catalogo/[slug].astro pasa ogImage={moto.imagen} al layout.
 
-[ ] Footer: teléfono sin enlace tel:
-    Archivo: src/components/Footer.astro, línea 30
-    El teléfono 920 25 40 44 es texto plano. Convertirlo en:
-    <a href="tel:+34920254044">920 25 40 44</a>
-    para facilitar llamadas directas desde móvil.
+[✓] Footer: teléfono con enlace tel:+34920254044
 
 
 ────────────────────────────────────────────────────────────
- 6. PANEL DE ADMINISTRACIÓN
+ 7. PANEL DE ADMINISTRACIÓN
 ────────────────────────────────────────────────────────────
 
 [ ] Añadir botón de logout
     Archivo: src/pages/admin/citas.astro
-    No hay forma de cerrar sesión. Añadir un enlace o botón que
-    llame a una ruta /admin/logout que borre la cookie admin_session
-    y redirija a /admin.
+    No hay forma de cerrar sesión. Añadir enlace que llame a
+    /admin/logout, borre la cookie admin_session y redirija a /admin.
     Crear: src/pages/admin/logout.astro
 
 [ ] Paginación en la tabla de citas
     Si el negocio tiene muchas citas, la tabla se vuelve muy larga.
-    Añadir paginación básica (ej. 25 por página con query param ?page=N).
+    Añadir paginación básica (ej. 25 por página con ?page=N).
 
 [ ] Vista de suscriptores del newsletter
-    Actualmente el panel solo muestra citas. Sería útil tener
-    /admin/suscriptores que muestre la tabla subscribers de Supabase
-    con el conteo de emails y cuántos están notificados.
+    Añadir /admin/suscriptores con la tabla subscribers de Supabase.
 
 [ ] Template de email de lanzamiento
     Archivo: src/pages/api/send-launch-emails.ts, línea 23
-    Tiene un comentario TODO para preparar la plantilla del email
-    de lanzamiento. Si se va a usar esta funcionalidad, diseñar
-    un email HTML coherente con el resto de templates.
+    Hay un TODO pendiente para preparar la plantilla HTML del email
+    de lanzamiento. Diseñar coherente con el resto de templates.
 
 
 ────────────────────────────────────────────────────────────
- 7. UX / PEQUEÑOS DETALLES VISUALES
+ 8. UX / PEQUEÑOS DETALLES VISUALES
 ────────────────────────────────────────────────────────────
 
-[ ] Footer bottom: sin padding
-    Archivo: src/components/Footer.astro
-    La sección .footer-bottom no tiene padding vertical suficiente.
-    El copyright queda muy pegado al borde inferior.
-    Añadir: padding: 1rem 0; en .footer-bottom
+[✓] Footer bottom: padding añadido (1rem 0)
 
 [ ] Taller: servicios sin iconos
     Archivo: src/pages/taller.astro
-    Las tarjetas de servicio (cambio aceite, frenos, etc.) solo tienen
-    texto. Añadir un icono SVG o emoji representativo mejoraría
-    la legibilidad y el atractivo visual de la sección.
+    Las tarjetas de servicio solo tienen texto.
+    Añadir icono SVG representativo mejoraría la legibilidad.
 
-[ ] Tarjetas de moto: mostrar spec clave
+[ ] Tarjetas del catálogo: mostrar spec clave
     Archivo: src/components/MotoCard.jsx
-    Las tarjetas del catálogo muestran solo marca, nombre y precio.
-    Añadir la cilindrada (ej. "125 cc") como dato rápido ayudaría
-    al usuario a filtrar visualmente sin abrir la ficha.
+    Las tarjetas muestran solo marca, nombre y "Consultar precio".
+    Añadir la cilindrada (ej. "125 cc") como dato rápido visible sin
+    abrir la ficha. El dato ya existe en moto.specs.cilindrada_cc.
 
 [ ] CitaPrevia: horas disponibles hardcodeadas
     Archivo: src/pages/CitaPrevia.astro
     El select de horas ofrece: 09:00, 10:00, 11:00, 12:00, 16:00, 17:00
-    Verificar que estas horas corresponden al horario real del taller
-    y ajustar si es necesario (ej. añadir 18:00, quitar horas no disponibles).
+    Verificar que corresponden al horario real del taller.
 
 [ ] Página de error 404: verificar enlace
     Archivo: src/pages/404.astro
     Revisar que el enlace "Volver al inicio" apunta a "/" y funciona.
 
+[✓] Catálogo: filtro "✨ Solo novedades" implementado
+    Checkbox que filtra los modelos con nuevo: true. Funciona junto
+    al resto de filtros y se resetea con el botón Limpiar.
+
 
 ────────────────────────────────────────────────────────────
- 8. A TENER EN CUENTA (notas importantes)
+ 9. A TENER EN CUENTA (notas importantes)
 ────────────────────────────────────────────────────────────
 
 ⚠ Los emails NO funcionan en producción hasta que:
   1. Se tenga un dominio verificado en Resend (motokass.com)
-  2. Se configuren las variables RESEND_FROM y TALLER_EMAIL en Vercel
-  Mientras tanto, el formulario guarda la cita en Supabase pero
-  no envía confirmaciones.
+  2. Se configuren RESEND_FROM y TALLER_EMAIL en Vercel
 
-⚠ Las imágenes del catálogo son URLs externas
-  Las imágenes de Rieju y Sherco en los JSON provienen de CDNs de
-  terceros (cdn.rieju.com, sherco.com, motostarragona.com, etc.).
-  Pueden cambiar o caducar sin aviso. Si una URL falla, la tarjeta
-  queda sin imagen. Solución a largo plazo: descargar las imágenes
-  y alojarlas en el propio proyecto o en un bucket de almacenamiento.
+⚠ Las imágenes del catálogo Rieju son URLs externas (cdn.rieju.com)
+  Pueden cambiar sin aviso. Solución a largo plazo: descargar y alojar
+  en el propio proyecto o en un bucket de almacenamiento.
+
+⚠ Las imágenes del catálogo Sherco son URLs de sherco.com
+  Mismo riesgo que Rieju. Considerar alojar localmente a largo plazo.
 
 ⚠ Cuando se añadan nuevas motos al catálogo JSON, hay que:
-  1. Actualizar public/sitemap.xml con las nuevas URLs /tienda/[slug]
+  1. Actualizar public/sitemap.xml con /catalogo/[slug] (no /tienda)
   2. Actualizar la fecha lastmod en el sitemap
   3. Hacer deploy para que el servidor SSR reconozca las nuevas rutas
 
 ⚠ La seguridad del panel /admin es básica (cookie sin firmar)
-  Es suficiente para uso interno de propietario, pero no para múltiples
-  usuarios ni datos muy sensibles. No compartir la URL /admin ni la
-  ADMIN_PASSWORD con terceros. En el futuro considerar Supabase Auth.
+  Suficiente para uso interno del propietario. No compartir la URL
+  ni ADMIN_PASSWORD. Considerar Supabase Auth en el futuro.
 
 ⚠ WhatsApp con número de fijo no funcionará
-  Si WHATSAPP_NUMBER se configura con el número 920... (fijo),
-  el enlace wa.me abrirá WhatsApp pero el envío fallará porque
-  WhatsApp no opera en líneas fijas. Usar obligatoriamente un móvil.
+  Si WHATSAPP_NUMBER se configura con el 920... (fijo), el enlace
+  wa.me abrirá WhatsApp pero el envío fallará. Usar obligatoriamente
+  un número de móvil activo.
 
 ⚠ El campo 'stock' en los JSON es manual
-  El inventario no se sincroniza automáticamente con ningún sistema.
-  Cuando una moto se venda o llegue nueva, hay que editar el JSON
-  manualmente y hacer un nuevo deploy para que se refleje en la web.
+  El inventario no se sincroniza automáticamente. Cuando una moto
+  se venda o llegue nueva, editar el JSON y hacer un nuevo deploy.
 
 ⚠ La tabla 'citas' necesita índices para rendimiento futuro
-  Si el negocio crece, añadir índice en la columna 'fecha' y 'estado'
-  para que las consultas del panel admin sean rápidas:
-  CREATE INDEX idx_citas_fecha ON citas(fecha);
+  CREATE INDEX idx_citas_fecha  ON citas(fecha);
   CREATE INDEX idx_citas_estado ON citas(estado);
+
+⚠ Sherco no publica PVP en su web
+  Los 32 modelos de Sherco tienen precio_eur: null. Los precios
+  deben rellenarse manualmente con la tarifa del distribuidor.
+  Mientras tanto, todos muestran "Consultar precio" correctamente.
 
 
 ────────────────────────────────────────────────────────────
- 9. MEJORAS FUTURAS (no urgentes, post v2)
+ 10. MEJORAS FUTURAS (no urgentes, post v2)
 ────────────────────────────────────────────────────────────
 
 [ ] Galería de fotos por moto en la ficha individual
-    Las fichas /tienda/[slug] tienen una sola imagen. Añadir soporte
-    para múltiples fotos (array de imágenes en el JSON).
+    Las fichas /catalogo/[slug] tienen una sola imagen.
+    Añadir soporte para múltiples fotos (array de imágenes en el JSON).
 
 [ ] Gestión de stock desde el panel admin
     Actualmente el stock se cambia editando los JSON a mano.
     Mover el catálogo a Supabase y añadir CRUD en el panel admin.
 
 [ ] Sección de accesorios y recambios
-    Productos de ticket bajo (cascos, guantes, aceites) que se pueden
-    vender directamente online sin proceso de compra complejo.
+    Productos de ticket bajo (cascos, guantes, aceites).
 
 [ ] Integración Google Analytics / eventos de conversión
-    Saber cuántas personas rellenan el formulario de cita vs cuántas
-    lo abandonan. Vercel Analytics ya está activo pero no rastrea
-    eventos de formularios.
+    Vercel Analytics ya está activo pero no rastrea eventos de
+    formularios (cuántas personas completan la cita vs la abandonan).
 
-[ ] Aviso de cookies / política de privacidad
-    Requerido legalmente (RGPD) si se usa Google Analytics o se
-    almacenan datos de usuarios (emails de suscriptores, citas).
+[ ] Aviso de cookies / política de privacidad (RGPD)
+    Requerido legalmente si se usa analytics o se almacenan datos.
     Añadir banner de cookies y páginas /privacidad y /cookies.
 
-[ ] SEO local: fichas de moto en sitemap automático
-    Migrar a @astrojs/sitemap con output: hybrid o crear un endpoint
-    /sitemap.xml.ts que genere el XML dinámicamente a partir de los JSON.
+[ ] SEO local: sitemap automático para fichas de moto
+    Migrar a @astrojs/sitemap o crear endpoint /sitemap.xml.ts
+    que genere el XML dinámicamente desde los JSON del catálogo.
+
+[ ] Filtro de catálogo: URL persistente con query params
+    Que los filtros activos se reflejen en la URL (?marca=Rieju&cc=125cc)
+    para que se puedan compartir búsquedas y el botón atrás funcione.
+
+[ ] Página de comparativa de motos
+    Seleccionar 2-3 modelos y ver sus specs en tabla lado a lado.
 
 ============================================================
-  Total de tareas identificadas: 34
-  Categorías: 9
+  Pendientes activos:    ~35 tareas
+  Bugs prioritarios:      1 (Sherco categoria/nuevo en catalogo.astro)
+  Completados (sprint 3): 9 tareas
 ============================================================

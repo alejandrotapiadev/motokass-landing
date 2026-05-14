@@ -7,11 +7,11 @@ import tallerBg from "../assets/img/backgrounds/taller.png";
   <div class="container">
     <div class="services">
       <a
-        href="/tienda"
+        href="/catalogo"
         class="service-card"
         style={`background-image: url('${tiendaBg.src}')`}
       >
-        <h1>TIENDA</h1>
+        <h1>CATÁLOGO</h1>
       </a>
 
       <a
@@ -37,8 +37,7 @@ import tallerBg from "../assets/img/backgrounds/taller.png";
   text-align: center;
   width: 48%;
   text-decoration: none;
-  padding: 2em;
-  font-size: 2em;
+  padding: 2rem;
   height: 80vh;
   display: flex;
   flex-direction: column;
@@ -49,11 +48,13 @@ import tallerBg from "../assets/img/backgrounds/taller.png";
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   background-size: cover;
   background-position: center;
+  overflow: hidden;
 }
 
 .service-card h1 {
   color: var(--color-white);
-  font-size: 5em;
+  font-size: clamp(2.5rem, 4.5vw, 5rem);
+  white-space: nowrap;
   position: relative;
   display: inline-block;
   cursor: pointer;
@@ -77,7 +78,7 @@ import tallerBg from "../assets/img/backgrounds/taller.png";
   }
 
   .service-card h1 {
-    font-size: 3em;
+    font-size: clamp(2.5rem, 9vw, 4rem);
   }
 }
 </style>

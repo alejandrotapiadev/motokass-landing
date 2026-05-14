@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(npx astro *)",
+      "Bash(git push *)",
+      "Bash(gh pr *)",
+      "PowerShell(winget install *)",
+      "PowerShell(gh *)",
+      "PowerShell(gh auth *)",
+      "Bash(git checkout *)",
+      "Bash(git merge *)",
+      "Bash(Test-Path \"C:\\\\proyectos\\\\motokass-landing\\\\public\\\\sitemap.xml\")",
+      "Bash(Test-Path \"C:\\\\proyectos\\\\motokass-landing\\\\public\\\\robots.txt\")",
+      "Bash(New-Item -ItemType Directory -Force \"C:\\\\Users\\\\madera\\\\.claude\\\\projects\\\\C--proyectos-motokass-landing\\\\memory\")",
+      "Bash(Out-Null)",
+      "Bash(Write-Output \"ok\")",
+      "WebFetch(domain:rieju.com)",
+      "Bash(npm run *)",
+      "Bash(npm i *)",
+      "Bash(git commit *)",
+      "WebFetch(domain:www.sherco.com)",
+      "Bash(git mv *)"
+    ]
+  }
+}
