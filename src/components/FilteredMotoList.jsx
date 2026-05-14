@@ -217,7 +217,7 @@ export default function FilteredMotoList({ motos }) {
       <div className="motos-grid" ref={gridRef}>
         {pagMoots.length > 0
           ? pagMoots.map(m => (
-              <a key={m.nombre} href={`/tienda/${toSlug(m.nombre)}`} className="moto-link">
+              <a key={m.nombre} href={`/catalogo/${toSlug(m.nombre)}`} className="moto-link">
                 <MotoCard {...m} />
               </a>
             ))

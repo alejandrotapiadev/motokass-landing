@@ -1,17 +1,4 @@
-// Tabla Supabase requerida:
-// CREATE TABLE citas (
-//   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-//   nombre TEXT NOT NULL,
-//   email TEXT NOT NULL,
-//   telefono TEXT,
-//   fecha DATE NOT NULL,
-//   hora TEXT NOT NULL,
-//   vehiculo TEXT NOT NULL,
-//   motivo TEXT NOT NULL,
-//   resumen TEXT,
-//   estado TEXT DEFAULT 'pendiente',
-//   created_at TIMESTAMPTZ DEFAULT NOW()
-// );
+
 export const prerender = false;
 import type { APIRoute } from "astro";
 import supabase from "@/lib/supabase";

@@ -1,4 +1,5 @@
 ---
+import MotoCard from "../components/MotoCard.astro";
 import MainLayout from "../layouts/MainLayout.astro";
 import FilteredMotoList from "../components/FilteredMotoList.jsx";
 import RiejuCatalogo from "../resources/RiejuCatalogo.json";
@@ -10,10 +11,7 @@ const motosRieju = RiejuCatalogo.catalogo.modelos.map((moto) => ({
   nombre: moto.modelo,
   precio: moto.precio_eur,
   imagen: moto.imagen,
-  specs: moto.specs,
-  stock: moto.stock,
-  nuevo: (moto as any).nuevo ?? false,
-  categoria: (moto as any).categoria ?? null,
+  specs: moto.specs
 }));
 
 // Mapeamos Sherco
@@ -22,20 +20,11 @@ const motosSherco = ShercoCatalogo.catalogo.modelos.map((moto) => ({
   nombre: moto.modelo,
   precio: moto.precio_eur,
   imagen: moto.imagen,
-  specs: moto.specs,
-  stock: moto.stock,
-  nuevo: false,
-  categoria: null,
+  specs: moto.specs
 }));
 
-// Intercalamos Rieju y Sherco: R1, S1, R2, S2… para que la tienda
-// no muestre todas las de una marca seguidas.
-const motos: any[] = [];
-const maxLen = Math.max(motosRieju.length, motosSherco.length);
-for (let i = 0; i < maxLen; i++) {
-  if (i < motosRieju.length)  motos.push(motosRieju[i]);
-  if (i < motosSherco.length) motos.push(motosSherco[i]);
-}
+// Combinamos ambas listas
+const motos = [...motosRieju, ...motosSherco];
 ---
 
 <MainLayout
