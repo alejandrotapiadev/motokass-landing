@@ -4,6 +4,7 @@ import react from '@astrojs/react';
 import vercel from '@astrojs/vercel';
 
 export default defineConfig({
+  site: "https://motokass.com",
   output: "server",
   adapter: vercel(),
   integrations: [react()],
