@@ -8,15 +8,18 @@ const { slug } = Astro.params;
 
 type Moto = {
   modelo: string;
-  specs: Record<string, string | number | null>;
-  precio_eur: number;
+  specs: Record<string, string | number | boolean | null>;
+  precio_eur: number | null;
   imagen: string;
   stock: boolean;
+  nuevo?: boolean;
+  categoria?: string;
+  url_ficha?: string;
 };
 
 const todasLasMotos: Array<{ marca: string; moto: Moto }> = [
-  ...RiejuData.catalogo.modelos.map((m) => ({ marca: RiejuData.catalogo.marca, moto: m as Moto })),
-  ...ShercoData.catalogo.modelos.map((m) => ({ marca: ShercoData.catalogo.marca, moto: m as Moto })),
+  ...RiejuData.catalogo.modelos.map((m) => ({ marca: RiejuData.catalogo.marca, moto: m as unknown as Moto })),
+  ...ShercoData.catalogo.modelos.map((m) => ({ marca: ShercoData.catalogo.marca, moto: m as unknown as Moto })),
 ];
 
 const encontrada = todasLasMotos.find(({ moto }) => toSlug(moto.modelo) === slug);
@@ -28,32 +31,56 @@ if (!encontrada) {
 const { marca, moto } = encontrada;
 
 const specsLabels: Record<string, string> = {
-  cilindrada_cc: "Cilindrada",
-  tipo_motor: "Motor",
-  potencia_cv: "Potencia",
-  potencia_kw: "Potencia",
-  transmision: "Transmisión",
-  refrigeracion: "Refrigeración",
-  peso_kg: "Peso",
-  autonomia_km: "Autonomía",
+  cilindrada_cc:       "Cilindrada",
+  tipo_motor:          "Motor",
+  potencia_cv:         "Potencia",
+  potencia_kw:         "Potencia eléctrica",
+  par_motor_nm:        "Par motor",
+  transmision:         "Transmisión",
+  refrigeracion:       "Refrigeración",
+  peso_kg:             "Peso",
+  altura_sillin_mm:    "Altura de sillín",
+  deposito_litros:     "Depósito",
+  neumatico_delantero: "Neumático delantero",
+  neumatico_trasero:   "Neumático trasero",
+  abs:                 "ABS",
+  bateria_kwh:         "Batería",
+  autonomia_km:        "Autonomía",
+  velocidad_max_kmh:   "Velocidad máx.",
 };
 
-const specsVisibles = Object.entries(moto.specs)
-  .filter(([, v]) => v !== null && v !== undefined)
-  .map(([k, v]) => ({
+const specsOrder = [
+  "cilindrada_cc", "tipo_motor", "potencia_cv", "potencia_kw", "par_motor_nm",
+  "bateria_kwh", "autonomia_km", "velocidad_max_kmh",
+  "transmision", "refrigeracion",
+  "peso_kg", "altura_sillin_mm", "deposito_litros",
+  "neumatico_delantero", "neumatico_trasero", "abs",
+];
+
+const specsVisibles = specsOrder
+  .filter(k => k in moto.specs)
+  .map(k => ({ k, v: (moto.specs as Record<string, unknown>)[k] }))
+  .filter(({ v }) => v !== null && v !== undefined)
+  .map(({ k, v }) => ({
     label: specsLabels[k] ?? k,
-    valor: k === "cilindrada_cc" ? `${v} cc`
-         : k === "potencia_cv"   ? `${v} CV`
-         : k === "potencia_kw"   ? `${v} kW`
-         : k === "peso_kg"       ? `${v} kg`
-         : k === "autonomia_km"  ? `${v} km`
+    valor: k === "cilindrada_cc"       ? `${v} cc`
+         : k === "potencia_cv"         ? `${v} CV`
+         : k === "potencia_kw"         ? `${v} kW`
+         : k === "par_motor_nm"        ? `${v} Nm`
+         : k === "peso_kg"             ? `${v} kg`
+         : k === "altura_sillin_mm"    ? `${v} mm`
+         : k === "deposito_litros"     ? `${v} L`
+         : k === "bateria_kwh"         ? `${v} kWh`
+         : k === "autonomia_km"        ? `${v} km`
+         : k === "velocidad_max_kmh"   ? `${v} km/h`
+         : k === "abs"                 ? (v ? "Sí" : "No")
          : String(v),
   }));
 ---
 
 <MainLayout
   title={`${moto.modelo} | MOTOKASS`}
-  description={`Ficha técnica y precio de la ${moto.modelo}. Distribuidor oficial ${marca} en Ávila. ${moto.precio_eur.toLocaleString("es-ES")} €`}
+  description={`Ficha técnica y precio de la ${moto.modelo}. Distribuidor oficial ${marca} en Ávila.${moto.precio_eur != null ? ` ${moto.precio_eur.toLocaleString("es-ES")} €` : ""}`}
 >
   <div class="page-wrapper">
     <div class="breadcrumb">
@@ -73,7 +100,7 @@ const specsVisibles = Object.entries(moto.specs)
       <div class="ficha__detalles">
         <span class={`marca-badge marca-badge--${marca.toLowerCase()}`}>{marca}</span>
         <h1>{moto.modelo}</h1>
-        <div class="precio">{moto.precio_eur.toLocaleString("es-ES")} €</div>
+        <div class="precio">{moto.precio_eur != null ? `${moto.precio_eur.toLocaleString("es-ES")} €` : "Consultar precio"}</div>
 
         <!-- Specs -->
         <div class="specs">

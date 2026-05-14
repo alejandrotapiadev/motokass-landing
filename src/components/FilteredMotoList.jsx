@@ -15,7 +15,7 @@ export default function FilteredMotoList({ motos }) {
   const [marcaSeleccionada, setMarcaSeleccionada] = useState('');
   const [soloConStock, setSoloConStock] = useState(false);
 
-  const precioMaximoDisponible = Math.max(...motos.map(m => m.precio)) + 1001;
+  const precioMaximoDisponible = Math.max(...motos.filter(m => m.precio != null).map(m => m.precio)) + 1001;
   const [precioMax, setPrecioMax] = useState(precioMaximoDisponible);
 
   const marcasUnicas = [...new Set(motos.map(m => m.marca))];
@@ -26,7 +26,7 @@ export default function FilteredMotoList({ motos }) {
         moto.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
         moto.marca.toLowerCase().includes(busqueda.toLowerCase());
       const coincideMarca = marcaSeleccionada === '' || moto.marca === marcaSeleccionada;
-      const coincidePrecio = moto.precio <= precioMax;
+      const coincidePrecio = moto.precio == null || moto.precio <= precioMax;
       const coincideStock = !soloConStock || moto.stock !== false;
       return coincideBusqueda && coincideMarca && coincidePrecio && coincideStock;
     });

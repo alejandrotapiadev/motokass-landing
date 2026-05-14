@@ -12,6 +12,8 @@ const motosRieju = RiejuCatalogo.catalogo.modelos.map((moto) => ({
   imagen: moto.imagen,
   specs: moto.specs,
   stock: moto.stock,
+  nuevo: (moto as any).nuevo ?? false,
+  categoria: (moto as any).categoria ?? null,
 }));
 
 // Mapeamos Sherco
@@ -22,6 +24,8 @@ const motosSherco = ShercoCatalogo.catalogo.modelos.map((moto) => ({
   imagen: moto.imagen,
   specs: moto.specs,
   stock: moto.stock,
+  nuevo: false,
+  categoria: null,
 }));
 
 // Combinamos ambas listas

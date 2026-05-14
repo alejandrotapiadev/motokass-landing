@@ -1,4 +1,4 @@
-export default function MotoCard({ marca, nombre, precio, imagen, stock = true }) {
+export default function MotoCard({ marca, nombre, precio, imagen, stock = true, nuevo = false }) {
   return (
     <>
       <div className={`moto-card${!stock ? " moto-card--agotada" : ""}`}>
@@ -14,12 +14,13 @@ export default function MotoCard({ marca, nombre, precio, imagen, stock = true }
             />
           )}
           {!stock && <span className="badge-agotada">Sin stock</span>}
+          {nuevo && stock && <span className="badge-nuevo">Nuevo</span>}
         </div>
 
         <div className="moto-info">
           <span className={`moto-brand ${marca.toLowerCase()}`}>{marca}</span>
           <h3>{nombre}</h3>
-          <span className="price">{precio.toLocaleString("es-ES")} €</span>
+          <span className="price">{precio != null ? precio.toLocaleString("es-ES") + " €" : "Consultar precio"}</span>
         </div>
       </div>
 
@@ -68,6 +69,20 @@ export default function MotoCard({ marca, nombre, precio, imagen, stock = true }
           top: 10px;
           right: 10px;
           background: #6b7280;
+          color: white;
+          font-size: 0.72rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          padding: 0.25rem 0.65rem;
+          border-radius: 999px;
+          letter-spacing: 0.5px;
+        }
+
+        .badge-nuevo {
+          position: absolute;
+          top: 10px;
+          left: 10px;
+          background: #16a34a;
           color: white;
           font-size: 0.72rem;
           font-weight: 700;
