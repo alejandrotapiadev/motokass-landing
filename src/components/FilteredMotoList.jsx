@@ -15,9 +15,6 @@ export default function FilteredMotoList({ motos }) {
   const [marcaSeleccionada, setMarcaSeleccionada] = useState('');
   const [soloConStock, setSoloConStock] = useState(false);
 
-  const precioMaximoDisponible = Math.max(...motos.filter(m => m.precio != null).map(m => m.precio)) + 1001;
-  const [precioMax, setPrecioMax] = useState(precioMaximoDisponible);
-
   const marcasUnicas = [...new Set(motos.map(m => m.marca))];
 
   const motosFiltradas = useMemo(() => {
@@ -26,16 +23,14 @@ export default function FilteredMotoList({ motos }) {
         moto.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
         moto.marca.toLowerCase().includes(busqueda.toLowerCase());
       const coincideMarca = marcaSeleccionada === '' || moto.marca === marcaSeleccionada;
-      const coincidePrecio = moto.precio == null || moto.precio <= precioMax;
       const coincideStock = !soloConStock || moto.stock !== false;
-      return coincideBusqueda && coincideMarca && coincidePrecio && coincideStock;
+      return coincideBusqueda && coincideMarca && coincideStock;
     });
-  }, [busqueda, marcaSeleccionada, precioMax, soloConStock, motos]);
+  }, [busqueda, marcaSeleccionada, soloConStock, motos]);
 
   const limpiarFiltros = () => {
     setBusqueda('');
     setMarcaSeleccionada('');
-    setPrecioMax(precioMaximoDisponible);
     setSoloConStock(false);
   };
 
@@ -61,21 +56,6 @@ export default function FilteredMotoList({ motos }) {
               <option key={marca} value={marca}>{marca}</option>
             ))}
           </select>
-
-          <div className="slider-container">
-            <label className="slider-label">
-              Precio máximo: <strong>{precioMax.toLocaleString('es-ES')} €</strong>
-            </label>
-            <input
-              type="range"
-              min="0"
-              max={precioMaximoDisponible}
-              step="500"
-              value={precioMax}
-              onInput={(e) => setPrecioMax(Number(e.target.value))}
-              className="slider-precio"
-            />
-          </div>
 
           <label className="label-stock">
             <input
@@ -135,25 +115,6 @@ export default function FilteredMotoList({ motos }) {
         .select-filtro:focus {
           outline: none;
           border-color: #1F3F7A;
-        }
-
-        .slider-container {
-          display: flex;
-          flex-direction: column;
-          min-width: 220px;
-          flex: 1;
-        }
-
-        .slider-label {
-          font-size: 0.9rem;
-          margin-bottom: 0.4rem;
-          color: #1F3F7A;
-        }
-
-        .slider-precio {
-          width: 100%;
-          cursor: pointer;
-          accent-color: #1F3F7A;
         }
 
         .label-stock {

@@ -80,7 +80,7 @@ const specsVisibles = specsOrder
 
 <MainLayout
   title={`${moto.modelo} | MOTOKASS`}
-  description={`Ficha técnica y precio de la ${moto.modelo}. Distribuidor oficial ${marca} en Ávila.${moto.precio_eur != null ? ` ${moto.precio_eur.toLocaleString("es-ES")} €` : ""}`}
+  description={`Ficha técnica de la ${moto.modelo}. Distribuidor oficial ${marca} en Ávila. Consulta precio en MOTOKASS.`}
 >
   <div class="page-wrapper">
     <div class="breadcrumb">
@@ -100,7 +100,7 @@ const specsVisibles = specsOrder
       <div class="ficha__detalles">
         <span class={`marca-badge marca-badge--${marca.toLowerCase()}`}>{marca}</span>
         <h1>{moto.modelo}</h1>
-        <div class="precio">{moto.precio_eur != null ? `${moto.precio_eur.toLocaleString("es-ES")} €` : "Consultar precio"}</div>
+        <div class="precio">Consultar precio</div>
 
         <!-- Specs -->
         <div class="specs">

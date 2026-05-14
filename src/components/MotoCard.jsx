@@ -20,7 +20,7 @@ export default function MotoCard({ marca, nombre, precio, imagen, stock = true, 
         <div className="moto-info">
           <span className={`moto-brand ${marca.toLowerCase()}`}>{marca}</span>
           <h3>{nombre}</h3>
-          <span className="price">{precio != null ? precio.toLocaleString("es-ES") + " €" : "Consultar precio"}</span>
+          <span className="price">Consultar precio</span>
         </div>
       </div>
 
