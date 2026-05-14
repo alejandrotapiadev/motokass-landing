@@ -28,8 +28,14 @@ const motosSherco = ShercoCatalogo.catalogo.modelos.map((moto) => ({
   categoria: null,
 }));
 
-// Combinamos ambas listas
-const motos = [...motosRieju, ...motosSherco];
+// Intercalamos Rieju y Sherco: R1, S1, R2, S2… para que la tienda
+// no muestre todas las de una marca seguidas.
+const motos: any[] = [];
+const maxLen = Math.max(motosRieju.length, motosSherco.length);
+for (let i = 0; i < maxLen; i++) {
+  if (i < motosRieju.length)  motos.push(motosRieju[i]);
+  if (i < motosSherco.length) motos.push(motosSherco[i]);
+}
 ---
 
 <MainLayout
