@@ -156,7 +156,7 @@ export default function FilteredMotoList({ motos }) {
         && (!tipoMotor  || getTipoMotor(m) === tipoMotor)
         && (!soloStock  || m.stock !== false)
       && (!soloNuevo  || m.nuevo === true);
-  }), [busqueda, marca, categoria, cilindrada, tipoMotor, soloStock, motos]);
+  }), [busqueda, marca, categoria, cilindrada, tipoMotor, soloStock, soloNuevo, motos]);
 
   useEffect(() => { setPagina(1); },
     [busqueda, marca, categoria, cilindrada, tipoMotor, soloStock, soloNuevo]);
