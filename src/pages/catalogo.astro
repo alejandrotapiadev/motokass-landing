@@ -24,8 +24,8 @@ const motosSherco = ShercoCatalogo.catalogo.modelos.map((moto) => ({
   imagen: moto.imagen,
   specs: moto.specs,
   stock: moto.stock,
-  nuevo: false,
-  categoria: null,
+  nuevo: (moto as any).nuevo ?? false,
+  categoria: (moto as any).categoria ?? null,
 }));
 
 // Intercalamos Rieju y Sherco: R1, S1, R2, S2… para que la tienda
