@@ -219,25 +219,16 @@
  6. SEO — MEJORAS TÉCNICAS
 ────────────────────────────────────────────────────────────
 
-[ ] astro.config.mjs: falta la URL del sitio
-    Archivo: astro.config.mjs
-    Añadir: site: "https://motokass.com"
-    Necesario para URLs canónicas y @astrojs/sitemap.
+[✓] astro.config.mjs: site: "https://motokass.com" añadido
 
-[ ] MainLayout: falta meta og:image
-    Archivo: src/layouts/MainLayout.astro
-    No hay <meta property="og:image"> global.
-    Añadir logo o fachada como imagen por defecto para redes sociales.
+[✓] MainLayout: og:image global (default fachada.png) + Twitter Card
+    También añadidos og:site_name, og:locale, og:url dinámico.
+    Eliminado CSS SweetAlert2 innecesario.
 
-[ ] Fichas de moto: meta og:image específica
-    Archivo: src/pages/catalogo/[slug].astro
-    Usar la imagen de cada moto como og:image para que al compartir
-    en redes aparezca la foto del modelo (ya se tiene la URL en el JSON).
+[✓] Fichas de moto: og:image específica por modelo
+    catalogo/[slug].astro pasa ogImage={moto.imagen} al layout.
 
-[ ] Footer: teléfono sin enlace tel:
-    Archivo: src/components/Footer.astro, línea 30
-    El teléfono 920 25 40 44 es texto plano. Convertirlo en:
-    <a href="tel:+34920254044">920 25 40 44</a>
+[✓] Footer: teléfono con enlace tel:+34920254044
 
 
 ────────────────────────────────────────────────────────────
@@ -267,10 +258,7 @@
  8. UX / PEQUEÑOS DETALLES VISUALES
 ────────────────────────────────────────────────────────────
 
-[ ] Footer bottom: sin padding
-    Archivo: src/components/Footer.astro
-    El copyright queda muy pegado al borde inferior.
-    Añadir: padding: 1rem 0; en .footer-bottom
+[✓] Footer bottom: padding añadido (1rem 0)
 
 [ ] Taller: servicios sin iconos
     Archivo: src/pages/taller.astro
@@ -292,10 +280,9 @@
     Archivo: src/pages/404.astro
     Revisar que el enlace "Volver al inicio" apunta a "/" y funciona.
 
-[ ] Catálogo: filtro por "Novedades" no implementado
-    El campo nuevo: true/false existe en ambos catálogos y el badge
-    verde "Nuevo" aparece en las tarjetas, pero no hay chip/filtro
-    para mostrar solo los modelos nuevos. Fácil de añadir.
+[✓] Catálogo: filtro "✨ Solo novedades" implementado
+    Checkbox que filtra los modelos con nuevo: true. Funciona junto
+    al resto de filtros y se resetea con el botón Limpiar.
 
 
 ────────────────────────────────────────────────────────────
