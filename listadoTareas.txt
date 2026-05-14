@@ -119,14 +119,11 @@
     neumáticos 120/70-R17 + 150/70-R17) son inferidas del modelo 707 S.
     Confirmar en rieju.com.
 
-[ ] BUG: Sherco — categoria y nuevo no llegan al filtro de catálogo
-    Archivo: src/pages/catalogo.astro, líneas 20-29
-    El mapeo de motosSherco tiene categoria: null y nuevo: false
-    hardcodeados, ignorando los valores del ShercoCatalogo.json.
-    SOLUCIÓN: cambiar a:
-      categoria: (moto as any).categoria ?? null,
-      nuevo: (moto as any).nuevo ?? false,
-    (igual que se hace con motosRieju)
+[✓] BUG RESUELTO: Sherco — categoria y nuevo ya se leen del JSON
+    Archivo: src/pages/catalogo.astro
+    El mapeo de motosSherco ahora usa (moto as any).categoria y
+    (moto as any).nuevo igual que motosRieju. El filtro de categoría
+    ya funciona para los 32 modelos Sherco.
 
 
 ────────────────────────────────────────────────────────────
