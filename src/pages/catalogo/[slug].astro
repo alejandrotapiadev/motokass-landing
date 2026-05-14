@@ -1,0 +1,499 @@
+---
+import MainLayout from "../../layouts/MainLayout.astro";
+import { toSlug } from "../../lib/slug.ts";
+import RiejuData from "../../resources/RiejuCatalogo.json";
+import ShercoData from "../../resources/ShercoCatalogo.json";
+
+const { slug } = Astro.params;
+
+type Moto = {
+  modelo: string;
+  specs: Record<string, string | number | boolean | null>;
+  precio_eur: number | null;
+  imagen: string;
+  stock: boolean;
+  nuevo?: boolean;
+  categoria?: string;
+  url_ficha?: string;
+};
+
+const todasLasMotos: Array<{ marca: string; moto: Moto }> = [
+  ...RiejuData.catalogo.modelos.map((m) => ({ marca: RiejuData.catalogo.marca, moto: m as unknown as Moto })),
+  ...ShercoData.catalogo.modelos.map((m) => ({ marca: ShercoData.catalogo.marca, moto: m as unknown as Moto })),
+];
+
+const encontrada = todasLasMotos.find(({ moto }) => toSlug(moto.modelo) === slug);
+
+if (!encontrada) {
+  return Astro.redirect("/404");
+}
+
+const { marca, moto } = encontrada;
+
+const specsLabels: Record<string, string> = {
+  cilindrada_cc:       "Cilindrada",
+  tipo_motor:          "Motor",
+  potencia_cv:         "Potencia",
+  potencia_kw:         "Potencia eléctrica",
+  par_motor_nm:        "Par motor",
+  transmision:         "Transmisión",
+  refrigeracion:       "Refrigeración",
+  peso_kg:             "Peso",
+  altura_sillin_mm:    "Altura de sillín",
+  deposito_litros:     "Depósito",
+  neumatico_delantero: "Neumático delantero",
+  neumatico_trasero:   "Neumático trasero",
+  abs:                 "ABS",
+  bateria_kwh:         "Batería",
+  autonomia_km:        "Autonomía",
+  velocidad_max_kmh:   "Velocidad máx.",
+};
+
+const specsOrder = [
+  "cilindrada_cc", "tipo_motor", "potencia_cv", "potencia_kw", "par_motor_nm",
+  "bateria_kwh", "autonomia_km", "velocidad_max_kmh",
+  "transmision", "refrigeracion",
+  "peso_kg", "altura_sillin_mm", "deposito_litros",
+  "neumatico_delantero", "neumatico_trasero", "abs",
+];
+
+const specsVisibles = specsOrder
+  .filter(k => k in moto.specs)
+  .map(k => ({ k, v: (moto.specs as Record<string, unknown>)[k] }))
+  .filter(({ v }) => v !== null && v !== undefined)
+  .map(({ k, v }) => ({
+    label: specsLabels[k] ?? k,
+    valor: k === "cilindrada_cc"       ? `${v} cc`
+         : k === "potencia_cv"         ? `${v} CV`
+         : k === "potencia_kw"         ? `${v} kW`
+         : k === "par_motor_nm"        ? `${v} Nm`
+         : k === "peso_kg"             ? `${v} kg`
+         : k === "altura_sillin_mm"    ? `${v} mm`
+         : k === "deposito_litros"     ? `${v} L`
+         : k === "bateria_kwh"         ? `${v} kWh`
+         : k === "autonomia_km"        ? `${v} km`
+         : k === "velocidad_max_kmh"   ? `${v} km/h`
+         : k === "abs"                 ? (v ? "Sí" : "No")
+         : String(v),
+  }));
+---
+
+<MainLayout
+  title={`${moto.modelo} | MOTOKASS`}
+  description={`Ficha técnica de la ${moto.modelo}. Distribuidor oficial ${marca} en Ávila. Consulta precio en MOTOKASS.`}
+  ogImage={moto.imagen}
+>
+  <div class="page-wrapper">
+    <div class="breadcrumb">
+      <a href="/catalogo">Catálogo</a>
+      <span>/</span>
+      <span>{moto.modelo}</span>
+    </div>
+
+    <div class="ficha">
+      <!-- Imagen -->
+      <div class="ficha__imagen">
+        <img src={moto.imagen} alt={moto.modelo} loading="eager" decoding="async" />
+        {!moto.stock && <div class="badge-agotada">Sin stock</div>}
+      </div>
+
+      <!-- Detalles -->
+      <div class="ficha__detalles">
+        <span class={`marca-badge marca-badge--${marca.toLowerCase()}`}>{marca}</span>
+        <h1>{moto.modelo}</h1>
+        <div class="precio">Consultar precio</div>
+
+        <!-- Specs -->
+        <div class="specs">
+          <h2>Especificaciones técnicas</h2>
+          <ul class="specs__lista">
+            {specsVisibles.map(({ label, valor }) => (
+              <li>
+                <span class="specs__label">{label}</span>
+                <span class="specs__valor">{valor}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <!-- CTA principal -->
+        {moto.stock ? (
+          <a href="#interes" class="btn-primary">Me interesa esta moto</a>
+        ) : (
+          <a href="#interes" class="btn-primary btn-primary--outline">Avisar cuando esté disponible</a>
+        )}
+        <a href="/citaPrevia" class="btn-secondary">Agendar cita de prueba</a>
+      </div>
+    </div>
+
+    <!-- Formulario de interés -->
+    <div class="interes-section" id="interes">
+      <div class="interes-card">
+        <h2>{moto.stock ? "¿Te interesa esta moto?" : "¿Quieres que te avisemos?"}</h2>
+        <p>
+          {moto.stock
+            ? "Déjanos tus datos y nos ponemos en contacto contigo para resolver dudas, organizar una prueba o gestionar la compra."
+            : "Dinos cómo contactarte y te avisamos en cuanto tengamos stock disponible."}
+        </p>
+
+        <div id="interes-success" class="alert alert--success" hidden aria-live="polite">
+          Mensaje enviado. Te contactaremos lo antes posible.
+        </div>
+        <div id="interes-error" class="alert alert--error" hidden aria-live="polite"></div>
+
+        <form id="interes-form" class="interes-form" novalidate>
+          <input type="hidden" name="moto" value={moto.modelo} />
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="i-nombre">Nombre <span class="req">*</span></label>
+              <input type="text" id="i-nombre" name="name" required placeholder="Tu nombre" />
+              <span class="field-error" id="i-nombre-error"></span>
+            </div>
+            <div class="form-group">
+              <label for="i-email">Email <span class="req">*</span></label>
+              <input type="email" id="i-email" name="email" required placeholder="tu@email.com" />
+              <span class="field-error" id="i-email-error"></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="i-telefono">Teléfono <span class="opt">(opcional)</span></label>
+            <input type="tel" id="i-telefono" name="phone" placeholder="600 000 000" />
+          </div>
+
+          <div class="form-group">
+            <label for="i-mensaje">Mensaje <span class="opt">(opcional)</span></label>
+            <textarea id="i-mensaje" name="userMessage" rows="3" placeholder="¿Alguna pregunta o comentario?"></textarea>
+          </div>
+
+          <button type="submit" id="interes-btn" class="btn-primary">
+            <span id="interes-btn-text">Enviar</span>
+            <span id="interes-btn-loading" hidden>Enviando...</span>
+          </button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</MainLayout>
+
+<script>
+  const form = document.getElementById("interes-form") as HTMLFormElement;
+  const btn = document.getElementById("interes-btn") as HTMLButtonElement;
+  const btnText = document.getElementById("interes-btn-text")!;
+  const btnLoading = document.getElementById("interes-btn-loading")!;
+  const successMsg = document.getElementById("interes-success")!;
+  const errorMsg = document.getElementById("interes-error")!;
+
+  function showFieldError(id: string, msg: string) {
+    const err = document.getElementById(id);
+    if (err) err.textContent = msg;
+  }
+
+  function clearErrors() {
+    document.querySelectorAll<HTMLElement>(".field-error").forEach(el => (el.textContent = ""));
+  }
+
+  function validate(name: string, email: string): boolean {
+    let ok = true;
+    clearErrors();
+    if (!name.trim()) { showFieldError("i-nombre-error", "Campo obligatorio"); ok = false; }
+    if (!email.trim()) { showFieldError("i-email-error", "Campo obligatorio"); ok = false; }
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showFieldError("i-email-error", "Email no válido"); ok = false; }
+    return ok;
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    successMsg.hidden = true;
+    errorMsg.hidden = true;
+
+    const fd = new FormData(form);
+    const name = fd.get("name") as string;
+    const email = fd.get("email") as string;
+    const phone = fd.get("phone") as string;
+    const motoNombre = fd.get("moto") as string;
+    const userMessage = fd.get("userMessage") as string;
+
+    if (!validate(name, email)) return;
+
+    const message = `Me interesa la moto: ${motoNombre}.${userMessage?.trim() ? `\n\n${userMessage}` : ""}`;
+
+    btn.disabled = true;
+    btnText.hidden = true;
+    btnLoading.hidden = false;
+
+    try {
+      const res = await fetch("/api/contacto", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, phone, message }),
+      });
+      const json = await res.json();
+
+      if (res.ok) {
+        form.reset();
+        successMsg.hidden = false;
+        successMsg.scrollIntoView({ behavior: "smooth", block: "center" });
+      } else {
+        errorMsg.textContent = json.error || "Error al enviar. Inténtalo de nuevo.";
+        errorMsg.hidden = false;
+      }
+    } catch {
+      errorMsg.textContent = "Error de conexión. Inténtalo de nuevo.";
+      errorMsg.hidden = false;
+    } finally {
+      btn.disabled = false;
+      btnText.hidden = false;
+      btnLoading.hidden = true;
+    }
+  });
+</script>
+
+<style>
+.page-wrapper {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .875rem;
+  color: #64748b;
+  margin-bottom: 2rem;
+}
+
+.breadcrumb a {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.breadcrumb a:hover { text-decoration: underline; }
+
+/* FICHA GRID */
+.ficha {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  margin-bottom: 3rem;
+}
+
+.ficha__imagen {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #f1f5f9;
+  aspect-ratio: 4/3;
+}
+
+.ficha__imagen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.badge-agotada {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: #6b7280;
+  color: white;
+  font-size: .8rem;
+  font-weight: 700;
+  padding: .3rem .8rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+
+/* DETALLES */
+.ficha__detalles {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.marca-badge {
+  display: inline-block;
+  font-size: .75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  padding: .25rem .65rem;
+  border-radius: 999px;
+  color: white;
+  width: fit-content;
+}
+
+.marca-badge--rieju  { background: #dc2626; }
+.marca-badge--sherco { background: #0d9488; }
+
+.ficha__detalles h1 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 800;
+  color: #1e293b;
+  line-height: 1.15;
+  margin: 0;
+}
+
+.precio {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--color-primary);
+}
+
+/* SPECS */
+.specs h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #374151;
+  margin-bottom: .75rem;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+.specs__lista {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.specs__lista li {
+  display: flex;
+  justify-content: space-between;
+  padding: .65rem 1rem;
+  font-size: .9rem;
+}
+
+.specs__lista li:nth-child(even) { background: #f8fafc; }
+
+.specs__label { font-weight: 600; color: #555; }
+.specs__valor { color: #1e293b; }
+
+/* BUTTONS */
+.btn-primary {
+  display: block;
+  text-align: center;
+  padding: .9rem 1.5rem;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: filter .2s, transform .15s;
+}
+
+.btn-primary:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-1px); }
+.btn-primary:disabled { opacity: .7; cursor: not-allowed; }
+
+.btn-primary--outline {
+  background: transparent;
+  border: 2px solid var(--color-primary);
+  color: var(--color-primary);
+}
+
+.btn-primary--outline:hover { background: var(--color-primary); color: white; }
+
+.btn-secondary {
+  display: block;
+  text-align: center;
+  padding: .85rem 1.5rem;
+  background: transparent;
+  color: #64748b;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: .95rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color .2s, color .2s;
+}
+
+.btn-secondary:hover { border-color: var(--color-primary); color: var(--color-primary); }
+
+/* INTERÉS */
+.interes-section {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.interes-card {
+  background: white;
+  border-radius: 16px;
+  padding: 2.5rem 2rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,.07);
+}
+
+.interes-card h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: .5rem;
+}
+
+.interes-card > p {
+  color: #64748b;
+  margin-bottom: 1.75rem;
+  line-height: 1.6;
+}
+
+.alert {
+  padding: 1rem 1.25rem;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+  font-size: .9rem;
+  font-weight: 500;
+}
+
+.alert--success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+.alert--error   { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+.interes-form { display: flex; flex-direction: column; gap: 1.1rem; }
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-group { display: flex; flex-direction: column; }
+
+label {
+  font-size: .85rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: .35rem;
+}
+
+.req { color: #dc2626; }
+.opt { font-weight: 400; color: #9ca3af; font-size: .78rem; }
+
+input, textarea {
+  padding: .7rem .9rem;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: .95rem;
+  transition: border-color .2s;
+  box-sizing: border-box;
+}
+
+input:focus, textarea:focus { outline: none; border-color: var(--color-primary); }
+
+textarea { resize: vertical; min-height: 80px; }
+
+.field-error { color: #dc2626; font-size: .75rem; margin-top: .25rem; min-height: .9rem; }
+
+@media (max-width: 768px) {
+  .ficha { grid-template-columns: 1fr; gap: 1.5rem; }
+  .form-row { grid-template-columns: 1fr; }
+}
+</style>

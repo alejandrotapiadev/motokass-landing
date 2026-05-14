@@ -1,5 +1,4 @@
 ---
-import MotoCard from "../components/MotoCard.astro";
 import MainLayout from "../layouts/MainLayout.astro";
 import FilteredMotoList from "../components/FilteredMotoList.jsx";
 import RiejuCatalogo from "../resources/RiejuCatalogo.json";
@@ -11,7 +10,10 @@ const motosRieju = RiejuCatalogo.catalogo.modelos.map((moto) => ({
   nombre: moto.modelo,
   precio: moto.precio_eur,
   imagen: moto.imagen,
-  specs: moto.specs
+  specs: moto.specs,
+  stock: moto.stock,
+  nuevo: (moto as any).nuevo ?? false,
+  categoria: (moto as any).categoria ?? null,
 }));
 
 // Mapeamos Sherco
@@ -20,16 +22,25 @@ const motosSherco = ShercoCatalogo.catalogo.modelos.map((moto) => ({
   nombre: moto.modelo,
   precio: moto.precio_eur,
   imagen: moto.imagen,
-  specs: moto.specs
+  specs: moto.specs,
+  stock: moto.stock,
+  nuevo: (moto as any).nuevo ?? false,
+  categoria: (moto as any).categoria ?? null,
 }));
 
-// Combinamos ambas listas
-const motos = [...motosRieju, ...motosSherco];
+// Intercalamos Rieju y Sherco: R1, S1, R2, S2… para que la tienda
+// no muestre todas las de una marca seguidas.
+const motos: any[] = [];
+const maxLen = Math.max(motosRieju.length, motosSherco.length);
+for (let i = 0; i < maxLen; i++) {
+  if (i < motosRieju.length)  motos.push(motosRieju[i]);
+  if (i < motosSherco.length) motos.push(motosSherco[i]);
+}
 ---
 
 <MainLayout
-  title="MOTOKASS - Tienda de Motos | Rieju y Sherco en Ávila"
-  description="Compra tu moto en MOTOKASS. Distribuidor oficial de Rieju y Sherco en Ávila. Amplio catálogo con filtros por marca y precio."
+  title="MOTOKASS - Catálogo de Motos | Rieju y Sherco en Ávila"
+  description="Catálogo de motos en MOTOKASS. Distribuidor oficial de Rieju y Sherco en Ávila. Filtra por marca, categoría, cilindrada y tipo de motor."
 >
   <section class="section">
     <div class="container">

@@ -1,14 +1,16 @@
 ---
 import "../styles/global.css";
 import ScrollTop from "../components/ScrollTop.astro";
+import WhatsApp from "../components/WhatsApp.astro";
 import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 
 const {
-  title = "MOTOKASS",
-  description = "Tienda y taller de motos en tu ciudad",
+  title = "MOTOKASS — Concesionario y Taller de Motos en Ávila",
+  description = "Distribuidor oficial Rieju y Sherco en Ávila. Catálogo de motos, taller mecánico, cita previa y asesoramiento personalizado.",
+  ogImage = "https://motokass.com/fachada.png",
 } = Astro.props;
 ---
 
@@ -119,14 +121,24 @@ const {
     <!-- Open Graph -->
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:url" content="https://motokass.com">
-    <meta property="og:type" content="website">
+    <meta property="og:url" content={Astro.url} />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:site_name" content="MOTOKASS" />
+    <meta property="og:locale" content="es_ES" />
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
 
     <title>{title}</title>
 
-    <!-- Favicon (placeholder) -->
+    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"
@@ -138,6 +150,7 @@ const {
       <slot />
     </main>
     <ScrollTop />
+    <WhatsApp />
     <Footer></Footer>
     <Analytics client:only="react" />
     <SpeedInsights client:only="react" />
