@@ -139,6 +139,7 @@ export default function FilteredMotoList({ motos }) {
   const [cilindrada,  setCilindrada]  = useState('');
   const [tipoMotor,   setTipoMotor]   = useState('');
   const [soloStock,   setSoloStock]   = useState(false);
+  const [soloNuevo,   setSoloNuevo]   = useState(false);
   const [pagina,      setPagina]      = useState(1);
   const gridRef = useRef(null);
 
@@ -153,19 +154,20 @@ export default function FilteredMotoList({ motos }) {
         && (!categoria || m.categoria === categoria)
         && (!cilindrada || getRangoCilindrada(m) === cilindrada)
         && (!tipoMotor  || getTipoMotor(m) === tipoMotor)
-        && (!soloStock  || m.stock !== false);
+        && (!soloStock  || m.stock !== false)
+      && (!soloNuevo  || m.nuevo === true);
   }), [busqueda, marca, categoria, cilindrada, tipoMotor, soloStock, motos]);
 
   useEffect(() => { setPagina(1); },
-    [busqueda, marca, categoria, cilindrada, tipoMotor, soloStock]);
+    [busqueda, marca, categoria, cilindrada, tipoMotor, soloStock, soloNuevo]);
 
   const totalPag  = Math.max(1, Math.ceil(filtradas.length / MOTOS_POR_PAGINA));
   const inicio    = (pagina - 1) * MOTOS_POR_PAGINA;
   const pagMoots  = filtradas.slice(inicio, inicio + MOTOS_POR_PAGINA);
-  const hayFiltros = busqueda || marca || categoria || cilindrada || tipoMotor || soloStock;
+  const hayFiltros = busqueda || marca || categoria || cilindrada || tipoMotor || soloStock || soloNuevo;
 
   const irA = (n) => { setPagina(n); gridRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
-  const limpiar = () => { setBusqueda(''); setMarca(''); setCategoria(''); setCilindrada(''); setTipoMotor(''); setSoloStock(false); };
+  const limpiar = () => { setBusqueda(''); setMarca(''); setCategoria(''); setCilindrada(''); setTipoMotor(''); setSoloStock(false); setSoloNuevo(false); };
 
   return (
     <>
@@ -198,6 +200,10 @@ export default function FilteredMotoList({ motos }) {
           </div>
 
           <div className="filtro-row__right">
+            <label className="label-stock">
+              <input type="checkbox" checked={soloNuevo} onChange={(e) => setSoloNuevo(e.target.checked)} />
+              ✨ Solo novedades
+            </label>
             <label className="label-stock">
               <input type="checkbox" checked={soloStock} onChange={(e) => setSoloStock(e.target.checked)} />
               Solo disponibles
