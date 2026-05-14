@@ -1,96 +1,581 @@
 ---
 import MainLayout from "../layouts/MainLayout.astro";
+import tallerBg from "../assets/img/backgrounds/taller.png";
+
 const servicios = [
-  { titulo: "Cambio de aceite", descripcion: "Mantenimiento esencial para alargar la vida del motor." },
-  { titulo: "Frenos y suspensiones", descripcion: "Seguridad y control en cada curva." },
-  { titulo: "Diagnóstico electrónico", descripcion: "Revisión completa con herramientas profesionales." },
-  { titulo: "Revisión general", descripcion: "Puesta a punto completa de tu moto." },
+  {
+    titulo: "Cambio de aceite",
+    descripcion: "Lubricantes de primera calidad para cada motor. El mantenimiento más importante para alargar la vida de tu moto.",
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>`,
+  },
+  {
+    titulo: "Frenos y suspensiones",
+    descripcion: "Seguridad y control en cada frenada. Revisamos pastillas, discos, líquidos y amortiguadores con precisión.",
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>`,
+  },
+  {
+    titulo: "Diagnóstico electrónico",
+    descripcion: "Herramientas profesionales para detectar cualquier avería. Sin sorpresas: te explicamos qué necesita tu moto.",
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="2" x2="9" y2="4"/><line x1="15" y1="2" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="22"/><line x1="15" y1="20" x2="15" y2="22"/><line x1="20" y1="9" x2="22" y2="9"/><line x1="20" y1="14" x2="22" y2="14"/><line x1="2" y1="9" x2="4" y2="9"/><line x1="2" y1="14" x2="4" y2="14"/></svg>`,
+  },
+  {
+    titulo: "Revisión general",
+    descripcion: "Puesta a punto completa: motor, transmisión, frenos, electricidad y neumáticos. Tu moto lista para rodar.",
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><path d="m9 12 2 2 4-4"/></svg>`,
+  },
+];
+
+const horarioSemanal = [
+  { dia: "Lunes",     horas: ["10:00 – 13:45", "15:30 – 19:00"], abierto: true },
+  { dia: "Martes",    horas: ["10:00 – 13:45", "15:30 – 19:00"], abierto: true },
+  { dia: "Miércoles", horas: ["10:00 – 13:45", "15:30 – 19:00"], abierto: true },
+  { dia: "Jueves",    horas: ["10:00 – 13:45", "15:30 – 19:00"], abierto: true },
+  { dia: "Viernes",   horas: ["10:00 – 14:00"],                  abierto: true },
+  { dia: "Sábado",    horas: [],                                  abierto: false },
+  { dia: "Domingo",   horas: [],                                  abierto: false },
 ];
 ---
-<MainLayout title="MOTOKASS taller - servicios de mantenimiento y reparación"
-  description="MOTOKASS ofrece servicios profesionales de taller mecánico para motos. Desde cambios de aceite hasta diagnósticos electrónicos. ¡Cuida tu moto con nosotros!">
-  <section class="section">
-    <div class="container">
-      <div class="top_header">
-        <h1>Taller Mecanico</h1>
-        <p class="section-subtitle">Cuidamos tu moto como si fuera nuestra.</p>
+
+<MainLayout
+  title="Taller Mecánico MOTOKASS — Revisión y reparación de motos en Ávila"
+  description="Servicio oficial de taller para motos Rieju y Sherco en Ávila. Cambio de aceite, frenos, diagnóstico electrónico y revisiones completas. Agenda tu cita online."
+>
+
+  <!-- HERO -->
+  <div class="taller-hero" style={`background-image: url('${tallerBg.src}')`}>
+    <div class="hero-overlay">
+      <div class="container">
+        <div class="hero-content">
+          <span class="hero-badge">Servicio oficial · Rieju &amp; Sherco</span>
+          <h1>Taller Mecánico</h1>
+          <p class="hero-sub">Cuidamos tu moto como si fuera nuestra.</p>
+          <a href="/citaPrevia" class="hero-btn">Reservar cita</a>
+        </div>
       </div>
-  
-      <!-- Servicios -->
-      <div class="grid">
+    </div>
+  </div>
+
+  <!-- SERVICIOS -->
+  <section class="section bg-white">
+    <div class="container">
+      <div class="section-header">
+        <h2>Nuestros servicios</h2>
+        <p>Del mantenimiento rutinario a la reparación más exigente.</p>
+      </div>
+      <div class="servicios-grid">
         {servicios.map(s => (
-          <div class="service-card">
+          <div class="servicio-card">
+            <div class="servicio-icon" set:html={s.svg} />
             <h3>{s.titulo}</h3>
             <p>{s.descripcion}</p>
           </div>
         ))}
       </div>
-  
-      <!-- Sección Agendar cita -->
-      <section class="cita-section">
-        <h2>Agendar cita</h2>
-        <p>Más adelante podrás reservar una cita directamente desde aquí.</p>
-        <a href="/citaPrevia"><button class="btn-primary">Agendar cita</button></a>
-      </section>
     </div>
   </section>
+
+  <!-- DISPONIBILIDAD -->
+  <section class="section bg-light">
+    <div class="container">
+      <div class="section-header">
+        <h2>¿Cuándo puedes venir?</h2>
+        <p>Selecciona un día disponible para ir directamente al formulario de cita.</p>
+      </div>
+      <div class="disp-layout">
+
+        <!-- Calendario -->
+        <div class="calendar-panel">
+          <div class="cal-header">
+            <span id="cal-month-label" class="cal-month-name"></span>
+          </div>
+          <div class="cal-weekdays">
+            <span>L</span><span>M</span><span>X</span><span>J</span><span>V</span>
+            <span class="w-end">S</span><span class="w-end">D</span>
+          </div>
+          <div class="cal-grid" id="cal-grid"></div>
+          <div class="cal-legend">
+            <span class="leg"><span class="dot dot--open"></span>Disponible</span>
+            <span class="leg"><span class="dot dot--today"></span>Hoy</span>
+            <span class="leg"><span class="dot dot--closed"></span>Cerrado</span>
+          </div>
+        </div>
+
+        <!-- Horario + CTA -->
+        <div class="horario-panel">
+          <h3>Horario del taller</h3>
+          <ul class="horario-list">
+            {horarioSemanal.map(h => (
+              <li class={`horario-item${h.abierto ? '' : ' h-cerrado'}`}>
+                <span class="h-dia">{h.dia}</span>
+                <span class="h-horas">
+                  {h.abierto
+                    ? h.horas.map(t => <span class="h-slot">{t}</span>)
+                    : <span class="h-slot-cerrado">Cerrado</span>
+                  }
+                </span>
+              </li>
+            ))}
+          </ul>
+          <a href="/citaPrevia" class="btn-agendar">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Agendar cita
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
 </MainLayout>
 
+<script>
+  const grid = document.getElementById('cal-grid') as HTMLElement;
+  const label = document.getElementById('cal-month-label') as HTMLElement;
+
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth();
+  const todayDate = today.getDate();
+
+  const monthNames = [
+    'Enero','Febrero','Marzo','Abril','Mayo','Junio',
+    'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'
+  ];
+  label.textContent = `${monthNames[month]} ${year}`;
+
+  const firstDow = new Date(year, month, 1).getDay();
+  const startOffset = firstDow === 0 ? 6 : firstDow - 1;
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  for (let i = 0; i < startOffset; i++) {
+    const el = document.createElement('div');
+    el.className = 'cal-day cal-empty';
+    grid.appendChild(el);
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const el = document.createElement('div');
+    const dow = new Date(year, month, d).getDay();
+    const isWeekend = dow === 0 || dow === 6;
+    const isPast = d < todayDate;
+    const isToday = d === todayDate;
+
+    el.className = 'cal-day';
+    el.textContent = String(d);
+
+    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+
+    if (isPast) {
+      el.classList.add('day--past');
+    } else if (isToday) {
+      el.classList.add('day--today');
+      if (!isWeekend) {
+        el.setAttribute('role', 'button');
+        el.setAttribute('tabindex', '0');
+        el.title = 'Reservar para hoy';
+        el.addEventListener('click', () => { window.location.href = `/citaPrevia?fecha=${dateStr}`; });
+        el.addEventListener('keydown', (e: KeyboardEvent) => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.location.href = `/citaPrevia?fecha=${dateStr}`; }
+        });
+      }
+    } else if (isWeekend) {
+      el.classList.add('day--closed');
+    } else {
+      el.classList.add('day--open');
+      el.setAttribute('role', 'button');
+      el.setAttribute('tabindex', '0');
+      el.title = 'Reservar para este día';
+      el.addEventListener('click', () => { window.location.href = `/citaPrevia?fecha=${dateStr}`; });
+      el.addEventListener('keydown', (e: KeyboardEvent) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.location.href = `/citaPrevia?fecha=${dateStr}`; }
+      });
+    }
+
+    grid.appendChild(el);
+  }
+</script>
+
 <style>
-/* Grid de servicios */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 2rem;
+/* ── HERO ── */
+.taller-hero {
+  background-size: cover;
+  background-position: center;
+}
+
+.hero-overlay {
+  background: linear-gradient(135deg, rgba(20,44,87,0.90) 0%, rgba(31,63,122,0.70) 100%);
+  display: flex;
+  align-items: center;
+  min-height: 62vh;
+  width: 100%;
+}
+
+.hero-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  max-width: 560px;
+  padding: 4rem 0;
+}
+
+.hero-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.13);
+  border: 1px solid rgba(255,255,255,0.28);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.9rem;
+  border-radius: 100px;
+  backdrop-filter: blur(4px);
+}
+
+.hero-content h1 {
+  color: white;
+  font-size: clamp(2.4rem, 5vw, 3.8rem);
+  font-weight: 800;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.hero-sub {
+  color: rgba(255,255,255,0.82);
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.hero-btn {
+  margin-top: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--color-secondary);
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 0.85rem 2rem;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: filter 0.2s, transform 0.15s;
+}
+
+.hero-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+}
+
+/* ── SECTION UTILS ── */
+.bg-white { background: #ffffff; }
+.bg-light  { background: #f8fafc; }
+
+.section-header {
+  text-align: center;
   margin-bottom: 3rem;
 }
 
-/* Tarjeta de servicio solo con texto */
-.service-card {
-  background: white;
-  border-radius: 1rem;
-  padding: 1.5rem;
-  box-shadow: 0 10px 24px rgba(0,0,0,0.08);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  text-align: center;
-}
-
-.service-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.12);
-}
-
-/* Tipografía y jerarquía */
-.service-card h3 {
-  font-size: 1.25rem;
-  font-weight: 700;
+.section-header h2 {
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 800;
+  color: var(--color-primary);
   margin-bottom: 0.5rem;
-  color: var(--color-secondary);
 }
 
-.service-card p {
-  font-size: 0.95rem;
+.section-header p {
+  color: var(--color-muted);
+  font-size: 1rem;
+}
+
+/* ── SERVICIOS ── */
+.servicios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+
+.servicio-card {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 2rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: box-shadow 0.25s, transform 0.25s;
+}
+
+.servicio-card:hover {
+  box-shadow: 0 8px 28px rgba(0,0,0,0.09);
+  transform: translateY(-4px);
+}
+
+.servicio-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--color-primary);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  padding: 11px;
+  flex-shrink: 0;
+}
+
+.servicio-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.servicio-card h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin: 0;
+}
+
+.servicio-card p {
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── DISPONIBILIDAD ── */
+.disp-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+/* ── CALENDAR ── */
+.calendar-panel {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 1.75rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+.cal-header {
+  margin-bottom: 1.25rem;
+}
+
+.cal-month-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  text-transform: capitalize;
+}
+
+.cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  margin-bottom: 0.5rem;
+  gap: 4px;
+}
+
+.cal-weekdays span {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 0;
+}
+
+.cal-weekdays .w-end {
+  color: #ef4444;
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.cal-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+  user-select: none;
+}
+
+.cal-empty {
+  background: transparent;
+}
+
+.day--open {
+  background: #e8edf6;
+  color: var(--color-primary);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.day--open:hover,
+.day--open:focus-visible {
+  background: var(--color-primary);
+  color: white;
+  transform: scale(1.12);
+  box-shadow: 0 4px 14px rgba(31,63,122,0.28);
+  outline: none;
+}
+
+.day--today {
+  background: var(--color-secondary);
+  color: white;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(220,38,38,0.32);
+  cursor: pointer;
+}
+
+.day--closed {
+  background: #f1f5f9;
+  color: #cbd5e1;
+  cursor: default;
+}
+
+.day--past {
+  color: #d1d5db;
+  background: transparent;
+  cursor: default;
+}
+
+.cal-legend {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.25rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.leg {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
   color: var(--color-muted);
 }
 
-/* Sección cita */
-.cita-section {
-  text-align: center;
-  background: #f1f5f9;
-  padding: 2rem;
-  border-radius: 1rem;
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
-.cita-section h2 {
-  margin-bottom: 1rem;
+.dot--open   { background: var(--color-primary); }
+.dot--today  { background: var(--color-secondary); }
+.dot--closed { background: #e5e7eb; }
+
+/* ── HORARIO PANEL ── */
+.horario-panel {
+  background: var(--color-primary);
+  border-radius: 16px;
+  padding: 2rem 1.75rem;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
-.cita-section p {
-  margin-bottom: 1.5rem;
-}
-.top_header{
-  text-align: center;
-  padding-bottom: 1.5em;
+.horario-panel h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: white;
+  margin: 0;
 }
 
+.horario-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.horario-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.horario-item:last-child {
+  border-bottom: none;
+}
+
+.h-dia {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.92);
+  min-width: 90px;
+  padding-top: 2px;
+}
+
+.h-horas {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.h-slot {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.72);
+}
+
+.h-cerrado .h-dia {
+  color: rgba(255,255,255,0.38);
+}
+
+.h-slot-cerrado {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.35);
+}
+
+.btn-agendar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--color-secondary);
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 0.9rem 1.5rem;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: filter 0.2s, transform 0.15s;
+}
+
+.btn-agendar:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .disp-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-content {
+    padding: 3rem 0;
+  }
+
+  .hero-content h1 {
+    font-size: 2.2rem;
+  }
+}
 </style>

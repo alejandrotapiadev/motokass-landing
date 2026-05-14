@@ -105,6 +105,9 @@ import MainLayout from "../layouts/MainLayout.astro";
   const fechaInput = document.getElementById("fecha") as HTMLInputElement;
   fechaInput.min = new Date().toISOString().split("T")[0];
 
+  const fechaParam = new URLSearchParams(window.location.search).get("fecha");
+  if (fechaParam) fechaInput.value = fechaParam;
+
   function clearErrors() {
     document.querySelectorAll<HTMLElement>(".field-error").forEach((el) => (el.textContent = ""));
     document.querySelectorAll<HTMLElement>(".input--error").forEach((el) => el.classList.remove("input--error"));
