@@ -159,11 +159,7 @@
 [✓] Footer: horario unificado con JSON-LD y taller.astro (2026-05-15)
     L-J: 10:00 - 13:45 | 15:30 - 19:00 · V: 10:00 - 14:00
 
-[ ] taller.astro: texto obsoleto
-    Archivo: src/pages/taller.astro, línea 32
-    Dice: "Más adelante podrás reservar una cita directamente desde aquí."
-    El sistema de citas YA existe. Cambiar a:
-    "Reserva tu cita de taller directamente desde aquí."
+[✓] taller.astro: texto obsoleto ya corregido en sesión anterior (verificado 2026-05-15)
 
 [ ] Testimonios: número de clientes sin rellenar
     Archivo: src/components/Testimonios.astro, línea 49 (aprox.)
@@ -328,7 +324,8 @@
     Seleccionar 2-3 modelos y ver sus specs en tabla lado a lado.
 
 ============================================================
-  Pendientes activos:    ~10 tareas (datos del cliente o mejoras futuras)
-  Completados totales:   ~34 tareas (sprints 1-7 + sesiones 2026-05-15)
+  Pendientes activos:    ~9 tareas (datos del cliente o mejoras futuras)
+  Completados totales:   ~35 tareas (sprints 1-7 + sesiones 2026-05-15)
+  Suite de tests:        74 tests, 6 ficheros — todos en verde
   Última actualización:  2026-05-15  (feature/integracionIA-8)
 ============================================================
