@@ -1,8 +1,8 @@
-
 export const prerender = false;
 import type { APIRoute } from "astro";
 import supabase from "@/lib/supabase";
 import resend from "@/lib/resend";
+import { validarCita } from "@/lib/validacion";
 
 const MOTIVO_LABEL: Record<string, string> = {
   mantenimiento: "Mantenimiento",
@@ -73,19 +73,9 @@ export const POST: APIRoute = async ({ request }) => {
     const body = await request.json();
     const { nombre, email, telefono, fecha, hora, vehiculo, motivo, resumen } = body;
 
-    if (!nombre?.trim() || !email?.trim() || !fecha || !hora || !vehiculo?.trim() || !motivo) {
-      return new Response(JSON.stringify({ error: "Faltan campos obligatorios" }), { status: 400 });
-    }
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return new Response(JSON.stringify({ error: "El email no es válido" }), { status: 400 });
-    }
-
-    const citaDate = new Date(fecha + "T00:00:00");
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-    if (citaDate < hoy) {
-      return new Response(JSON.stringify({ error: "La fecha no puede ser en el pasado" }), { status: 400 });
+    const errorValidacion = validarCita({ nombre, email, fecha, hora, vehiculo, motivo });
+    if (errorValidacion) {
+      return new Response(JSON.stringify({ error: errorValidacion }), { status: 400 });
     }
 
     const { error: dbError } = await supabase

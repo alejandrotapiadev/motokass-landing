@@ -1,36 +1,9 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import MotoCard from './MotoCard.jsx';
 import { toSlug } from '../lib/slug.ts';
+import { getTipoMotor, getRangoCilindrada, getPaginas } from '../lib/filtros.ts';
 
 const MOTOS_POR_PAGINA = 12;
-
-function getTipoMotor(moto) {
-  const t = (moto.specs?.tipo_motor || '').toLowerCase();
-  if (t.includes('eléctrico') || t.includes('electrico') || t.includes('shimano') || moto.specs?.potencia_kw != null) return 'Eléctrico';
-  if (t.includes('2t') || t.includes('2 temps')) return '2T';
-  if (t.includes('4t') || t.includes('4 temps')) return '4T';
-  return null;
-}
-
-function getRangoCilindrada(moto) {
-  const cc = moto.specs?.cilindrada_cc;
-  if (getTipoMotor(moto) === 'Eléctrico') return 'electrico';
-  if (!cc) return null;
-  if (cc <= 50)  return '50cc';
-  if (cc <= 125) return '125cc';
-  if (cc <= 500) return '250-500cc';
-  return 'mas500cc';
-}
-
-function getPaginas(total, actual) {
-  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
-  const p = [1];
-  if (actual > 3) p.push('…');
-  for (let i = Math.max(2, actual - 1); i <= Math.min(total - 1, actual + 1); i++) p.push(i);
-  if (actual < total - 2) p.push('…');
-  p.push(total);
-  return p;
-}
 
 const RANGOS_CC = [
   { value: '50cc',      label: '50 cc' },
