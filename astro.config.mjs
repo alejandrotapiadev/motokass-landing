@@ -8,4 +8,7 @@ export default defineConfig({
   output: "server",
   adapter: vercel(),
   integrations: [react()],
+  security: {
+    checkOrigin: false,
+  },
 });
