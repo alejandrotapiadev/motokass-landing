@@ -1,14 +1,8 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import MotoCard from './MotoCard.jsx';
+import { toSlug } from '../lib/slug.ts';
 
 const MOTOS_POR_PAGINA = 12;
-
-/* ── utilidades ─────────────────────────────────────────────────── */
-
-function toSlug(str) {
-  return str.toLowerCase().normalize('NFD')
-    .replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-}
 
 function getTipoMotor(moto) {
   const t = (moto.specs?.tipo_motor || '').toLowerCase();
