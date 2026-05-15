@@ -1,6 +1,7 @@
 export const prerender = false;
 import type { APIRoute } from "astro";
 import resend from "@/lib/resend";
+import { validarContacto } from "@/lib/validacion";
 
 function emailContacto(nombre: string, email: string, telefono: string | undefined, mensaje: string): string {
   return `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;background:#f5f5f5;margin:0;padding:20px;">
@@ -31,16 +32,9 @@ export const POST: APIRoute = async ({ request }) => {
     const body = await request.json();
     const { name, email, phone, message } = body;
 
-    if (!name?.trim() || !email?.trim() || !message?.trim()) {
-      return new Response(JSON.stringify({ error: "Nombre, email y mensaje son obligatorios" }), { status: 400 });
-    }
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return new Response(JSON.stringify({ error: "El email no es válido" }), { status: 400 });
-    }
-
-    if (message.trim().length < 10) {
-      return new Response(JSON.stringify({ error: "El mensaje es demasiado corto (mínimo 10 caracteres)" }), { status: 400 });
+    const errorValidacion = validarContacto({ name, email, message });
+    if (errorValidacion) {
+      return new Response(JSON.stringify({ error: errorValidacion }), { status: 400 });
     }
 
     const from = import.meta.env.RESEND_FROM!;
