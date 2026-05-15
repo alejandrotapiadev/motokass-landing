@@ -17,15 +17,25 @@ if (Astro.request.method === "POST") {
   return Astro.redirect("/admin/citas");
 }
 
-// Filtros opcionales por estado
+const POR_PAGINA = 25;
+
 const url = new URL(Astro.request.url);
 const filtroEstado = url.searchParams.get("estado") ?? "";
+const pagina = Math.max(1, parseInt(url.searchParams.get("page") ?? "1", 10));
+
+let countQuery = supabase.from("citas").select("*", { count: "exact", head: true });
+if (filtroEstado) countQuery = countQuery.eq("estado", filtroEstado);
+const { count: totalCitas } = await countQuery;
+
+const totalPags = Math.ceil((totalCitas ?? 0) / POR_PAGINA);
+const desde = (pagina - 1) * POR_PAGINA;
 
 let query = supabase
   .from("citas")
   .select("*")
   .order("fecha", { ascending: true })
-  .order("hora", { ascending: true });
+  .order("hora", { ascending: true })
+  .range(desde, desde + POR_PAGINA - 1);
 
 if (filtroEstado) {
   query = query.eq("estado", filtroEstado);
@@ -155,6 +165,36 @@ function formatFecha(fecha: string) {
     .empty { text-align: center; padding: 3rem; color: #94a3b8; }
 
     .error-msg { background: #fef2f2; color: #991b1b; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; }
+
+    .paginacion {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 1.5rem;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .paginacion .info { font-size: .85rem; color: #64748b; }
+    .paginacion .controles { display: flex; gap: .5rem; align-items: center; }
+    .paginacion a, .paginacion span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      font-size: .85rem;
+      font-weight: 600;
+      text-decoration: none;
+      border: 1.5px solid #e5e7eb;
+      color: #374151;
+      background: white;
+      transition: .15s;
+      padding: 0 .6rem;
+    }
+    .paginacion a:hover { background: #f1f5f9; }
+    .paginacion a.active { background: #1F3F7A; border-color: #1F3F7A; color: white; }
+    .paginacion span { color: #d1d5db; cursor: default; }
   </style>
 </head>
 <body>
@@ -162,6 +202,7 @@ function formatFecha(fecha: string) {
 <div class="topbar">
   <h1>MOTOKASS Admin · Citas</h1>
   <div style="display:flex;gap:1.5rem;align-items:center;">
+    <a href="/admin/suscriptores">Suscriptores</a>
     <a href="/">← Volver a la web</a>
     <a href="/admin/logout">Cerrar sesión</a>
   </div>
@@ -247,6 +288,29 @@ function formatFecha(fecha: string) {
           })}
         </tbody>
       </table>
+    </div>
+  )}
+
+  {totalPags > 1 && (
+    <div class="paginacion">
+      <p class="info">
+        Página {pagina} de {totalPags} · {totalCitas} cita{totalCitas !== 1 ? "s" : ""}{filtroEstado ? ` (${filtroEstado})` : ""}
+      </p>
+      <div class="controles">
+        {pagina > 1
+          ? <a href={`?page=${pagina - 1}${filtroEstado ? `&estado=${filtroEstado}` : ""}`}>‹ Anterior</a>
+          : <span>‹ Anterior</span>
+        }
+        {Array.from({ length: totalPags }, (_, i) => i + 1).map(p => (
+          p === pagina
+            ? <a class="active" href="#">{p}</a>
+            : <a href={`?page=${p}${filtroEstado ? `&estado=${filtroEstado}` : ""}`}>{p}</a>
+        ))}
+        {pagina < totalPags
+          ? <a href={`?page=${pagina + 1}${filtroEstado ? `&estado=${filtroEstado}` : ""}`}>Siguiente ›</a>
+          : <span>Siguiente ›</span>
+        }
+      </div>
     </div>
   )}
 

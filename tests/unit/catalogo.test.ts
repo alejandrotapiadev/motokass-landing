@@ -61,4 +61,30 @@ describe('Catálogo — integridad de datos', () => {
       expect(m.specs, `sin specs: ${m.modelo}`).toBeTruthy();
     });
   });
+
+  it('los modelos Sherco tienen specs', () => {
+    sherco.forEach(m => {
+      expect((m as any).specs, `sin specs: ${m.modelo}`).toBeTruthy();
+    });
+  });
+
+  it('los modelos no eléctricos tienen cilindrada_cc', () => {
+    todos.forEach(m => {
+      const specs = (m as any).specs ?? {};
+      const esElectrico = specs.potencia_kw != null || /eléctric|electric/i.test(specs.tipo_motor ?? '');
+      if (!esElectrico) {
+        expect(specs.cilindrada_cc, `sin cilindrada_cc: ${m.modelo}`).toBeTruthy();
+      }
+    });
+  });
+
+  it('cilindrada_cc está en rango válido (1–2000) cuando existe', () => {
+    todos.forEach(m => {
+      const cc = (m as any).specs?.cilindrada_cc;
+      if (cc != null) {
+        expect(cc, `cilindrada fuera de rango: ${m.modelo}`).toBeGreaterThan(0);
+        expect(cc, `cilindrada fuera de rango: ${m.modelo}`).toBeLessThanOrEqual(2000);
+      }
+    });
+  });
 });
