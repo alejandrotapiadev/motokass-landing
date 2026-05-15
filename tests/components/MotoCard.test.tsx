@@ -61,4 +61,50 @@ describe('MotoCard', () => {
     const badge = screen.getByText('Sherco');
     expect(badge).toHaveClass('sherco');
   });
+
+  // ── cilindrada redondeada ────────────────────────────────────────────
+  it('no muestra cilindrada cuando specs está vacío (por defecto)', () => {
+    render(<MotoCard {...base} />);
+    expect(screen.queryByText(/cc/)).not.toBeInTheDocument();
+  });
+
+  it('no muestra cilindrada cuando cilindrada_cc es null', () => {
+    render(<MotoCard {...base} specs={{ cilindrada_cc: null }} />);
+    expect(screen.queryByText(/cc/)).not.toBeInTheDocument();
+  });
+
+  it('muestra "125 cc" para cilindrada exacta de 125', () => {
+    render(<MotoCard {...base} specs={{ cilindrada_cc: 125 }} />);
+    expect(screen.getByText('125 cc')).toBeInTheDocument();
+  });
+
+  it('redondea 124 cc → 125 cc', () => {
+    render(<MotoCard {...base} specs={{ cilindrada_cc: 124 }} />);
+    expect(screen.getByText('125 cc')).toBeInTheDocument();
+  });
+
+  it('redondea 298 cc → 300 cc', () => {
+    render(<MotoCard {...base} specs={{ cilindrada_cc: 298 }} />);
+    expect(screen.getByText('300 cc')).toBeInTheDocument();
+  });
+
+  it('redondea 329 cc → 350 cc', () => {
+    render(<MotoCard {...base} specs={{ cilindrada_cc: 329 }} />);
+    expect(screen.getByText('350 cc')).toBeInTheDocument();
+  });
+
+  it('redondea 478 cc → 500 cc', () => {
+    render(<MotoCard {...base} specs={{ cilindrada_cc: 478 }} />);
+    expect(screen.getByText('500 cc')).toBeInTheDocument();
+  });
+
+  it('redondea 554 cc → 550 cc', () => {
+    render(<MotoCard {...base} specs={{ cilindrada_cc: 554 }} />);
+    expect(screen.getByText('550 cc')).toBeInTheDocument();
+  });
+
+  it('muestra "700 cc" para valor exacto de 700', () => {
+    render(<MotoCard {...base} specs={{ cilindrada_cc: 700 }} />);
+    expect(screen.getByText('700 cc')).toBeInTheDocument();
+  });
 });

@@ -1,4 +1,15 @@
-export default function MotoCard({ marca, nombre, precio, imagen, stock = true, nuevo = false }) {
+const CC_ESTANDAR = [50, 125, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000, 1100, 1200, 1300];
+
+function redondearCC(cc) {
+  if (!cc) return null;
+  const nearest = CC_ESTANDAR.reduce((prev, cur) =>
+    Math.abs(cur - cc) < Math.abs(prev - cc) ? cur : prev
+  );
+  return `${nearest} cc`;
+}
+
+export default function MotoCard({ marca, nombre, precio, imagen, stock = true, nuevo = false, specs = {} }) {
+  const cilindrada = redondearCC(specs?.cilindrada_cc);
   return (
     <>
       <div className={`moto-card${!stock ? " moto-card--agotada" : ""}`}>
@@ -20,6 +31,7 @@ export default function MotoCard({ marca, nombre, precio, imagen, stock = true, 
         <div className="moto-info">
           <span className={`moto-brand ${marca.toLowerCase()}`}>{marca}</span>
           <h3>{nombre}</h3>
+          {cilindrada && <span className="moto-cc">{cilindrada}</span>}
           <span className="price">Consultar precio</span>
         </div>
       </div>
@@ -120,6 +132,13 @@ export default function MotoCard({ marca, nombre, precio, imagen, stock = true, 
 
         .moto-brand.sherco { background: #0d9488; }
         .moto-brand.rieju  { background: #dc2626; }
+
+        .moto-cc {
+          font-size: 0.8rem;
+          color: #64748b;
+          font-weight: 600;
+          margin-bottom: 0.25rem;
+        }
 
         .price {
           font-weight: 700;
