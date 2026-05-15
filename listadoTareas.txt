@@ -6,6 +6,49 @@
 
 
 ════════════════════════════════════════════════════════════
+ ✓ COMPLETADO EN FEATURE/integracionIA-6 y -7  (sesión 2026-05-15)
+════════════════════════════════════════════════════════════
+
+[✓] Variables de entorno configuradas en Vercel
+    SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY,
+    RESEND_FROM (noreply@motokass.com), TALLER_EMAIL (Gmail),
+    ADMIN_PASSWORD — todas activas en production/preview/development.
+
+[✓] Supabase: tablas verificadas
+    'citas' y 'subscribers' existen con el schema correcto.
+    Supabase responde correctamente desde la API.
+
+[✓] Resend: dominio verificado y envío confirmado
+    motokass.com verificado en Resend (región eu-west-1).
+    Dos emails de prueba entregados (last_event: delivered).
+
+[✓] Logout en panel de administración
+    Creado src/pages/admin/logout.astro (borra cookie + redirect).
+    Enlace "Cerrar sesión" añadido en la topbar de citas.astro.
+
+[✓] Sitemap: 67 fichas individuales de moto añadidas
+    35 Rieju + 32 Sherco en /catalogo/[slug].
+    También corregida la URL /citaPrevia → /CitaPrevia.
+
+[✓] FilteredMotoList.jsx: función toSlug deduplicada
+    Importa desde src/lib/slug.ts en lugar de tener copia local.
+
+[✓] Suite de tests Vitest — 62 tests, 6 ficheros
+    tests/unit/slug.test.ts          (6 tests)
+    tests/unit/filtros.test.ts       (20 tests)
+    tests/unit/validacion.test.ts    (18 tests)
+    tests/unit/catalogo.test.ts      (8 tests)
+    tests/components/MotoCard.test.tsx          (10 tests)
+    tests/components/FilteredMotoList.test.tsx  (8 tests)
+    Guía en tests/README.md. Ejecutar con: npm test
+
+[✓] Refactor: funciones puras extraídas a módulos testables
+    src/lib/filtros.ts    → getTipoMotor, getRangoCilindrada, getPaginas
+    src/lib/validacion.ts → validarCita, validarContacto, isValidEmail, isFechaFutura
+    APIs de citas y contacto actualizadas para importar desde estos módulos.
+
+
+════════════════════════════════════════════════════════════
  ✓ COMPLETADO EN FEATURE/integracionIA-3
 ════════════════════════════════════════════════════════════
 
@@ -58,40 +101,24 @@
  1. VARIABLES DE ENTORNO (Vercel → Settings → Environment)
 ────────────────────────────────────────────────────────────
 
-[ ] WHATSAPP_NUMBER
+[ ] WHATSAPP_NUMBER  ← PENDIENTE (sin número de móvil aún)
     Añadir número de móvil en formato internacional sin + ni espacios.
     Ejemplo: 34612345678 (si el número es +34 612 345 678)
     IMPORTANTE: WhatsApp no funciona con números de fijo (920...).
     Necesita un número de móvil activo con cuenta de WhatsApp.
     Archivo afectado: src/components/WhatsApp.astro
 
-[ ] TALLER_EMAIL
-    Email corporativo del taller para recibir notificaciones de citas
-    y formularios de contacto. Pendiente hasta tener el dominio
-    motokass.com configurado con Resend.
-    Afecta: /api/agendar-cita.ts y /api/contacto.ts
-
-[ ] RESEND_FROM
-    Email verificado en Resend (ej: noreply@motokass.com).
-    Hasta que no esté configurado, ningún email funcionará en producción.
-    Pasos: resend.com → Domains → añadir motokass.com → verificar DNS.
-
-[ ] ADMIN_PASSWORD
-    Cambiar el valor placeholder del .env.example por una contraseña
-    segura. No usar palabras del diccionario ni datos obvios.
+[✓] TALLER_EMAIL → maderadenogal22@gmail.com (configurado en Vercel)
+[✓] RESEND_FROM  → noreply@motokass.com (dominio verificado en Resend)
+[✓] ADMIN_PASSWORD → configurado en Vercel (contraseña segura)
 
 
 ────────────────────────────────────────────────────────────
  2. SUPABASE — BASE DE DATOS
 ────────────────────────────────────────────────────────────
 
-[ ] Crear tabla 'citas' si no se ha hecho ya
-    El SQL necesario está en la cabecera del archivo:
-    src/pages/api/agendar-cita.ts (primeras 14 líneas)
-
-[ ] Verificar que la tabla 'subscribers' existe
-    Necesaria para el newsletter (Ofertas + futura campaña de emails).
-    Campos mínimos: id, email, notified (bool), created_at.
+[✓] Tabla 'citas' — existe con schema correcto (verificado 2026-05-15)
+[✓] Tabla 'subscribers' — existe con schema correcto (1 suscriptor)
 
 [ ] Revisar políticas RLS (Row Level Security) de Supabase
     Las tablas 'citas' y 'subscribers' usan la service_role_key,
@@ -161,12 +188,8 @@
     Los precios (79€, 89€, 39€) son de ejemplo.
     Verificar y actualizar con los precios reales del taller.
 
-[ ] Sitemap: no incluye fichas individuales de moto
-    Archivo: public/sitemap.xml
-    Hay 67 modelos (35 Rieju + 32 Sherco), cada uno genera una ruta
-    /catalogo/[slug]. Ninguna aparece en el sitemap.
-    NOTA: la URL de catálogo ya fue actualizada de /tienda a /catalogo.
-    Añadirlas manualmente o migrar a @astrojs/sitemap automático.
+[✓] Sitemap: 67 fichas /catalogo/[slug] añadidas (2026-05-15)
+    También corregida la URL /citaPrevia → /CitaPrevia.
 
 [ ] MainLayout: fachada.png en JSON-LD
     Archivo: src/layouts/MainLayout.astro, línea 59
@@ -186,11 +209,7 @@
     Archivo: src/components/ServiceBox.astro
     Mismo caso que Hero.astro. Eliminar si no se va a usar.
 
-[ ] FilteredMotoList.jsx: función toSlug duplicada
-    Archivo: src/components/FilteredMotoList.jsx, línea 9
-    La función toSlug() está copiada en este archivo en lugar de
-    importarse desde src/lib/slug.ts (que ya existe para este propósito).
-    Cambiar a: import { toSlug } from '../lib/slug.ts';
+[✓] FilteredMotoList.jsx: toSlug importada desde src/lib/slug.ts
 
 [ ] package.json: dependencias sin usar
     @astrojs/preact y preact están instalados pero ningún componente
@@ -235,11 +254,7 @@
  7. PANEL DE ADMINISTRACIÓN
 ────────────────────────────────────────────────────────────
 
-[ ] Añadir botón de logout
-    Archivo: src/pages/admin/citas.astro
-    No hay forma de cerrar sesión. Añadir enlace que llame a
-    /admin/logout, borre la cookie admin_session y redirija a /admin.
-    Crear: src/pages/admin/logout.astro
+[✓] Logout en panel admin — src/pages/admin/logout.astro creado
 
 [ ] Paginación en la tabla de citas
     Si el negocio tiene muchas citas, la tabla se vuelve muy larga.
@@ -363,7 +378,7 @@
     Seleccionar 2-3 modelos y ver sus specs en tabla lado a lado.
 
 ============================================================
-  Pendientes activos:    ~35 tareas
-  Bugs prioritarios:      1 (Sherco categoria/nuevo en catalogo.astro)
-  Completados (sprint 3): 9 tareas
+  Pendientes activos:    ~22 tareas
+  Completados totales:   ~22 tareas (sprints 1-7 + sesión 2026-05-15)
+  Última actualización:  2026-05-15
 ============================================================
