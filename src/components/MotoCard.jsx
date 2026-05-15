@@ -1,5 +1,15 @@
+const CC_ESTANDAR = [50, 125, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000, 1100, 1200, 1300];
+
+function redondearCC(cc) {
+  if (!cc) return null;
+  const nearest = CC_ESTANDAR.reduce((prev, cur) =>
+    Math.abs(cur - cc) < Math.abs(prev - cc) ? cur : prev
+  );
+  return `${nearest} cc`;
+}
+
 export default function MotoCard({ marca, nombre, precio, imagen, stock = true, nuevo = false, specs = {} }) {
-  const cilindrada = specs?.cilindrada_cc ? `${specs.cilindrada_cc} cc` : null;
+  const cilindrada = redondearCC(specs?.cilindrada_cc);
   return (
     <>
       <div className={`moto-card${!stock ? " moto-card--agotada" : ""}`}>
