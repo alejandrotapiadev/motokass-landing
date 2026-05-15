@@ -1,0 +1,158 @@
+---
+import supabase from "../../lib/supabase.ts";
+
+if (Astro.cookies.get("admin_session")?.value !== "ok") {
+  return Astro.redirect("/admin");
+}
+
+const { data: suscriptores, error } = await supabase
+  .from("subscribers")
+  .select("*")
+  .order("created_at", { ascending: false });
+
+function formatFecha(iso: string) {
+  return new Date(iso).toLocaleDateString("es-ES", {
+    day: "numeric", month: "short", year: "numeric",
+  });
+}
+---
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Suscriptores · MOTOKASS Admin</title>
+  <link rel="icon" href="/favicon.svg" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f1f5f9; min-height: 100vh; }
+
+    .topbar {
+      background: #1F3F7A;
+      padding: .9rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: white;
+    }
+    .topbar h1 { font-size: 1.1rem; font-weight: 700; }
+    .topbar a { color: rgba(255,255,255,.75); font-size: .875rem; text-decoration: none; }
+    .topbar a:hover { color: white; }
+
+    .content { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 10px;
+      padding: 1.25rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+      text-align: center;
+    }
+    .stat-card .num { font-size: 2rem; font-weight: 800; color: #1F3F7A; }
+    .stat-card .lbl { font-size: .8rem; color: #64748b; margin-top: .2rem; text-transform: uppercase; letter-spacing: .5px; }
+
+    .tabla-wrapper { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+    th { background: #f8fafc; padding: .9rem 1rem; font-size: .8rem; text-transform: uppercase; letter-spacing: .5px; color: #64748b; text-align: left; border-bottom: 1px solid #e5e7eb; }
+    td { padding: .85rem 1rem; font-size: .9rem; border-bottom: 1px solid #f1f5f9; color: #1e293b; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8fafc; }
+
+    .badge-notified {
+      display: inline-block;
+      padding: .2rem .65rem;
+      border-radius: 999px;
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      background: #dcfce7;
+      color: #14532d;
+    }
+    .badge-pending {
+      display: inline-block;
+      padding: .2rem .65rem;
+      border-radius: 999px;
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      background: #fef9c3;
+      color: #713f12;
+    }
+
+    .empty { text-align: center; padding: 3rem; color: #94a3b8; }
+    .error-msg { background: #fef2f2; color: #991b1b; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>MOTOKASS Admin · Suscriptores</h1>
+  <div style="display:flex;gap:1.5rem;align-items:center;">
+    <a href="/admin/citas">Citas</a>
+    <a href="/">← Volver a la web</a>
+    <a href="/admin/logout">Cerrar sesión</a>
+  </div>
+</div>
+
+<div class="content">
+
+  {error && <div class="error-msg">Error al cargar los suscriptores: {error.message}</div>}
+
+  <div class="stats">
+    <div class="stat-card">
+      <div class="num">{(suscriptores ?? []).length}</div>
+      <div class="lbl">Total</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">{(suscriptores ?? []).filter(s => s.notified).length}</div>
+      <div class="lbl">Notificados</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">{(suscriptores ?? []).filter(s => !s.notified).length}</div>
+      <div class="lbl">Pendientes</div>
+    </div>
+  </div>
+
+  {(!suscriptores || suscriptores.length === 0) ? (
+    <div class="empty">No hay suscriptores registrados aún.</div>
+  ) : (
+    <div class="tabla-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Email</th>
+            <th>Notificado</th>
+            <th>Fecha de suscripción</th>
+          </tr>
+        </thead>
+        <tbody>
+          {suscriptores.map((s, i) => (
+            <tr>
+              <td style="color:#94a3b8;font-size:.85rem;">{i + 1}</td>
+              <td><a href={`mailto:${s.email}`}>{s.email}</a></td>
+              <td>
+                {s.notified
+                  ? <span class="badge-notified">Sí</span>
+                  : <span class="badge-pending">No</span>
+                }
+              </td>
+              <td>{formatFecha(s.created_at)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+
+</div>
+</body>
+</html>
