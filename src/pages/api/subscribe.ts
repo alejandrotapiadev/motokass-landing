@@ -1,7 +1,13 @@
 import type { APIRoute } from "astro";
 import supabase from "@/lib/supabase";
+import { isRateLimited, getClientIp } from "@/lib/rateLimit";
 
 export const POST: APIRoute = async ({ request }) => {
+  // Rate limit: 3 suscripciones por IP cada hora
+  if (isRateLimited(getClientIp(request), { max: 3, windowMs: 60 * 60 * 1000 })) {
+    return new Response(JSON.stringify({ error: "Demasiadas solicitudes. Inténtalo más tarde." }), { status: 429 });
+  }
+
   try {
     const { email } = await request.json();
 

@@ -3,6 +3,8 @@ import type { APIRoute } from "astro";
 import supabase from "@/lib/supabase";
 import resend from "@/lib/resend";
 import { validarCita } from "@/lib/validacion";
+import { isRateLimited, getClientIp } from "@/lib/rateLimit";
+import { esc } from "@/lib/sanitize";
 
 const MOTIVO_LABEL: Record<string, string> = {
   mantenimiento: "Mantenimiento",
@@ -14,11 +16,11 @@ const MOTIVO_LABEL: Record<string, string> = {
 
 function emailConfirmacionCliente(nombre: string, fecha: string, hora: string, vehiculo: string, motivo: string, resumen?: string): string {
   const filas = [
-    ["Fecha", fecha],
-    ["Hora", hora],
-    ["Vehículo", vehiculo],
-    ["Servicio", MOTIVO_LABEL[motivo] ?? motivo],
-    ...(resumen ? [["Descripción", resumen]] : []),
+    ["Fecha",      esc(fecha)],
+    ["Hora",       esc(hora)],
+    ["Vehículo",   esc(vehiculo)],
+    ["Servicio",   esc(MOTIVO_LABEL[motivo] ?? motivo)],
+    ...(resumen ? [["Descripción", esc(resumen)]] : []),
   ];
   const filasHtml = filas
     .map(([k, v], i) => `<tr style="background:${i % 2 === 0 ? "#f8fafc" : "white"}"><td style="padding:12px 16px;font-weight:700;color:#555;width:40%;">${k}</td><td style="padding:12px 16px;color:#222;">${v}</td></tr>`)
@@ -32,7 +34,7 @@ function emailConfirmacionCliente(nombre: string, fecha: string, hora: string, v
     </div>
     <div style="padding:32px;">
       <h2 style="color:#1F3F7A;margin-top:0;">Cita confirmada</h2>
-      <p style="color:#444;">Hola <strong>${nombre}</strong>, tu cita ha quedado registrada. Aquí tienes el resumen:</p>
+      <p style="color:#444;">Hola <strong>${esc(nombre)}</strong>, tu cita ha quedado registrada. Aquí tienes el resumen:</p>
       <table style="width:100%;border-collapse:collapse;margin:20px 0;">${filasHtml}</table>
       <p style="color:#666;font-size:14px;margin-top:24px;">Si necesitas cancelar o modificar la cita, llámanos:</p>
       <a href="tel:+34920254044" style="display:inline-block;background:#1F3F7A;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;">📞 +34 920 254 044</a>
@@ -43,14 +45,14 @@ function emailConfirmacionCliente(nombre: string, fecha: string, hora: string, v
 
 function emailNotificacionTaller(nombre: string, email: string, telefono: string | undefined, fecha: string, hora: string, vehiculo: string, motivo: string, resumen?: string): string {
   const filas = [
-    ["Cliente", nombre],
-    ["Email", `<a href="mailto:${email}" style="color:#1F3F7A;">${email}</a>`],
-    ...(telefono ? [["Teléfono", `<a href="tel:${telefono}" style="color:#1F3F7A;">${telefono}</a>`]] : []),
-    ["Fecha", fecha],
-    ["Hora", hora],
-    ["Vehículo", vehiculo],
-    ["Servicio", MOTIVO_LABEL[motivo] ?? motivo],
-    ...(resumen ? [["Descripción", resumen]] : []),
+    ["Cliente",  esc(nombre)],
+    ["Email",    `<a href="mailto:${esc(email)}" style="color:#1F3F7A;">${esc(email)}</a>`],
+    ...(telefono ? [["Teléfono", `<a href="tel:${esc(telefono)}" style="color:#1F3F7A;">${esc(telefono)}</a>`]] : []),
+    ["Fecha",    esc(fecha)],
+    ["Hora",     esc(hora)],
+    ["Vehículo", esc(vehiculo)],
+    ["Servicio", esc(MOTIVO_LABEL[motivo] ?? motivo)],
+    ...(resumen ? [["Descripción", esc(resumen)]] : []),
   ];
   const filasHtml = filas
     .map(([k, v], i) => `<tr style="background:${i % 2 === 0 ? "#f8fafc" : "white"}"><td style="padding:12px 16px;font-weight:700;color:#555;width:35%;">${k}</td><td style="padding:12px 16px;">${v}</td></tr>`)
@@ -69,6 +71,11 @@ function emailNotificacionTaller(nombre: string, email: string, telefono: string
 }
 
 export const POST: APIRoute = async ({ request }) => {
+  // Rate limit: 5 citas por IP cada 10 minutos
+  if (isRateLimited(getClientIp(request), { max: 5, windowMs: 10 * 60 * 1000 })) {
+    return new Response(JSON.stringify({ error: "Demasiadas solicitudes. Inténtalo más tarde." }), { status: 429 });
+  }
+
   try {
     const body = await request.json();
     const { nombre, email, telefono, fecha, hora, vehiculo, motivo, resumen } = body;
