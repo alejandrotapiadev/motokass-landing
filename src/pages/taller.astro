@@ -90,10 +90,6 @@ const horarioSemanal = [
             <span id="cal-month-label" class="cal-month-name"></span>
             <button id="cal-next" class="cal-nav" aria-label="Mes siguiente">&#8250;</button>
           </div>
-          <div class="cal-weekdays">
-            <span>L</span><span>M</span><span>X</span><span>J</span><span>V</span>
-            <span class="w-end">S</span><span class="w-end">D</span>
-          </div>
           <div class="cal-grid" id="cal-grid"></div>
           <div class="cal-legend">
             <span class="leg"><span class="dot dot--open"></span>Disponible</span>
@@ -165,8 +161,15 @@ const horarioSemanal = [
   function renderCalendar(year: number, month: number) {
     grid.innerHTML = '';
     label.textContent = `${monthNames[month]} ${year}`;
-
     prevBtn.disabled = year === todayYear && month === todayMonth;
+
+    // Cabeceras dentro del mismo grid — garantiza alineación perfecta
+    ['L','M','X','J','V','S','D'].forEach((d, i) => {
+      const h = document.createElement('div');
+      h.className = 'cal-day-header' + (i >= 5 ? ' w-end' : '');
+      h.textContent = d;
+      grid.appendChild(h);
+    });
 
     const firstDow    = new Date(year, month, 1).getDay();
     const startOffset = firstDow === 0 ? 6 : firstDow - 1;
@@ -188,18 +191,19 @@ const horarioSemanal = [
         (year === todayYear && month < todayMonth) ||
         (year === todayYear && month === todayMonth && d < todayDate);
 
-      el.className  = 'cal-day';
+      el.className   = 'cal-day';
       el.textContent = String(d);
 
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
 
       if (isPast) {
         el.classList.add('day--past');
+      } else if (isToday) {
+        // Hoy siempre destacado, clickable solo si no es fin de semana
+        el.classList.add('day--today');
+        if (!isWeekend) makeClickable(el, dateStr, 'Reservar para hoy');
       } else if (isWeekend) {
         el.classList.add('day--closed');
-      } else if (isToday) {
-        el.classList.add('day--today');
-        makeClickable(el, dateStr, 'Reservar para hoy');
       } else {
         el.classList.add('day--open');
         makeClickable(el, dateStr, 'Reservar para este día');
@@ -433,31 +437,28 @@ const horarioSemanal = [
   cursor: default;
 }
 
-.cal-weekdays {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  text-align: center;
-  margin-bottom: 0.5rem;
-  gap: 4px;
-}
-
-.cal-weekdays span {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--color-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 4px 0;
-}
-
-.cal-weekdays .w-end {
-  color: #ef4444;
-}
-
 .cal-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
+  gap: 5px;
+}
+
+/* Cabeceras de día integradas en el mismo grid */
+.cal-day-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 0 10px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  user-select: none;
+}
+
+.cal-day-header.w-end {
+  color: #ef4444;
 }
 
 .cal-day {
@@ -465,10 +466,10 @@ const horarioSemanal = [
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition: transform 0.15s, box-shadow 0.15s, background 0.15s, color 0.15s;
   user-select: none;
 }
 
@@ -476,47 +477,45 @@ const horarioSemanal = [
   background: transparent;
 }
 
+/* Disponible — botón sólido azul */
 .day--open {
-  background: #dbeafe;
-  color: #1e40af;
+  background: var(--color-primary);
+  color: #fff;
   cursor: pointer;
-  font-weight: 700;
-  border: 1.5px solid #bfdbfe;
 }
 
 .day--open:hover,
 .day--open:focus-visible {
-  background: var(--color-primary);
-  color: white;
-  border-color: var(--color-primary);
-  transform: scale(1.1);
-  box-shadow: 0 4px 14px rgba(31,63,122,0.28);
+  background: var(--color-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(31,63,122,0.4);
   outline: none;
 }
 
+/* Hoy */
 .day--today {
   background: var(--color-secondary);
-  color: white;
+  color: #fff;
   font-weight: 700;
-  border: 1.5px solid transparent;
-  box-shadow: 0 4px 12px rgba(220,38,38,0.32);
+  box-shadow: 0 3px 10px rgba(220,38,38,0.35);
   cursor: pointer;
 }
 
 .day--today:hover,
 .day--today:focus-visible {
   filter: brightness(1.1);
-  transform: scale(1.1);
+  transform: translateY(-2px);
   outline: none;
 }
 
+/* Cerrado (finde) */
 .day--closed {
   background: #fee2e2;
-  color: #ef4444;
+  color: #dc2626;
   cursor: default;
-  font-weight: 500;
 }
 
+/* Pasado */
 .day--past {
   color: #d1d5db;
   background: transparent;
@@ -546,9 +545,9 @@ const horarioSemanal = [
   flex-shrink: 0;
 }
 
-.dot--open   { background: #3b82f6; }
+.dot--open   { background: var(--color-primary); }
 .dot--today  { background: var(--color-secondary); }
-.dot--closed { background: #ef4444; }
+.dot--closed { background: #dc2626; }
 
 /* ── HORARIO PANEL ── */
 .horario-panel {
