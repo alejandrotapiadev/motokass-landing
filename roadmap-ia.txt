@@ -1,0 +1,91 @@
+============================================================
+  MOTOKASS — ROADMAP DE INTEGRACIÓN IA
+  Fecha: 17 de mayo de 2026
+============================================================
+
+Orden de implementación acordado. Cada fase es base de la siguiente.
+
+────────────────────────────────────────────────────────────
+ FASE 1 — CHATBOT WEB CON IA
+────────────────────────────────────────────────────────────
+Estado: PENDIENTE
+
+Descripción:
+  Asistente conversacional en la web que responde 24/7.
+  Conoce el catálogo completo (67 motos Rieju + Sherco),
+  servicios del taller, horarios, ubicación y proceso de
+  cita previa. Captura leads fuera del horario de atención.
+
+Por qué primero:
+  · Es lo más visible para futuros clientes (demo en vivo)
+  · Aprende el manejo de contexto conversacional con IA
+  · Es la base técnica del bot de WhatsApp (fase 3)
+
+Stack técnico:
+  · Claude API (Anthropic) — modelo principal
+  · Vercel AI SDK — simplifica streaming y gestión de contexto
+  · Nuevo endpoint en Astro (/api/chat)
+  · Componente React de chat flotante
+
+Requisitos previos:
+  · API key de Anthropic (Anthropic Console)
+  · Variable de entorno ANTHROPIC_API_KEY en Vercel
+
+────────────────────────────────────────────────────────────
+ FASE 2 — GENERACIÓN DE CONTENIDO EN PANEL ADMIN
+────────────────────────────────────────────────────────────
+Estado: PENDIENTE
+
+Descripción:
+  Botón "Generar descripción con IA" en el panel admin.
+  Al añadir una moto nueva, la IA genera automáticamente:
+  descripción comercial, specs redactadas y texto SEO.
+  El propietario revisa y guarda. Menos trabajo manual.
+
+Por qué segundo:
+  · La integración con la API de IA ya estará hecha (fase 1)
+  · Poco trabajo adicional, valor alto para el cliente
+  · Buen caso de uso para mostrar a futuros clientes del sector
+
+────────────────────────────────────────────────────────────
+ FASE 3 — BOT DE WHATSAPP CON IA
+────────────────────────────────────────────────────────────
+Estado: PENDIENTE
+
+Descripción:
+  El cliente escribe por WhatsApp, la IA responde, cualifica
+  el lead y puede agendar cita directamente. Mismo cerebro
+  que el chatbot web, canal diferente.
+
+Por qué tercero:
+  · Requiere setup burocrático con Meta (WhatsApp Business API)
+  · Proveedores a evaluar: Twilio, 360dialog
+  · El conocimiento de contexto conversacional (fase 1) aplica
+    directamente aquí
+
+Requisitos previos:
+  · Cuenta Meta Business verificada
+  · Proveedor de WhatsApp Business API (Twilio o 360dialog)
+  · Número de teléfono corporativo dedicado
+
+────────────────────────────────────────────────────────────
+ FASE 4 — BÚSQUEDA SEMÁNTICA EN CATÁLOGO
+────────────────────────────────────────────────────────────
+Estado: PENDIENTE
+
+Descripción:
+  El usuario escribe "moto para ciudad barata" y encuentra
+  resultados relevantes aunque no use las palabras exactas
+  del catálogo. Basado en embeddings y búsqueda vectorial.
+
+Por qué último:
+  · La más compleja técnicamente (embeddings, vector search)
+  · Requiere evaluar si Supabase pgvector es suficiente
+    o se necesita un servicio externo (Pinecone, etc.)
+  · Menor impacto inmediato que las fases anteriores
+
+============================================================
+  NOTA: Cada fase es un sprint independiente facturable.
+  MOTOKASS es el laboratorio de pruebas — una vez validado
+  aquí, cada feature se puede ofrecer a otros clientes.
+============================================================
