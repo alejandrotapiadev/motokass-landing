@@ -86,7 +86,9 @@ const horarioSemanal = [
         <!-- Calendario -->
         <div class="calendar-panel">
           <div class="cal-header">
+            <button id="cal-prev" class="cal-nav" aria-label="Mes anterior">&#8249;</button>
             <span id="cal-month-label" class="cal-month-name"></span>
+            <button id="cal-next" class="cal-nav" aria-label="Mes siguiente">&#8250;</button>
           </div>
           <div class="cal-weekdays">
             <span>L</span><span>M</span><span>X</span><span>J</span><span>V</span>
@@ -129,70 +131,97 @@ const horarioSemanal = [
 </MainLayout>
 
 <script>
-  const grid = document.getElementById('cal-grid') as HTMLElement;
+  const grid  = document.getElementById('cal-grid')       as HTMLElement;
   const label = document.getElementById('cal-month-label') as HTMLElement;
+  const prevBtn = document.getElementById('cal-prev')     as HTMLButtonElement;
+  const nextBtn = document.getElementById('cal-next')     as HTMLButtonElement;
 
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth();
-  const todayDate = today.getDate();
+  const today      = new Date();
+  const todayYear  = today.getFullYear();
+  const todayMonth = today.getMonth();
+  const todayDate  = today.getDate();
+
+  let viewYear  = todayYear;
+  let viewMonth = todayMonth;
 
   const monthNames = [
     'Enero','Febrero','Marzo','Abril','Mayo','Junio',
     'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'
   ];
-  label.textContent = `${monthNames[month]} ${year}`;
 
-  const firstDow = new Date(year, month, 1).getDay();
-  const startOffset = firstDow === 0 ? 6 : firstDow - 1;
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-  for (let i = 0; i < startOffset; i++) {
-    const el = document.createElement('div');
-    el.className = 'cal-day cal-empty';
-    grid.appendChild(el);
+  function makeClickable(el: HTMLElement, dateStr: string, title: string) {
+    el.setAttribute('role', 'button');
+    el.setAttribute('tabindex', '0');
+    el.title = title;
+    el.addEventListener('click', () => { window.location.href = `/CitaPrevia?fecha=${dateStr}`; });
+    el.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        window.location.href = `/CitaPrevia?fecha=${dateStr}`;
+      }
+    });
   }
 
-  for (let d = 1; d <= daysInMonth; d++) {
-    const el = document.createElement('div');
-    const dow = new Date(year, month, d).getDay();
-    const isWeekend = dow === 0 || dow === 6;
-    const isPast = d < todayDate;
-    const isToday = d === todayDate;
+  function renderCalendar(year: number, month: number) {
+    grid.innerHTML = '';
+    label.textContent = `${monthNames[month]} ${year}`;
 
-    el.className = 'cal-day';
-    el.textContent = String(d);
+    prevBtn.disabled = year === todayYear && month === todayMonth;
 
-    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const firstDow    = new Date(year, month, 1).getDay();
+    const startOffset = firstDow === 0 ? 6 : firstDow - 1;
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-    if (isPast) {
-      el.classList.add('day--past');
-    } else if (isToday) {
-      el.classList.add('day--today');
-      if (!isWeekend) {
-        el.setAttribute('role', 'button');
-        el.setAttribute('tabindex', '0');
-        el.title = 'Reservar para hoy';
-        el.addEventListener('click', () => { window.location.href = `/CitaPrevia?fecha=${dateStr}`; });
-        el.addEventListener('keydown', (e: KeyboardEvent) => {
-          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.location.href = `/CitaPrevia?fecha=${dateStr}`; }
-        });
-      }
-    } else if (isWeekend) {
-      el.classList.add('day--closed');
-    } else {
-      el.classList.add('day--open');
-      el.setAttribute('role', 'button');
-      el.setAttribute('tabindex', '0');
-      el.title = 'Reservar para este día';
-      el.addEventListener('click', () => { window.location.href = `/CitaPrevia?fecha=${dateStr}`; });
-      el.addEventListener('keydown', (e: KeyboardEvent) => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.location.href = `/CitaPrevia?fecha=${dateStr}`; }
-      });
+    for (let i = 0; i < startOffset; i++) {
+      const empty = document.createElement('div');
+      empty.className = 'cal-day cal-empty';
+      grid.appendChild(empty);
     }
 
-    grid.appendChild(el);
+    for (let d = 1; d <= daysInMonth; d++) {
+      const el  = document.createElement('div');
+      const dow = new Date(year, month, d).getDay();
+      const isWeekend = dow === 0 || dow === 6;
+      const isToday   = year === todayYear && month === todayMonth && d === todayDate;
+      const isPast    =
+        year < todayYear ||
+        (year === todayYear && month < todayMonth) ||
+        (year === todayYear && month === todayMonth && d < todayDate);
+
+      el.className  = 'cal-day';
+      el.textContent = String(d);
+
+      const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+
+      if (isPast) {
+        el.classList.add('day--past');
+      } else if (isWeekend) {
+        el.classList.add('day--closed');
+      } else if (isToday) {
+        el.classList.add('day--today');
+        makeClickable(el, dateStr, 'Reservar para hoy');
+      } else {
+        el.classList.add('day--open');
+        makeClickable(el, dateStr, 'Reservar para este día');
+      }
+
+      grid.appendChild(el);
+    }
   }
+
+  prevBtn.addEventListener('click', () => {
+    if (viewMonth === 0) { viewMonth = 11; viewYear--; }
+    else { viewMonth--; }
+    renderCalendar(viewYear, viewMonth);
+  });
+
+  nextBtn.addEventListener('click', () => {
+    if (viewMonth === 11) { viewMonth = 0; viewYear++; }
+    else { viewMonth++; }
+    renderCalendar(viewYear, viewMonth);
+  });
+
+  renderCalendar(viewYear, viewMonth);
 </script>
 
 <style>
@@ -361,14 +390,47 @@ const horarioSemanal = [
 }
 
 .cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 1.25rem;
 }
 
 .cal-month-name {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: var(--color-primary);
   text-transform: capitalize;
+  text-align: center;
+  flex: 1;
+}
+
+.cal-nav {
+  background: none;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  line-height: 1;
+  color: var(--color-primary);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.cal-nav:hover:not(:disabled) {
+  background: #f0f4ff;
+  border-color: var(--color-primary);
+}
+
+.cal-nav:disabled {
+  opacity: 0.3;
+  cursor: default;
 }
 
 .cal-weekdays {
@@ -415,17 +477,19 @@ const horarioSemanal = [
 }
 
 .day--open {
-  background: #e8edf6;
-  color: var(--color-primary);
+  background: #dbeafe;
+  color: #1e40af;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 700;
+  border: 1.5px solid #bfdbfe;
 }
 
 .day--open:hover,
 .day--open:focus-visible {
   background: var(--color-primary);
   color: white;
-  transform: scale(1.12);
+  border-color: var(--color-primary);
+  transform: scale(1.1);
   box-shadow: 0 4px 14px rgba(31,63,122,0.28);
   outline: none;
 }
@@ -434,14 +498,23 @@ const horarioSemanal = [
   background: var(--color-secondary);
   color: white;
   font-weight: 700;
+  border: 1.5px solid transparent;
   box-shadow: 0 4px 12px rgba(220,38,38,0.32);
   cursor: pointer;
 }
 
+.day--today:hover,
+.day--today:focus-visible {
+  filter: brightness(1.1);
+  transform: scale(1.1);
+  outline: none;
+}
+
 .day--closed {
-  background: #f1f5f9;
-  color: #cbd5e1;
+  background: #fee2e2;
+  color: #ef4444;
   cursor: default;
+  font-weight: 500;
 }
 
 .day--past {
@@ -473,9 +546,9 @@ const horarioSemanal = [
   flex-shrink: 0;
 }
 
-.dot--open   { background: var(--color-primary); }
+.dot--open   { background: #3b82f6; }
 .dot--today  { background: var(--color-secondary); }
-.dot--closed { background: #e5e7eb; }
+.dot--closed { background: #ef4444; }
 
 /* ── HORARIO PANEL ── */
 .horario-panel {
