@@ -86,6 +86,19 @@ import MainLayout from "../layouts/MainLayout.astro";
           <textarea id="resumen" name="resumen" placeholder="Describe brevemente el problema o el servicio que necesitas"></textarea>
         </div>
 
+        <div class="form-group">
+          <label class="consent-label">
+            <input type="checkbox" id="privacidad" name="privacidad" required />
+            <span>He leído y acepto la <a href="/privacidad" target="_blank" rel="noopener noreferrer">política de privacidad</a> de MOTOKASS. <span class="required">*</span></span>
+          </label>
+          <span class="field-error" id="privacidad-error" role="alert"></span>
+        </div>
+
+        <p class="privacy-notice">
+          Tus datos se usarán exclusivamente para gestionar tu cita en el taller. Responsable: MOTOKASS · info@motokass.com · C. de la Virgen María, 20, Ávila.
+          Puedes ejercer tus derechos de acceso, rectificación y supresión en cualquier momento.
+        </p>
+
         <button type="submit" id="submit-btn" class="btn-submit">
           <span id="btn-text">Agendar cita</span>
           <span id="btn-loading" hidden>Enviando...</span>
@@ -132,6 +145,7 @@ import MainLayout from "../layouts/MainLayout.astro";
     if (!data.fecha) { showFieldError("fecha", "Selecciona una fecha"); ok = false; }
     if (!data.hora) { showFieldError("hora", "Selecciona una hora"); ok = false; }
     if (!data.motivo) { showFieldError("motivo", "Selecciona un motivo"); ok = false; }
+    if (!data.privacidad) { showFieldError("privacidad", "Debes aceptar la política de privacidad para continuar"); ok = false; }
     return ok;
   }
 
@@ -323,6 +337,37 @@ textarea {
 .btn-submit:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+}
+
+.consent-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: #374151;
+  line-height: 1.5;
+}
+.consent-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+.consent-label a { color: var(--color-primary); }
+
+.privacy-notice {
+  font-size: 0.78rem;
+  color: #9ca3af;
+  line-height: 1.6;
+  margin: -0.5rem 0 0.75rem;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-radius: 0.5rem;
+  border-left: 3px solid #e2e8f0;
 }
 
 @media (max-width: 600px) {
