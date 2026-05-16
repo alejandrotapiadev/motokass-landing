@@ -12,11 +12,18 @@ import logo from "../assets/img/concept/logoHeaderPulido-Photoroom.png";
       <nav>
         <ul class="nav-links">
           <li><a href="/catalogo">Catálogo</a></li>
+          <li><a href="/comparar">Comparar</a></li>
           <li><a href="/taller">Taller</a></li>
           <li><a href="/contacto">Contacto</a></li>
           <li><a href="/Ofertas">Ofertas</a></li>
         </ul>
       </nav>
+      <a href="tel:+34920254044" class="btn-llamar" aria-label="Llamar a MOTOKASS">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+        </svg>
+        920 254 044
+      </a>
     </div>
   </div>
 </header>
@@ -99,11 +106,15 @@ header {
   width: 100%;
 }
 
+.btn-llamar {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .header-content {
     flex-direction: column;
     align-items: center;
-    padding: 1rem 0;
+    padding: 1rem 0 0.75rem;
   }
 
   .header-left,
@@ -112,12 +123,43 @@ header {
     justify-content: center;
   }
 
+  .header-right {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
   .nav-links {
     gap: 1.5rem;
   }
 
   .nav-links a {
     font-size: 0.9rem;
+  }
+
+  .btn-llamar {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: #16a34a;
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+    text-decoration: none;
+    padding: 0.6rem 1.5rem;
+    border-radius: 999px;
+    letter-spacing: 0.01em;
+    box-shadow: 0 2px 10px rgba(22, 163, 74, 0.4);
+    transition: background 0.2s, transform 0.15s;
+    margin-bottom: 0.25rem;
+  }
+
+  .btn-llamar:hover {
+    background: #15803d;
+    transform: scale(1.03);
+  }
+
+  .btn-llamar:active {
+    transform: scale(0.98);
   }
 }
 </style>

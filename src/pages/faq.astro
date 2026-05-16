@@ -1,0 +1,361 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+
+const categorias = [
+  {
+    titulo: "Compra de motos nuevas",
+    icono: "🏍️",
+    preguntas: [
+      {
+        q: "¿Cómo puedo comprar una moto nueva en MOTOKASS?",
+        a: "Puedes empezar explorando nuestro catálogo online, donde encontrarás todos los modelos Rieju y Sherco con sus especificaciones completas. Si tienes dudas, visítanos en la C. de la Virgen María, 20 (Ávila), llámanos al 920 254 044 o escríbenos por WhatsApp. Te asesoramos sin compromiso para encontrar la moto que mejor se adapta a tu estilo de conducción y presupuesto.",
+      },
+      {
+        q: "¿Qué marcas de motos vendéis en MOTOKASS?",
+        a: "Somos distribuidores oficiales de Rieju y Sherco en Ávila. Disponemos de más de 60 modelos de ambas marcas: enduro, trial, supermotard, trail, naked, scooter, eléctricas y motos de carretera. También contamos con recambios y accesorios originales de ambas marcas.",
+      },
+      {
+        q: "¿Ofrecéis financiación para la compra de motos?",
+        a: "Sí, ofrecemos opciones de financiación para motos nuevas. Consúltanos directamente en tienda o por teléfono para conocer las condiciones, plazos y cuotas disponibles según el modelo que te interese.",
+      },
+      {
+        q: "¿Cuánto tiempo tarda la matriculación de una moto nueva?",
+        a: "El proceso de matriculación en Ávila suele tardar entre 5 y 10 días laborables desde la firma del contrato. Nos encargamos de toda la gestión: impuesto de matriculación, documentación y puesta a nombre. Tú solo tienes que venir a recogerla.",
+      },
+      {
+        q: "¿Puedo ver las motos antes de comprar?",
+        a: "Sí, puedes visitarnos en horario de apertura para ver los modelos disponibles en stock. Nuestro equipo resolverá todas tus dudas y podrás ver de cerca la moto que te interesa antes de tomar ninguna decisión.",
+      },
+    ],
+  },
+  {
+    titulo: "Taller y revisiones",
+    icono: "🔧",
+    preguntas: [
+      {
+        q: "¿Cómo pido cita en el taller de MOTOKASS?",
+        a: "Puedes solicitar cita previa directamente desde nuestra web en la sección Cita Previa. También puedes llamarnos al 920 254 044 o escribirnos por WhatsApp. El horario del taller es de lunes a jueves de 10:00 a 13:45 y de 15:30 a 19:00, y los viernes de 10:00 a 14:00.",
+      },
+      {
+        q: "¿Reparáis motos de todas las marcas?",
+        a: "Sí, nuestro taller es multimarca. Aunque somos especialistas en Rieju y Sherco, aceptamos cualquier marca y modelo para revisiones, reparaciones mecánicas, diagnósticos electrónicos y cambios de consumibles.",
+      },
+      {
+        q: "¿Qué incluye una revisión completa de moto?",
+        a: "Una revisión completa en MOTOKASS incluye: inspección de frenos delanteros y traseros, revisión de cadena y piñones, comprobación de niveles (aceite, líquido de frenos, refrigerante), revisión de filtros, estado de neumáticos, funcionamiento de luces y señalización, ajuste general y test de rodaje. Si detectamos algún problema te informamos antes de actuar.",
+      },
+      {
+        q: "¿Hacéis diagnósticos electrónicos?",
+        a: "Sí, disponemos de equipos de diagnóstico electrónico multimarca. Realizamos lecturas de errores de la ECU, reset de códigos de fallo y entregamos un informe completo del estado electrónico de tu moto. Es especialmente útil cuando el testigo de avería está encendido o la moto no rinde correctamente.",
+      },
+      {
+        q: "¿Cuánto cuesta una revisión de moto en MOTOKASS?",
+        a: "El precio varía según el tipo de revisión y el trabajo necesario. Consulta nuestra sección de Ofertas para ver los packs de temporada disponibles, o llámanos al 920 254 044 para recibir un presupuesto sin compromiso adaptado a tu moto.",
+      },
+    ],
+  },
+  {
+    titulo: "Stock y disponibilidad",
+    icono: "📦",
+    preguntas: [
+      {
+        q: "¿Cómo sé si una moto del catálogo está disponible?",
+        a: "Cada modelo del catálogo indica si está disponible en stock. Si aparece marcado como «Sin stock», el modelo puede pedirse bajo encargo. Contáctanos para conocer el plazo de entrega estimado.",
+      },
+      {
+        q: "¿Puedo reservar o encargar una moto que no está en stock?",
+        a: "Sí, puedes reservar cualquier modelo de Rieju o Sherco aunque no esté disponible en ese momento. Escríbenos o llámanos al 920 254 044 y gestionamos el encargo informándote del plazo de entrega.",
+      },
+      {
+        q: "¿Vendéis motos de segunda mano?",
+        a: "Actualmente MOTOKASS está especializado en la venta de motos nuevas de Rieju y Sherco. Si buscas una moto de ocasión, consúltanos igualmente, ya que en ocasiones podemos tener unidades de demostración o cambios disponibles.",
+      },
+    ],
+  },
+  {
+    titulo: "Información general",
+    icono: "📍",
+    preguntas: [
+      {
+        q: "¿Dónde está ubicado MOTOKASS?",
+        a: "Estamos en la C. de la Virgen María, 20, en Ávila capital. Puedes encontrarnos fácilmente buscando «MOTOKASS» o «Moto Kass Ávila» en Google Maps. Disponemos de zona de aparcamiento cercana.",
+      },
+      {
+        q: "¿Cuál es el horario de MOTOKASS?",
+        a: "Nuestro horario es: de lunes a jueves de 10:00 a 13:45 y de 15:30 a 19:00. Los viernes de 10:00 a 14:00. Permanecemos cerrados sábados y domingos. Para consultas fuera de horario puedes escribirnos por WhatsApp.",
+      },
+      {
+        q: "¿Cómo puedo contactar con MOTOKASS?",
+        a: "Puedes contactarnos de varias formas: por teléfono llamando al 920 254 044, por email en info@motokass.com, a través del formulario de contacto de nuestra web, por WhatsApp (botón visible en todas las páginas) o visitándonos directamente en tienda durante el horario de apertura.",
+      },
+    ],
+  },
+];
+
+// Schema JSON-LD FAQPage para Google Rich Results
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: categorias.flatMap(({ preguntas }) =>
+    preguntas.map(({ q, a }) => ({
+      "@type": "Question",
+      name: q,
+      acceptedAnswer: { "@type": "Answer", text: a },
+    }))
+  ),
+};
+---
+
+<MainLayout
+  title="Preguntas Frecuentes | MOTOKASS — Concesionario y Taller de Motos en Ávila"
+  description="Resolvemos tus dudas sobre la compra de motos Rieju y Sherco, revisiones de taller, cita previa, financiación, horarios y ubicación de MOTOKASS en Ávila."
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+  </Fragment>
+
+  <!-- HERO -->
+  <section class="faq-hero">
+    <div class="faq-hero__inner">
+      <span class="faq-hero__sup">Centro de ayuda</span>
+      <h1>Preguntas frecuentes</h1>
+      <p>Resolvemos las dudas más habituales sobre compra de motos, taller, stock y cómo encontrarnos.</p>
+      <div class="faq-hero__meta">
+        <span>{categorias.reduce((n, c) => n + c.preguntas.length, 0)} preguntas</span>
+        <span>·</span>
+        <span>{categorias.length} categorías</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTENIDO FAQ -->
+  <section class="faq-body">
+    <div class="faq-container">
+
+      {categorias.map((cat) => (
+        <div class="faq-cat">
+          <h2 class="faq-cat__titulo">
+            <span class="faq-cat__icono" aria-hidden="true">{cat.icono}</span>
+            {cat.titulo}
+          </h2>
+
+          <div class="faq-list">
+            {cat.preguntas.map(({ q, a }) => (
+              <details class="faq-item">
+                <summary class="faq-question">
+                  <span>{q}</span>
+                  <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                    aria-hidden="true">
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </summary>
+                <div class="faq-answer">
+                  <p>{a}</p>
+                </div>
+              </details>
+            ))}
+          </div>
+        </div>
+      ))}
+
+      <!-- CTA FINAL -->
+      <div class="faq-cta">
+        <p>¿No has encontrado lo que buscabas?</p>
+        <div class="faq-cta__btns">
+          <a href="/contacto" class="btn btn--primary">Escríbenos</a>
+          <a href="tel:+34920254044" class="btn btn--outline">📞 920 254 044</a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</MainLayout>
+
+<style>
+/* HERO */
+.faq-hero {
+  background: var(--color-primary, #1F3F7A);
+  color: white;
+  padding: 3.5rem 1.5rem 3rem;
+  text-align: center;
+}
+.faq-hero__inner {
+  max-width: 640px;
+  margin: 0 auto;
+}
+.faq-hero__sup {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  background: rgba(255,255,255,0.15);
+  padding: 0.3rem 0.85rem;
+  border-radius: 999px;
+  margin-bottom: 1rem;
+}
+.faq-hero h1 {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 800;
+  margin: 0 0 0.75rem;
+  color: white;
+}
+.faq-hero p {
+  font-size: 1.05rem;
+  opacity: 0.85;
+  line-height: 1.65;
+  margin: 0 0 1rem;
+}
+.faq-hero__meta {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  opacity: 0.6;
+  font-weight: 600;
+}
+
+/* BODY */
+.faq-body {
+  background: #f8fafc;
+  padding: 3.5rem 1.5rem 5rem;
+}
+.faq-container {
+  max-width: 780px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+/* CATEGORÍA */
+.faq-cat__titulo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--color-primary, #1F3F7A);
+  margin: 0 0 1rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+.faq-cat__icono { font-size: 1.2rem; }
+
+/* LISTA DE PREGUNTAS */
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* ITEM */
+.faq-item {
+  background: white;
+  border-radius: 0.75rem;
+  border: 1.5px solid #e2e8f0;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.faq-item:hover {
+  border-color: #c7d7f0;
+  box-shadow: 0 2px 12px rgba(31,63,122,0.07);
+}
+.faq-item[open] {
+  border-color: #1F3F7A;
+  box-shadow: 0 4px 18px rgba(31,63,122,0.1);
+}
+
+/* PREGUNTA (summary) */
+.faq-question {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.1rem 1.25rem;
+  font-size: 0.97rem;
+  font-weight: 600;
+  color: #1e293b;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  transition: background 0.15s;
+}
+.faq-question::-webkit-details-marker { display: none; }
+.faq-question:hover { background: #f8fafc; }
+.faq-item[open] .faq-question {
+  background: #EEF3FB;
+  color: #1F3F7A;
+  border-bottom: 1px solid #dbeafe;
+}
+
+/* CHEVRON */
+.faq-chevron {
+  flex-shrink: 0;
+  color: #94a3b8;
+  transition: transform 0.25s ease, color 0.2s;
+}
+.faq-item[open] .faq-chevron {
+  transform: rotate(180deg);
+  color: #1F3F7A;
+}
+
+/* RESPUESTA */
+.faq-answer {
+  padding: 1rem 1.25rem 1.15rem;
+  animation: faq-open 0.2s ease;
+}
+.faq-answer p {
+  margin: 0;
+  font-size: 0.93rem;
+  color: #475569;
+  line-height: 1.75;
+}
+@keyframes faq-open {
+  from { opacity: 0; transform: translateY(-5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* CTA FINAL */
+.faq-cta {
+  background: white;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 1rem;
+  padding: 2rem;
+  text-align: center;
+}
+.faq-cta p {
+  margin: 0 0 1.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+.faq-cta__btns {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.btn {
+  display: inline-block;
+  padding: 0.65rem 1.5rem;
+  border-radius: 0.6rem;
+  font-weight: 700;
+  font-size: 0.92rem;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.btn--primary {
+  background: #1F3F7A;
+  color: white;
+  border: 2px solid #1F3F7A;
+}
+.btn--primary:hover { background: #163263; border-color: #163263; }
+.btn--outline {
+  background: white;
+  color: #1F3F7A;
+  border: 2px solid #1F3F7A;
+}
+.btn--outline:hover { background: #EEF3FB; }
+</style>
