@@ -110,6 +110,8 @@ import MainLayout from "../layouts/MainLayout.astro";
 </MainLayout>
 
 <script>
+  import { esDiaCerrado, toDateStr } from '../utils/festivos';
+
   const form = document.getElementById("cita-form") as HTMLFormElement;
   const submitBtn = document.getElementById("submit-btn") as HTMLButtonElement;
   const btnText = document.getElementById("btn-text")!;
@@ -123,16 +125,12 @@ import MainLayout from "../layouts/MainLayout.astro";
   const fechaParam = new URLSearchParams(window.location.search).get("fecha");
   if (fechaParam) fechaInput.value = fechaParam;
 
-  function esFindeSemana(valor: string): boolean {
-    if (!valor) return false;
-    const dow = new Date(valor + "T12:00:00").getDay();
-    return dow === 0 || dow === 6;
-  }
-
   fechaInput.addEventListener("change", () => {
-    if (esFindeSemana(fechaInput.value)) {
+    if (!fechaInput.value) return;
+    const date = new Date(fechaInput.value + "T12:00:00");
+    if (esDiaCerrado(date)) {
       fechaInput.value = "";
-      showFieldError("fecha", "El taller cierra sábados y domingos. Elige un día entre lunes y viernes.");
+      showFieldError("fecha", "Ese día el taller está cerrado (fin de semana o festivo). Elige un día laborable.");
       fechaInput.classList.add("input--error");
     } else {
       document.getElementById("fecha-error")!.textContent = "";
@@ -160,7 +158,7 @@ import MainLayout from "../layouts/MainLayout.astro";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) { showFieldError("email", "Introduce un email válido"); ok = false; }
     if (!data.vehiculo.trim()) { showFieldError("vehiculo", "Campo obligatorio"); ok = false; }
     if (!data.fecha) { showFieldError("fecha", "Selecciona una fecha"); ok = false; }
-    else if (esFindeSemana(data.fecha)) { showFieldError("fecha", "El taller cierra sábados y domingos. Elige un día entre lunes y viernes."); ok = false; }
+    else if (esDiaCerrado(new Date(data.fecha + "T12:00:00"))) { showFieldError("fecha", "Ese día el taller está cerrado (fin de semana o festivo). Elige un día laborable."); ok = false; }
     if (!data.hora) { showFieldError("hora", "Selecciona una hora"); ok = false; }
     if (!data.motivo) { showFieldError("motivo", "Selecciona un motivo"); ok = false; }
     if (!data.privacidad) { showFieldError("privacidad", "Debes aceptar la política de privacidad para continuar"); ok = false; }
