@@ -57,6 +57,13 @@
 
   <div class="footer-bottom">
     <p>© {new Date().getFullYear()} MOTOKASS. Todos los derechos reservados.</p>
+    <p class="footer-legal-links">
+      <a href="/aviso-legal">Aviso legal</a>
+      <span>·</span>
+      <a href="/privacidad">Privacidad</a>
+      <span>·</span>
+      <a href="/cookies">Cookies</a>
+    </p>
   </div>
 </footer>
 
@@ -137,7 +144,23 @@
   color: var(--color-gray-medium);
   padding: 0.75rem 0;
   margin-top: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
 }
+.footer-legal-links {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  opacity: 0.6;
+}
+.footer-legal-links a {
+  color: var(--color-gray-medium);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+.footer-legal-links a:hover { opacity: 0.8; }
 
 .social-links {
   display: flex;

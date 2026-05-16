@@ -1,11 +1,13 @@
 ---
-// Requiere env: ADMIN_PASSWORD
+import { generarTokenAdmin, esTokenValido } from "../../lib/adminSession";
+
 if (Astro.request.method === "POST") {
   const data = await Astro.request.formData();
   const password = data.get("password")?.toString();
 
   if (password && password === import.meta.env.ADMIN_PASSWORD) {
-    Astro.cookies.set("admin_session", "ok", {
+    const token = await generarTokenAdmin();
+    Astro.cookies.set("admin_session", token, {
       httpOnly: true,
       secure: true,
       sameSite: "lax",
@@ -16,7 +18,7 @@ if (Astro.request.method === "POST") {
   }
 }
 
-if (Astro.cookies.get("admin_session")?.value === "ok") {
+if (await esTokenValido(Astro.cookies.get("admin_session")?.value)) {
   return Astro.redirect("/admin/citas");
 }
 

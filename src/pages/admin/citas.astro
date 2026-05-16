@@ -1,8 +1,8 @@
 ---
-// Requiere env: ADMIN_PASSWORD
 import supabase from "../../lib/supabase.ts";
+import { esTokenValido } from "../../lib/adminSession";
 
-if (Astro.cookies.get("admin_session")?.value !== "ok") {
+if (!await esTokenValido(Astro.cookies.get("admin_session")?.value)) {
   return Astro.redirect("/admin");
 }
 

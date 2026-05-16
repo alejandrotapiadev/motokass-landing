@@ -4,6 +4,7 @@ import ScrollTop from "../components/ScrollTop.astro";
 import WhatsApp from "../components/WhatsApp.astro";
 import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
+import CookieBanner from "../components/CookieBanner.astro";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 
@@ -153,7 +154,11 @@ const {
     <ScrollTop />
     <WhatsApp />
     <Footer></Footer>
-    <Analytics client:only="react" />
+    <CookieBanner />
+    <Analytics client:only="react" beforeSend={(event) => {
+      if (typeof window !== "undefined" && localStorage.getItem("cookie_consent") !== "accepted") return null;
+      return event;
+    }} />
     <SpeedInsights client:only="react" />
   </body>
 </html>
