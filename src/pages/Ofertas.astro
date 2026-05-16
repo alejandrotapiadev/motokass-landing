@@ -126,7 +126,11 @@ const motosDestacadas = [
             <span id="sub-loading" hidden>Enviando...</span>
           </button>
         </form>
-        <p id="sub-success" class="cta-feedback cta-feedback--ok" hidden>¡Suscrito! Te avisaremos de las próximas ofertas.</p>
+        <label class="sub-consent">
+          <input type="checkbox" id="sub-privacidad" required />
+          <span>Acepto recibir novedades y ofertas de MOTOKASS y he leído la <a href="/privacidad" target="_blank" rel="noopener noreferrer">política de privacidad</a>.</span>
+        </label>
+        <p id="sub-success" class="cta-feedback cta-feedback--ok" hidden>📧 Revisa tu email y confirma la suscripción para completar el proceso.</p>
         <p id="sub-error" class="cta-feedback cta-feedback--err" hidden></p>
       </div>
     </div>
@@ -145,6 +149,14 @@ const motosDestacadas = [
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     subError.hidden = true;
+
+    const consentCheck = document.getElementById("sub-privacidad") as HTMLInputElement;
+    if (!consentCheck.checked) {
+      subError.textContent = "Debes aceptar la política de privacidad para suscribirte.";
+      subError.hidden = false;
+      return;
+    }
+
     subBtn.disabled = true;
     subText.hidden = true;
     subLoading.hidden = false;
@@ -538,4 +550,24 @@ const motosDestacadas = [
 
 .cta-feedback--ok { color: #a7f3d0; }
 .cta-feedback--err { color: #fca5a5; }
+
+.sub-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.65);
+  cursor: pointer;
+  line-height: 1.5;
+}
+.sub-consent input[type="checkbox"] {
+  flex-shrink: 0;
+  margin-top: 2px;
+  accent-color: #16a34a;
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+.sub-consent a { color: rgba(255,255,255,0.85); text-decoration: underline; }
 </style>
