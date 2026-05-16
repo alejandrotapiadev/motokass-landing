@@ -1,6 +1,7 @@
 ---
 import MainLayout from "../layouts/MainLayout.astro";
 import tallerBg from "../assets/img/backgrounds/taller.png";
+import CalendarioCitas from "../components/CalendarioCitas";
 
 const servicios = [
   {
@@ -85,12 +86,7 @@ const horarioSemanal = [
 
         <!-- Calendario -->
         <div class="calendar-panel">
-          <div class="cal-header">
-            <button id="cal-prev" class="cal-nav" aria-label="Mes anterior">&#8249;</button>
-            <span id="cal-month-label" class="cal-month-name"></span>
-            <button id="cal-next" class="cal-nav" aria-label="Mes siguiente">&#8250;</button>
-          </div>
-          <div class="cal-grid" id="cal-grid"></div>
+          <CalendarioCitas client:only="react" />
           <div class="cal-legend">
             <span class="leg"><span class="dot dot--open"></span>Disponible</span>
             <span class="leg"><span class="dot dot--today"></span>Hoy</span>
@@ -126,107 +122,6 @@ const horarioSemanal = [
 
 </MainLayout>
 
-<script>
-  const grid  = document.getElementById('cal-grid')       as HTMLElement;
-  const label = document.getElementById('cal-month-label') as HTMLElement;
-  const prevBtn = document.getElementById('cal-prev')     as HTMLButtonElement;
-  const nextBtn = document.getElementById('cal-next')     as HTMLButtonElement;
-
-  const today      = new Date();
-  const todayYear  = today.getFullYear();
-  const todayMonth = today.getMonth();
-  const todayDate  = today.getDate();
-
-  let viewYear  = todayYear;
-  let viewMonth = todayMonth;
-
-  const monthNames = [
-    'Enero','Febrero','Marzo','Abril','Mayo','Junio',
-    'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'
-  ];
-
-  function makeClickable(el: HTMLElement, dateStr: string, title: string) {
-    el.setAttribute('role', 'button');
-    el.setAttribute('tabindex', '0');
-    el.title = title;
-    el.addEventListener('click', () => { window.location.href = `/CitaPrevia?fecha=${dateStr}`; });
-    el.addEventListener('keydown', (e: KeyboardEvent) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        window.location.href = `/CitaPrevia?fecha=${dateStr}`;
-      }
-    });
-  }
-
-  function renderCalendar(year: number, month: number) {
-    grid.innerHTML = '';
-    label.textContent = `${monthNames[month]} ${year}`;
-    prevBtn.disabled = year === todayYear && month === todayMonth;
-
-    // Cabeceras dentro del mismo grid — garantiza alineación perfecta
-    ['L','M','X','J','V','S','D'].forEach((d, i) => {
-      const h = document.createElement('div');
-      h.className = 'cal-day-header' + (i >= 5 ? ' w-end' : '');
-      h.textContent = d;
-      grid.appendChild(h);
-    });
-
-    const firstDow    = new Date(year, month, 1).getDay();
-    const startOffset = firstDow === 0 ? 6 : firstDow - 1;
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-    for (let i = 0; i < startOffset; i++) {
-      const empty = document.createElement('div');
-      empty.className = 'cal-day cal-empty';
-      grid.appendChild(empty);
-    }
-
-    for (let d = 1; d <= daysInMonth; d++) {
-      const el  = document.createElement('div');
-      const dow = new Date(year, month, d).getDay();
-      const isWeekend = dow === 0 || dow === 6;
-      const isToday   = year === todayYear && month === todayMonth && d === todayDate;
-      const isPast    =
-        year < todayYear ||
-        (year === todayYear && month < todayMonth) ||
-        (year === todayYear && month === todayMonth && d < todayDate);
-
-      el.className   = 'cal-day';
-      el.textContent = String(d);
-
-      const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-
-      if (isPast) {
-        el.classList.add('day--past');
-      } else if (isToday) {
-        // Hoy siempre destacado, clickable solo si no es fin de semana
-        el.classList.add('day--today');
-        if (!isWeekend) makeClickable(el, dateStr, 'Reservar para hoy');
-      } else if (isWeekend) {
-        el.classList.add('day--closed');
-      } else {
-        el.classList.add('day--open');
-        makeClickable(el, dateStr, 'Reservar para este día');
-      }
-
-      grid.appendChild(el);
-    }
-  }
-
-  prevBtn.addEventListener('click', () => {
-    if (viewMonth === 0) { viewMonth = 11; viewYear--; }
-    else { viewMonth--; }
-    renderCalendar(viewYear, viewMonth);
-  });
-
-  nextBtn.addEventListener('click', () => {
-    if (viewMonth === 11) { viewMonth = 0; viewYear++; }
-    else { viewMonth++; }
-    renderCalendar(viewYear, viewMonth);
-  });
-
-  renderCalendar(viewYear, viewMonth);
-</script>
 
 <style>
 /* ── HERO ── */
@@ -384,144 +279,144 @@ const horarioSemanal = [
   align-items: start;
 }
 
-/* ── CALENDAR ── */
+/* ── CALENDAR PANEL ── */
 .calendar-panel {
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 16px;
-  padding: 1.75rem;
+  padding: 1.5rem 1.75rem 1.25rem;
   box-shadow: 0 2px 12px rgba(0,0,0,0.06);
 }
 
-.cal-header {
+/* ── REACT-DAY-PICKER OVERRIDES ── */
+:global(.rdp) {
+  --rdp-cell-size: 42px;
+  --rdp-accent-color: var(--color-primary);
+  --rdp-background-color: #e8edf6;
+  margin: 0;
+  width: 100%;
+}
+
+:global(.rdp-months) {
+  justify-content: center;
+  width: 100%;
+}
+
+:global(.rdp-month) {
+  width: 100%;
+}
+
+:global(.rdp-table) {
+  width: 100%;
+  max-width: 100%;
+  border-collapse: separate;
+  border-spacing: 4px;
+}
+
+:global(.rdp-caption) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
 }
 
-.cal-month-name {
-  font-size: 1.05rem;
+:global(.rdp-caption_label) {
+  font-family: Poppins, sans-serif;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--color-primary);
   text-transform: capitalize;
-  text-align: center;
-  flex: 1;
 }
 
-.cal-nav {
-  background: none;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
+:global(.rdp-nav) {
+  display: flex;
+  gap: 4px;
+}
+
+:global(.rdp-nav_button) {
   width: 32px;
   height: 32px;
-  display: flex;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  color: var(--color-primary);
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.3rem;
-  line-height: 1;
-  color: var(--color-primary);
-  cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
-  padding: 0;
-  flex-shrink: 0;
 }
 
-.cal-nav:hover:not(:disabled) {
+:global(.rdp-nav_button:hover) {
   background: #f0f4ff;
   border-color: var(--color-primary);
 }
 
-.cal-nav:disabled {
-  opacity: 0.3;
-  cursor: default;
-}
-
-.cal-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 5px;
-}
-
-/* Cabeceras de día integradas en el mismo grid */
-.cal-day-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px 0 10px;
+:global(.rdp-head_cell) {
+  font-family: Inter, sans-serif;
   font-size: 0.7rem;
   font-weight: 700;
   color: #94a3b8;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  user-select: none;
+  padding-bottom: 6px;
+  text-align: center;
 }
 
-.cal-day-header.w-end {
-  color: #ef4444;
+:global(.rdp-cell) {
+  padding: 0;
+  text-align: center;
 }
 
-.cal-day {
-  aspect-ratio: 1;
+:global(.rdp-day) {
+  width: var(--rdp-cell-size);
+  height: var(--rdp-cell-size);
+  border-radius: 10px;
+  font-family: Inter, sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  border: none;
+  transition: transform 0.12s, box-shadow 0.12s;
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
-  font-size: 0.88rem;
-  font-weight: 600;
-  transition: transform 0.15s, box-shadow 0.15s, background 0.15s, color 0.15s;
-  user-select: none;
 }
 
-.cal-empty {
-  background: transparent;
-}
-
-/* Disponible — botón sólido azul */
-.day--open {
-  background: var(--color-primary);
-  color: #fff;
+/* Disponible (L–V, hoy en adelante) */
+:global(.day-disponible) {
+  background: var(--color-primary) !important;
+  color: #fff !important;
   cursor: pointer;
 }
 
-.day--open:hover,
-.day--open:focus-visible {
-  background: var(--color-primary-dark);
+:global(.day-disponible:hover) {
+  background: var(--color-primary-dark) !important;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(31,63,122,0.4);
-  outline: none;
+  box-shadow: 0 4px 14px rgba(31,63,122,0.35);
+}
+
+/* Cerrado (fines de semana) */
+:global(.day-cerrado) {
+  background: #fee2e2 !important;
+  color: #dc2626 !important;
+  cursor: default;
 }
 
 /* Hoy */
-.day--today {
-  background: var(--color-secondary);
-  color: #fff;
+:global(.rdp-day_today:not(.rdp-day_outside)) {
+  background: var(--color-secondary) !important;
+  color: #fff !important;
   font-weight: 700;
-  box-shadow: 0 3px 10px rgba(220,38,38,0.35);
-  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(220,38,38,0.3);
 }
 
-.day--today:hover,
-.day--today:focus-visible {
-  filter: brightness(1.1);
-  transform: translateY(-2px);
-  outline: none;
+/* Pasados */
+:global(.rdp-day_disabled:not(.day-cerrado)) {
+  color: #d1d5db !important;
+  background: transparent !important;
+  opacity: 1;
 }
 
-/* Cerrado (finde) */
-.day--closed {
-  background: #fee2e2;
-  color: #dc2626;
-  cursor: default;
-}
-
-/* Pasado */
-.day--past {
-  color: #d1d5db;
-  background: transparent;
-  cursor: default;
-}
-
+/* Leyenda */
 .cal-legend {
   display: flex;
   gap: 1rem;
