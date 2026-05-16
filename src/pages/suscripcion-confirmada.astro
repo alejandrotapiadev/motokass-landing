@@ -1,0 +1,99 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+
+const ok  = Astro.url.searchParams.get("ok") === "true";
+const ya  = Astro.url.searchParams.get("ya") === "true";
+---
+
+<MainLayout
+  title={ok ? "Suscripción confirmada | MOTOKASS" : "Enlace no válido | MOTOKASS"}
+  description="Confirmación de suscripción a las novedades de MOTOKASS."
+>
+  <section class="confirm-page">
+    {ok ? (
+      <div class="confirm-card confirm-card--ok">
+        <div class="confirm-icon">✓</div>
+        <h1>{ya ? "Ya estabas suscrito" : "¡Suscripción confirmada!"}</h1>
+        <p>
+          {ya
+            ? "Tu email ya estaba confirmado en nuestra lista. Te avisaremos cuando publiquemos nuevas ofertas."
+            : "Genial, ya estás en nuestra lista. Te avisaremos cuando haya novedades y ofertas en MOTOKASS."}
+        </p>
+        <a href="/" class="btn">Volver al inicio</a>
+        <a href="/catalogo" class="btn btn--outline">Ver catálogo de motos</a>
+      </div>
+    ) : (
+      <div class="confirm-card confirm-card--err">
+        <div class="confirm-icon confirm-icon--err">✕</div>
+        <h1>Enlace no válido</h1>
+        <p>El enlace de confirmación no existe o ha expirado. Puedes intentar suscribirte de nuevo.</p>
+        <a href="/Ofertas" class="btn">Volver a Ofertas</a>
+      </div>
+    )}
+  </section>
+</MainLayout>
+
+<style>
+  .confirm-page {
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+    background: #f8fafc;
+  }
+  .confirm-card {
+    background: white;
+    border-radius: 1.25rem;
+    padding: 3rem 2.5rem;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  }
+  .confirm-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #dcfce7;
+    color: #16a34a;
+    font-size: 1.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+  }
+  .confirm-icon--err {
+    background: #fef2f2;
+    color: #dc2626;
+  }
+  .confirm-card h1 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 0 0 0.75rem;
+  }
+  .confirm-card p {
+    color: #64748b;
+    line-height: 1.7;
+    margin: 0 0 1.75rem;
+    font-size: 0.95rem;
+  }
+  .btn {
+    display: inline-block;
+    padding: 0.7rem 1.5rem;
+    border-radius: 0.6rem;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-decoration: none;
+    background: #1F3F7A;
+    color: white;
+    border: 2px solid #1F3F7A;
+    transition: background 0.15s;
+    margin: 0.25rem;
+  }
+  .btn:hover { background: #163263; }
+  .btn--outline { background: white; color: #1F3F7A; }
+  .btn--outline:hover { background: #EEF3FB; }
+</style>

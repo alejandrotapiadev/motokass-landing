@@ -47,6 +47,19 @@ import MainLayout from "../layouts/MainLayout.astro";
               <span class="field-error" id="message-error" role="alert"></span>
             </div>
 
+            <div class="form__group form__group--consent">
+              <label class="consent-label">
+                <input type="checkbox" id="privacidad" name="privacidad" required />
+                <span>He leído y acepto la <a href="/privacidad" target="_blank" rel="noopener noreferrer">política de privacidad</a> de MOTOKASS. <span class="required">*</span></span>
+              </label>
+              <span class="field-error" id="privacidad-error" role="alert"></span>
+            </div>
+
+            <p class="privacy-notice">
+              Tus datos se usarán para responder a tu consulta. Responsable: MOTOKASS · info@motokass.com.
+              Puedes ejercer tus derechos de acceso, rectificación y supresión en cualquier momento.
+            </p>
+
             <button type="submit" id="submit-btn" class="btn-primary">
               <span id="btn-text">Enviar mensaje</span>
               <span id="btn-loading" hidden>Enviando...</span>
@@ -92,6 +105,7 @@ import MainLayout from "../layouts/MainLayout.astro";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) { showFieldError("email", "Introduce un email válido"); ok = false; }
     if (!data.message.trim()) { showFieldError("message", "Campo obligatorio"); ok = false; }
     else if (data.message.trim().length < 10) { showFieldError("message", "El mensaje es demasiado corto"); ok = false; }
+    if (!data.privacidad) { showFieldError("privacidad", "Debes aceptar la política de privacidad para continuar"); ok = false; }
     return ok;
   }
 
@@ -318,6 +332,37 @@ import MainLayout from "../layouts/MainLayout.astro";
 
 .btn-llamar {
   background: linear-gradient(135deg, #16a34a, #15803d);
+}
+
+.consent-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: #374151;
+  line-height: 1.5;
+}
+.consent-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+.consent-label a { color: var(--color-primary); }
+
+.privacy-notice {
+  font-size: 0.78rem;
+  color: #9ca3af;
+  line-height: 1.6;
+  padding: 0.65rem 0.75rem;
+  background: rgba(255,255,255,0.5);
+  border-radius: 0.5rem;
+  border-left: 3px solid #e2e8f0;
+  margin-top: -0.5rem;
 }
 
 @media (min-width: 768px) {
