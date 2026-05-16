@@ -2,6 +2,8 @@ export const prerender = false;
 import type { APIRoute } from "astro";
 import resend from "@/lib/resend";
 import { validarContacto } from "@/lib/validacion";
+import { isRateLimited, getClientIp } from "@/lib/rateLimit";
+import { esc } from "@/lib/sanitize";
 
 function emailContacto(nombre: string, email: string, telefono: string | undefined, mensaje: string): string {
   return `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;background:#f5f5f5;margin:0;padding:20px;">
@@ -12,22 +14,27 @@ function emailContacto(nombre: string, email: string, telefono: string | undefin
     </div>
     <div style="padding:32px;">
       <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
-        <tr style="background:#f8fafc;"><td style="padding:12px 16px;font-weight:700;color:#555;width:35%;">Nombre</td><td style="padding:12px 16px;">${nombre}</td></tr>
-        <tr><td style="padding:12px 16px;font-weight:700;color:#555;">Email</td><td style="padding:12px 16px;"><a href="mailto:${email}" style="color:#1F3F7A;">${email}</a></td></tr>
-        ${telefono ? `<tr style="background:#f8fafc;"><td style="padding:12px 16px;font-weight:700;color:#555;">Teléfono</td><td style="padding:12px 16px;"><a href="tel:${telefono}" style="color:#1F3F7A;">${telefono}</a></td></tr>` : ""}
+        <tr style="background:#f8fafc;"><td style="padding:12px 16px;font-weight:700;color:#555;width:35%;">Nombre</td><td style="padding:12px 16px;">${esc(nombre)}</td></tr>
+        <tr><td style="padding:12px 16px;font-weight:700;color:#555;">Email</td><td style="padding:12px 16px;"><a href="mailto:${esc(email)}" style="color:#1F3F7A;">${esc(email)}</a></td></tr>
+        ${telefono ? `<tr style="background:#f8fafc;"><td style="padding:12px 16px;font-weight:700;color:#555;">Teléfono</td><td style="padding:12px 16px;"><a href="tel:${esc(telefono)}" style="color:#1F3F7A;">${esc(telefono)}</a></td></tr>` : ""}
       </table>
       <div style="background:#f8fafc;border-left:4px solid #1F3F7A;padding:16px 20px;border-radius:0 8px 8px 0;">
         <p style="margin:0 0 8px;font-weight:700;color:#555;">Mensaje</p>
-        <p style="margin:0;color:#333;line-height:1.7;white-space:pre-wrap;">${mensaje}</p>
+        <p style="margin:0;color:#333;line-height:1.7;white-space:pre-wrap;">${esc(mensaje)}</p>
       </div>
       <p style="margin-top:28px;">
-        <a href="mailto:${email}" style="background:#1F3F7A;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;">Responder a ${nombre}</a>
+        <a href="mailto:${esc(email)}" style="background:#1F3F7A;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;">Responder a ${esc(nombre)}</a>
       </p>
     </div>
   </div></body></html>`;
 }
 
 export const POST: APIRoute = async ({ request }) => {
+  // Rate limit: 3 mensajes por IP cada 10 minutos
+  if (isRateLimited(getClientIp(request), { max: 3, windowMs: 10 * 60 * 1000 })) {
+    return new Response(JSON.stringify({ error: "Demasiadas solicitudes. Inténtalo más tarde." }), { status: 429 });
+  }
+
   try {
     const body = await request.json();
     const { name, email, phone, message } = body;

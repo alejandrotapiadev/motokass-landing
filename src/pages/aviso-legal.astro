@@ -1,0 +1,134 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+
+const FECHA_ACTUALIZACION = "16 de mayo de 2026";
+---
+
+<MainLayout
+  title="Aviso Legal | MOTOKASS"
+  description="Aviso legal de MOTOKASS — información sobre el titular del sitio web, condiciones de uso y propiedad intelectual."
+>
+  <section class="legal-hero">
+    <div class="legal-hero__inner">
+      <span class="legal-sup">Legal</span>
+      <h1>Aviso Legal</h1>
+      <p>Última actualización: {FECHA_ACTUALIZACION}</p>
+    </div>
+  </section>
+
+  <section class="legal-body">
+    <div class="legal-container">
+
+      <div class="legal-card">
+
+        <h2>1. Datos identificativos del titular</h2>
+        <p>En cumplimiento de la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Información y de Comercio Electrónico (LSSI-CE), se facilitan los datos del titular del sitio web:</p>
+        <ul>
+          <li><strong>Denominación:</strong> MOTOKASS</li>
+          <li><strong>Actividad:</strong> Concesionario y taller de motocicletas</li>
+          <li><strong>Domicilio:</strong> C. de la Virgen María, 20, 05003 Ávila, España</li>
+          <li><strong>Teléfono:</strong> <a href="tel:+34920254044">920 254 044</a></li>
+          <li><strong>Email:</strong> info@motokass.com</li>
+          <li><strong>Sitio web:</strong> https://motokass.com</li>
+        </ul>
+
+        <h2>2. Objeto y ámbito de aplicación</h2>
+        <p>El presente Aviso Legal regula el acceso y uso del sitio web <strong>motokass.com</strong> (en adelante, «el sitio web»). El acceso y uso del sitio web implica la aceptación plena y sin reservas de todas las condiciones incluidas en este Aviso Legal. MOTOKASS se reserva el derecho a modificar estas condiciones en cualquier momento, siendo responsabilidad del usuario su consulta periódica.</p>
+
+        <h2>3. Condiciones de uso</h2>
+        <p>El usuario se compromete a utilizar el sitio web de conformidad con la ley, el presente Aviso Legal y las buenas costumbres. Queda prohibido:</p>
+        <ul>
+          <li>Usar el sitio web con fines ilícitos o contrarios a estas condiciones.</li>
+          <li>Introducir o difundir virus o cualquier código malicioso.</li>
+          <li>Intentar acceder o manipular datos de otros usuarios o sistemas.</li>
+          <li>Reproducir o distribuir contenidos sin autorización expresa.</li>
+        </ul>
+
+        <h2>4. Propiedad intelectual e industrial</h2>
+        <p>Todos los contenidos del sitio web — textos, imágenes, logotipos, diseño gráfico, código fuente y demás elementos — son titularidad de MOTOKASS o de sus legítimos licenciantes, y están protegidos por las leyes de propiedad intelectual e industrial vigentes en España y en la Unión Europea. Queda expresamente prohibida su reproducción, distribución, transformación o comunicación pública sin autorización escrita previa.</p>
+        <p>Las marcas y nombres comerciales <strong>Rieju</strong> y <strong>Sherco</strong> son propiedad de sus respectivos titulares. Su mención en este sitio web responde exclusivamente a la condición de distribuidor oficial autorizado de dichas marcas.</p>
+
+        <h2>5. Exclusión de garantías y responsabilidad</h2>
+        <p>MOTOKASS no garantiza la disponibilidad continua del sitio web ni la ausencia de errores en sus contenidos. La información publicada tiene carácter meramente informativo y no constituye oferta vinculante. MOTOKASS no será responsable de los daños derivados del uso del sitio web, de la imposibilidad de acceso o de la presencia de virus.</p>
+
+        <h2>6. Enlaces a terceros</h2>
+        <p>El sitio web puede contener enlaces a páginas de terceros. MOTOKASS no controla dichos sitios, no asume responsabilidad alguna por sus contenidos y no implica recomendación ni patrocinio.</p>
+
+        <h2>7. Legislación aplicable y jurisdicción</h2>
+        <p>El presente Aviso Legal se rige por la legislación española. Para cualquier controversia derivada del acceso o uso del sitio web, las partes se someten a la jurisdicción de los Juzgados y Tribunales de <strong>Ávila</strong>, con renuncia expresa a cualquier otro fuero que pudiera corresponderles.</p>
+
+        <div class="legal-nav">
+          <a href="/privacidad">Política de Privacidad →</a>
+          <a href="/cookies">Política de Cookies →</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+</MainLayout>
+
+<style>
+  .legal-hero {
+    background: var(--color-primary, #1F3F7A);
+    color: white;
+    padding: 2.5rem 1.5rem 2rem;
+    text-align: center;
+  }
+  .legal-hero__inner { max-width: 640px; margin: 0 auto; }
+  .legal-sup {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    background: rgba(255,255,255,0.15);
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    margin-bottom: 0.75rem;
+  }
+  .legal-hero h1 { font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 800; margin: 0 0 0.4rem; color: white; }
+  .legal-hero p  { opacity: 0.65; font-size: 0.88rem; margin: 0; }
+
+  .legal-body { background: #f8fafc; padding: 3rem 1.5rem 5rem; }
+  .legal-container { max-width: 760px; margin: 0 auto; }
+
+  .legal-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 2.5rem 2rem;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+  }
+  .legal-card h2 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--color-primary, #1F3F7A);
+    margin: 2rem 0 0.6rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #f1f5f9;
+  }
+  .legal-card h2:first-of-type { margin-top: 0; padding-top: 0; border-top: none; }
+  .legal-card p  { color: #475569; font-size: 0.93rem; line-height: 1.8; margin: 0 0 0.75rem; }
+  .legal-card ul { color: #475569; font-size: 0.93rem; line-height: 1.8; padding-left: 1.25rem; margin: 0 0 0.75rem; }
+  .legal-card li { margin-bottom: 0.3rem; }
+  .legal-card a  { color: var(--color-primary, #1F3F7A); }
+
+  .legal-nav {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #f1f5f9;
+  }
+  .legal-nav a {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--color-primary, #1F3F7A);
+    text-decoration: none;
+    border: 1.5px solid #1F3F7A;
+    padding: 0.4rem 1rem;
+    border-radius: 0.5rem;
+    transition: background 0.15s;
+  }
+  .legal-nav a:hover { background: #EEF3FB; }
+</style>

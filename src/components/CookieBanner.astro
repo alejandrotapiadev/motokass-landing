@@ -1,0 +1,113 @@
+---
+// Se muestra solo si el usuario no ha dado su preferencia todavía.
+// Guarda "accepted" o "rejected" en localStorage bajo la clave "cookie_consent".
+// MainLayout carga Vercel Analytics condicionalmente según este valor.
+---
+
+<div id="cookie-banner" class="cbanner" role="dialog" aria-labelledby="cbanner-title" aria-live="polite" hidden>
+  <div class="cbanner__inner">
+    <div class="cbanner__text">
+      <p id="cbanner-title">
+        <strong>Cookies y privacidad</strong><br />
+        Usamos <a href="/cookies">cookies analíticas</a> (Vercel Analytics) para entender cómo se usa el sitio y mejorarlo.
+        Las cookies técnicas necesarias ya están activas. Consulta nuestra
+        <a href="/privacidad">política de privacidad</a>.
+      </p>
+    </div>
+    <div class="cbanner__btns">
+      <button id="cookie-accept" class="cbanner__btn cbanner__btn--accept">Aceptar</button>
+      <button id="cookie-reject" class="cbanner__btn cbanner__btn--reject">Solo necesarias</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const CLAVE = "cookie_consent";
+  const banner = document.getElementById("cookie-banner");
+
+  function mostrarBanner() {
+    if (!localStorage.getItem(CLAVE)) {
+      banner?.removeAttribute("hidden");
+    }
+  }
+
+  function guardar(valor: string) {
+    localStorage.setItem(CLAVE, valor);
+    banner?.setAttribute("hidden", "");
+    // Notificar al resto de la página para cargar/descargar analytics
+    window.dispatchEvent(new CustomEvent("cookie-consent-change", { detail: valor }));
+  }
+
+  document.getElementById("cookie-accept")?.addEventListener("click", () => guardar("accepted"));
+  document.getElementById("cookie-reject")?.addEventListener("click", () => guardar("rejected"));
+
+  // Mostrar al cargar si no hay preferencia guardada
+  mostrarBanner();
+</script>
+
+<style>
+  .cbanner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 9000;
+    background: #1e293b;
+    color: #e2e8f0;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 -4px 24px rgba(0,0,0,0.25);
+    animation: slide-up 0.3s ease;
+  }
+  @keyframes slide-up {
+    from { transform: translateY(100%); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+  .cbanner__inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .cbanner__text { flex: 1; min-width: 200px; }
+  .cbanner__text p { margin: 0; font-size: 0.88rem; line-height: 1.6; }
+  .cbanner__text a { color: #93c5fd; text-decoration: underline; }
+  .cbanner__text a:hover { color: #bfdbfe; }
+
+  .cbanner__btns {
+    display: flex;
+    gap: 0.65rem;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+  .cbanner__btn {
+    padding: 0.55rem 1.25rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .cbanner__btn--accept {
+    background: #16a34a;
+    color: white;
+    border-color: #16a34a;
+  }
+  .cbanner__btn--accept:hover { background: #15803d; border-color: #15803d; }
+  .cbanner__btn--reject {
+    background: transparent;
+    color: #94a3b8;
+    border-color: #475569;
+  }
+  .cbanner__btn--reject:hover { border-color: #94a3b8; color: #e2e8f0; }
+
+  @media (max-width: 600px) {
+    .cbanner__inner { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+    .cbanner__btns  { width: 100%; }
+    .cbanner__btn   { flex: 1; text-align: center; }
+  }
+</style>
