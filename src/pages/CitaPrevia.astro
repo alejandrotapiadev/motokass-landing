@@ -123,6 +123,23 @@ import MainLayout from "../layouts/MainLayout.astro";
   const fechaParam = new URLSearchParams(window.location.search).get("fecha");
   if (fechaParam) fechaInput.value = fechaParam;
 
+  function esFindeSemana(valor: string): boolean {
+    if (!valor) return false;
+    const dow = new Date(valor + "T12:00:00").getDay();
+    return dow === 0 || dow === 6;
+  }
+
+  fechaInput.addEventListener("change", () => {
+    if (esFindeSemana(fechaInput.value)) {
+      fechaInput.value = "";
+      showFieldError("fecha", "El taller cierra sábados y domingos. Elige un día entre lunes y viernes.");
+      fechaInput.classList.add("input--error");
+    } else {
+      document.getElementById("fecha-error")!.textContent = "";
+      fechaInput.classList.remove("input--error");
+    }
+  });
+
   function clearErrors() {
     document.querySelectorAll<HTMLElement>(".field-error").forEach((el) => (el.textContent = ""));
     document.querySelectorAll<HTMLElement>(".input--error").forEach((el) => el.classList.remove("input--error"));
@@ -143,6 +160,7 @@ import MainLayout from "../layouts/MainLayout.astro";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) { showFieldError("email", "Introduce un email válido"); ok = false; }
     if (!data.vehiculo.trim()) { showFieldError("vehiculo", "Campo obligatorio"); ok = false; }
     if (!data.fecha) { showFieldError("fecha", "Selecciona una fecha"); ok = false; }
+    else if (esFindeSemana(data.fecha)) { showFieldError("fecha", "El taller cierra sábados y domingos. Elige un día entre lunes y viernes."); ok = false; }
     if (!data.hora) { showFieldError("hora", "Selecciona una hora"); ok = false; }
     if (!data.motivo) { showFieldError("motivo", "Selecciona un motivo"); ok = false; }
     if (!data.privacidad) { showFieldError("privacidad", "Debes aceptar la política de privacidad para continuar"); ok = false; }
