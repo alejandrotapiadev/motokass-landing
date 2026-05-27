@@ -2,46 +2,74 @@
 export const prerender = false;
 import MainLayout from "../../layouts/MainLayout.astro";
 import { getCollection } from "astro:content";
-import { readingTime } from "../../lib/readingTime";
+import { getDynamicPosts, type DynamicPost } from "../../lib/supabaseBlog";
+import { readingTime, readingTimeFromHtml } from "../../lib/readingTime";
 
 const CATEGORIAS = ["Novedades", "Mantenimiento", "Rutas", "Consejos"] as const;
 
 const categoriaParam = Astro.url.searchParams.get("categoria") ?? "";
-const categoriaActiva = CATEGORIAS.find(c => c === categoriaParam) ?? "";
+const categoriaActiva = CATEGORIAS.find((c) => c === categoriaParam) ?? "";
 
-// Obtener todos los posts ordenados por fecha descendente
-const todosLosPostsRaw = await getCollection("blog");
-const todosPosts = todosLosPostsRaw.sort(
-  (a, b) => b.data.date.getTime() - a.data.date.getTime()
+// ── Fuente 1: posts estáticos (.md) ─────────────────────────────────────────
+const staticRaw = await getCollection("blog");
+const staticPosts = staticRaw.map((p) => ({
+  slug:        p.id.replace(/\.md$/, ""),
+  title:       p.data.title,
+  description: p.data.description,
+  date:        p.data.date,
+  category:    p.data.category,
+  image:       p.data.image,
+  imageAlt:    p.data.imageAlt,
+  author:      p.data.author,
+  featured:    p.data.featured,
+  minutos:     readingTime(p.body ?? ""),
+  type:        "static" as const,
+}));
+
+// ── Fuente 2: posts dinámicos (Supabase) ─────────────────────────────────────
+const dynamicRaw: DynamicPost[] = await getDynamicPosts();
+const dynamicPosts = dynamicRaw.map((p) => ({
+  slug:        p.slug,
+  title:       p.title,
+  description: p.description,
+  date:        new Date(p.published_at),
+  category:    p.category,
+  image:       p.image,
+  imageAlt:    p.image_alt,
+  author:      p.author,
+  featured:    p.featured,
+  minutos:     readingTimeFromHtml(p.content),
+  type:        "dynamic" as const,
+}));
+
+// ── Unificar y ordenar ───────────────────────────────────────────────────────
+const todosPosts = [...staticPosts, ...dynamicPosts].sort(
+  (a, b) => b.date.getTime() - a.date.getTime()
 );
 
 const posts = categoriaActiva
-  ? todosPosts.filter(p => p.data.category === categoriaActiva)
+  ? todosPosts.filter((p) => p.category === categoriaActiva)
   : todosPosts;
 
-const postDestacado = !categoriaActiva ? todosPosts.find(p => p.data.featured) : null;
-const restoPosts = postDestacado
-  ? posts.filter(p => p.id !== postDestacado.id)
-  : posts;
-
-function getSlug(id: string) {
-  return id.replace(/\.md$/, "");
-}
+const postDestacado = !categoriaActiva ? todosPosts.find((p) => p.featured) : null;
+const restoPosts    = postDestacado ? posts.filter((p) => p.slug !== postDestacado.slug) : posts;
 
 function formatFecha(date: Date) {
   return date.toLocaleDateString("es-ES", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
+    day: "numeric", month: "long", year: "numeric",
   });
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
-  Novedades:   "#dc2626",
+  Novedades:     "#dc2626",
   Mantenimiento: "#0891b2",
-  Rutas:       "#16a34a",
-  Consejos:    "#7c3aed",
+  Rutas:         "#16a34a",
+  Consejos:      "#7c3aed",
 };
+
+function countCat(cat: string) {
+  return todosPosts.filter((p) => p.category === cat).length;
+}
 ---
 
 <MainLayout
@@ -58,6 +86,10 @@ const CATEGORY_COLORS: Record<string, string> = {
         Novedades de Rieju y Sherco, mantenimiento práctico, las mejores rutas desde Ávila
         y todo lo que necesitas saber antes de comprar tu próxima moto.
       </p>
+      <div class="hero-stats">
+        <span>📝 {todosPosts.length} artículos</span>
+        <span>🔄 Se actualiza automáticamente cada semana</span>
+      </div>
     </div>
   </section>
 
@@ -67,18 +99,17 @@ const CATEGORY_COLORS: Record<string, string> = {
       <a href="/blog" class={`filtro-btn${!categoriaActiva ? " active" : ""}`}>
         Todos ({todosPosts.length})
       </a>
-      {CATEGORIAS.map(cat => {
-        const count = todosPosts.filter(p => p.data.category === cat).length;
-        return (
-          <a
-            href={`/blog?categoria=${cat}`}
-            class={`filtro-btn${categoriaActiva === cat ? " active" : ""}`}
-            style={categoriaActiva === cat ? `background:${CATEGORY_COLORS[cat]};border-color:${CATEGORY_COLORS[cat]};color:white` : ""}
-          >
-            {cat} ({count})
-          </a>
-        );
-      })}
+      {CATEGORIAS.map((cat) => (
+        <a
+          href={`/blog?categoria=${cat}`}
+          class={`filtro-btn${categoriaActiva === cat ? " active" : ""}`}
+          style={categoriaActiva === cat
+            ? `background:${CATEGORY_COLORS[cat]};border-color:${CATEGORY_COLORS[cat]};color:white`
+            : ""}
+        >
+          {cat} ({countCat(cat)})
+        </a>
+      ))}
     </div>
   </div>
 
@@ -87,69 +118,60 @@ const CATEGORY_COLORS: Record<string, string> = {
 
       {posts.length === 0 && (
         <div class="empty-state">
-          <p>No hay artículos en esta categoría todavía. ¡Pronto publicaremos más contenido!</p>
+          <p>No hay artículos en esta categoría todavía.</p>
           <a href="/blog" class="btn-volver">Ver todos los artículos</a>
         </div>
       )}
 
       <!-- POST DESTACADO -->
       {postDestacado && (
-        <a href={`/blog/${getSlug(postDestacado.id)}`} class="post-featured" aria-label={`Leer artículo: ${postDestacado.data.title}`}>
+        <a href={`/blog/${postDestacado.slug}`} class="post-featured"
+           aria-label={`Leer artículo: ${postDestacado.title}`}>
           <div class="post-featured__img-wrap">
-            <img
-              src={postDestacado.data.image}
-              alt={postDestacado.data.imageAlt}
-              loading="eager"
-              decoding="async"
-            />
+            <img src={postDestacado.image} alt={postDestacado.imageAlt} loading="eager" decoding="async" />
             <div class="post-featured__overlay"></div>
-            <span class="cat-badge" style={`background:${CATEGORY_COLORS[postDestacado.data.category]}`}>
-              ⭐ Destacado · {postDestacado.data.category}
+            <span class="cat-badge" style={`background:${CATEGORY_COLORS[postDestacado.category]}`}>
+              ⭐ Destacado · {postDestacado.category}
             </span>
           </div>
           <div class="post-featured__body">
             <div class="post-meta">
-              <time datetime={postDestacado.data.date.toISOString()}>
-                {formatFecha(postDestacado.data.date)}
-              </time>
+              <time datetime={postDestacado.date.toISOString()}>{formatFecha(postDestacado.date)}</time>
               <span class="dot">·</span>
-              <span>{readingTime(postDestacado.body ?? "")} min de lectura</span>
+              <span>{postDestacado.minutos} min de lectura</span>
               <span class="dot">·</span>
-              <span>{postDestacado.data.author}</span>
+              <span>{postDestacado.author}</span>
             </div>
-            <h2>{postDestacado.data.title}</h2>
-            <p class="post-excerpt">{postDestacado.data.description}</p>
+            <h2>{postDestacado.title}</h2>
+            <p class="post-excerpt">{postDestacado.description}</p>
             <span class="read-more">Leer artículo →</span>
           </div>
         </a>
       )}
 
-      <!-- GRID DE POSTS -->
+      <!-- GRID -->
       {restoPosts.length > 0 && (
         <div class="posts-grid">
-          {restoPosts.map(post => (
-            <a href={`/blog/${getSlug(post.id)}`} class="post-card" aria-label={`Leer artículo: ${post.data.title}`}>
+          {restoPosts.map((post) => (
+            <a href={`/blog/${post.slug}`} class="post-card"
+               aria-label={`Leer artículo: ${post.title}`}>
               <div class="post-card__img-wrap">
-                <img
-                  src={post.data.image}
-                  alt={post.data.imageAlt}
-                  loading="lazy"
-                  decoding="async"
-                />
-                <span class="cat-badge" style={`background:${CATEGORY_COLORS[post.data.category]}`}>
-                  {post.data.category}
+                <img src={post.image} alt={post.imageAlt} loading="lazy" decoding="async" />
+                <span class="cat-badge" style={`background:${CATEGORY_COLORS[post.category]}`}>
+                  {post.category}
                 </span>
+                {post.type === "dynamic" && (
+                  <span class="auto-badge" title="Generado automáticamente">⚡</span>
+                )}
               </div>
               <div class="post-card__body">
                 <div class="post-meta">
-                  <time datetime={post.data.date.toISOString()}>
-                    {formatFecha(post.data.date)}
-                  </time>
+                  <time datetime={post.date.toISOString()}>{formatFecha(post.date)}</time>
                   <span class="dot">·</span>
-                  <span>{readingTime(post.body ?? "")} min</span>
+                  <span>{post.minutos} min</span>
                 </div>
-                <h3>{post.data.title}</h3>
-                <p class="post-excerpt">{post.data.description}</p>
+                <h3>{post.title}</h3>
+                <p class="post-excerpt">{post.description}</p>
               </div>
               <div class="post-card__footer">
                 <span class="read-more">Leer más →</span>
@@ -162,12 +184,12 @@ const CATEGORY_COLORS: Record<string, string> = {
     </div>
   </div>
 
-  <!-- CTA FINAL -->
+  <!-- CTA -->
   <section class="blog-cta">
     <div class="container cta-inner">
       <div>
         <h2>¿Quieres recibir el nuevo contenido?</h2>
-        <p>Suscríbete a nuestra newsletter y te avisamos cuando publiquemos nuevos artículos, novedades del catálogo y ofertas del taller.</p>
+        <p>Suscríbete a nuestra newsletter y te avisamos de nuevos artículos, novedades del catálogo y ofertas del taller.</p>
       </div>
       <a href="/#newsletter" class="btn-suscribirse">Suscribirme gratis</a>
     </div>
@@ -176,13 +198,11 @@ const CATEGORY_COLORS: Record<string, string> = {
 </MainLayout>
 
 <style>
-/* ── HERO ── */
 .blog-hero {
   background: linear-gradient(135deg, #142C57 0%, #1F3F7A 60%, #2E5AA6 100%);
   padding: 4rem 0 3.5rem;
   text-align: center;
 }
-
 .hero-eyebrow {
   display: inline-block;
   background: rgba(255,255,255,0.12);
@@ -196,7 +216,6 @@ const CATEGORY_COLORS: Record<string, string> = {
   border-radius: 100px;
   margin-bottom: 1.25rem;
 }
-
 .blog-hero h1 {
   color: white;
   font-size: clamp(1.9rem, 4vw, 3rem);
@@ -204,16 +223,21 @@ const CATEGORY_COLORS: Record<string, string> = {
   line-height: 1.15;
   margin-bottom: 1rem;
 }
-
 .hero-sub {
   color: rgba(255,255,255,0.75);
   font-size: 1.05rem;
   max-width: 620px;
-  margin: 0 auto;
+  margin: 0 auto 1.5rem;
   line-height: 1.65;
 }
-
-/* ── FILTROS ── */
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.6);
+}
 .filtros-bar {
   background: white;
   border-bottom: 1px solid #e5e7eb;
@@ -222,7 +246,6 @@ const CATEGORY_COLORS: Record<string, string> = {
   z-index: 50;
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
-
 .filtros-inner {
   display: flex;
   gap: 0.5rem;
@@ -231,9 +254,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   overflow-x: auto;
   scrollbar-width: none;
 }
-
 .filtros-inner::-webkit-scrollbar { display: none; }
-
 .filtro-btn {
   display: inline-flex;
   align-items: center;
@@ -249,30 +270,12 @@ const CATEGORY_COLORS: Record<string, string> = {
   transition: all 0.2s;
   flex-shrink: 0;
 }
-
-.filtro-btn:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-}
-
-.filtro-btn.active {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-  color: white;
-}
-
-/* ── BODY ── */
-.blog-body {
-  padding: 3rem 0 4rem;
-  background: #f8fafc;
-  min-height: 40vh;
-}
-
-/* ── POST DESTACADO ── */
+.filtro-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.filtro-btn.active { background: var(--color-primary); border-color: var(--color-primary); color: white; }
+.blog-body { padding: 3rem 0 4rem; background: #f8fafc; min-height: 40vh; }
 .post-featured {
   display: grid;
   grid-template-columns: 1.15fr 1fr;
-  gap: 0;
   background: white;
   border-radius: 20px;
   overflow: hidden;
@@ -283,58 +286,14 @@ const CATEGORY_COLORS: Record<string, string> = {
   transition: box-shadow 0.25s, transform 0.2s;
   min-height: 340px;
 }
-
-.post-featured:hover {
-  box-shadow: 0 12px 40px rgba(0,0,0,0.14);
-  transform: translateY(-3px);
-}
-
-.post-featured__img-wrap {
-  position: relative;
-  overflow: hidden;
-}
-
-.post-featured__img-wrap img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.4s ease;
-  display: block;
-}
-
-.post-featured:hover .post-featured__img-wrap img {
-  transform: scale(1.04);
-}
-
-.post-featured__overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to right, transparent 60%, rgba(0,0,0,0.12));
-}
-
-.post-featured__body {
-  padding: 2.25rem 2.5rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 1rem;
-}
-
-.post-featured__body h2 {
-  font-size: clamp(1.25rem, 2.2vw, 1.65rem);
-  font-weight: 800;
-  color: #0f172a;
-  line-height: 1.25;
-  margin: 0;
-}
-
-/* ── GRID DE POSTS ── */
-.posts-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-}
-
+.post-featured:hover { box-shadow: 0 12px 40px rgba(0,0,0,0.14); transform: translateY(-3px); }
+.post-featured__img-wrap { position: relative; overflow: hidden; }
+.post-featured__img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; display: block; }
+.post-featured:hover .post-featured__img-wrap img { transform: scale(1.04); }
+.post-featured__overlay { position: absolute; inset: 0; background: linear-gradient(to right, transparent 60%, rgba(0,0,0,0.1)); }
+.post-featured__body { padding: 2.25rem 2.5rem; display: flex; flex-direction: column; justify-content: center; gap: 1rem; }
+.post-featured__body h2 { font-size: clamp(1.25rem, 2.2vw, 1.65rem); font-weight: 800; color: #0f172a; line-height: 1.25; margin: 0; }
+.posts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
 .post-card {
   background: white;
   border-radius: 16px;
@@ -346,187 +305,45 @@ const CATEGORY_COLORS: Record<string, string> = {
   flex-direction: column;
   transition: box-shadow 0.25s, transform 0.2s;
 }
-
-.post-card:hover {
-  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
-  transform: translateY(-4px);
-}
-
-.post-card__img-wrap {
-  position: relative;
-  aspect-ratio: 16/9;
-  overflow: hidden;
-}
-
-.post-card__img-wrap img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.4s ease;
-  display: block;
-}
-
-.post-card:hover .post-card__img-wrap img {
-  transform: scale(1.05);
-}
-
-.post-card__body {
-  padding: 1.25rem 1.25rem 0.75rem;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-.post-card__body h3 {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #0f172a;
-  line-height: 1.35;
-  margin: 0;
-}
-
-.post-card__footer {
-  padding: 0.5rem 1.25rem 1.1rem;
-}
-
-/* ── COMPARTIDOS ── */
+.post-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.12); transform: translateY(-4px); }
+.post-card__img-wrap { position: relative; aspect-ratio: 16/9; overflow: hidden; }
+.post-card__img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; display: block; }
+.post-card:hover .post-card__img-wrap img { transform: scale(1.05); }
+.post-card__body { padding: 1.25rem 1.25rem 0.75rem; flex: 1; display: flex; flex-direction: column; gap: 0.6rem; }
+.post-card__body h3 { font-size: 1rem; font-weight: 700; color: #0f172a; line-height: 1.35; margin: 0; }
+.post-card__footer { padding: 0.5rem 1.25rem 1.1rem; }
 .cat-badge {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  color: white;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  padding: 0.25rem 0.7rem;
-  border-radius: 999px;
-  text-transform: uppercase;
-  z-index: 2;
+  position: absolute; top: 12px; left: 12px;
+  color: white; font-size: 0.72rem; font-weight: 700;
+  letter-spacing: 0.03em; padding: 0.25rem 0.7rem;
+  border-radius: 999px; text-transform: uppercase; z-index: 2;
 }
-
-.post-meta {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.78rem;
-  color: #64748b;
-  flex-wrap: wrap;
+.auto-badge {
+  position: absolute; top: 12px; right: 12px;
+  background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
+  color: white; font-size: 0.75rem; width: 24px; height: 24px;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 2;
 }
-
+.post-meta { display: flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; color: #64748b; flex-wrap: wrap; }
 .dot { opacity: 0.5; }
-
-.post-excerpt {
-  font-size: 0.875rem;
-  color: #64748b;
-  line-height: 1.6;
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.post-featured .post-excerpt {
-  -webkit-line-clamp: 4;
-}
-
-.read-more {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--color-primary);
-  transition: gap 0.2s;
-}
-
-/* ── EMPTY STATE ── */
-.empty-state {
-  text-align: center;
-  padding: 4rem 1rem;
-  color: #64748b;
-}
-
-.btn-volver {
-  display: inline-block;
-  margin-top: 1rem;
-  padding: 0.65rem 1.5rem;
-  background: var(--color-primary);
-  color: white;
-  border-radius: 8px;
-  font-weight: 700;
-  font-size: 0.9rem;
-  text-decoration: none;
-}
-
-/* ── CTA FINAL ── */
-.blog-cta {
-  background: var(--color-primary);
-  padding: 3rem 0;
-}
-
-.cta-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 2rem;
-  flex-wrap: wrap;
-}
-
-.blog-cta h2 {
-  color: white;
-  font-size: 1.4rem;
-  margin-bottom: 0.5rem;
-}
-
-.blog-cta p {
-  color: rgba(255,255,255,0.75);
-  font-size: 0.95rem;
-  max-width: 540px;
-  line-height: 1.6;
-}
-
-.btn-suscribirse {
-  display: inline-block;
-  white-space: nowrap;
-  background: white;
-  color: var(--color-primary);
-  font-weight: 800;
-  font-size: 0.95rem;
-  padding: 0.9rem 2rem;
-  border-radius: 10px;
-  text-decoration: none;
-  transition: transform 0.15s, box-shadow 0.15s;
-  flex-shrink: 0;
-}
-
-.btn-suscribirse:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.18);
-}
-
-/* ── RESPONSIVE ── */
-@media (max-width: 1024px) {
-  .posts-grid { grid-template-columns: repeat(2, 1fr); }
-}
-
+.post-excerpt { font-size: 0.875rem; color: #64748b; line-height: 1.6; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.post-featured .post-excerpt { -webkit-line-clamp: 4; }
+.read-more { font-size: 0.85rem; font-weight: 700; color: var(--color-primary); }
+.empty-state { text-align: center; padding: 4rem 1rem; color: #64748b; }
+.btn-volver { display: inline-block; margin-top: 1rem; padding: 0.65rem 1.5rem; background: var(--color-primary); color: white; border-radius: 8px; font-weight: 700; font-size: 0.9rem; text-decoration: none; }
+.blog-cta { background: var(--color-primary); padding: 3rem 0; }
+.cta-inner { display: flex; align-items: center; justify-content: space-between; gap: 2rem; flex-wrap: wrap; }
+.blog-cta h2 { color: white; font-size: 1.4rem; margin-bottom: 0.5rem; }
+.blog-cta p  { color: rgba(255,255,255,0.75); font-size: 0.95rem; max-width: 540px; line-height: 1.6; }
+.btn-suscribirse { display: inline-block; white-space: nowrap; background: white; color: var(--color-primary); font-weight: 800; font-size: 0.95rem; padding: 0.9rem 2rem; border-radius: 10px; text-decoration: none; transition: transform 0.15s, box-shadow 0.15s; flex-shrink: 0; }
+.btn-suscribirse:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.18); }
+@media (max-width: 1024px) { .posts-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 768px) {
-  .post-featured {
-    grid-template-columns: 1fr;
-    min-height: auto;
-  }
-
-  .post-featured__img-wrap {
-    aspect-ratio: 16/9;
-    max-height: 240px;
-  }
-
-  .post-featured__body {
-    padding: 1.5rem 1.25rem;
-  }
-
+  .post-featured { grid-template-columns: 1fr; min-height: auto; }
+  .post-featured__img-wrap { aspect-ratio: 16/9; max-height: 240px; }
+  .post-featured__body { padding: 1.5rem 1.25rem; }
   .posts-grid { grid-template-columns: 1fr; }
-
   .cta-inner { flex-direction: column; text-align: center; }
-
   .btn-suscribirse { width: 100%; text-align: center; }
 }
 </style>
