@@ -1,4 +1,10 @@
 {
+  "crons": [
+    {
+      "path": "/api/cron/generar-post",
+      "schedule": "0 10 * * 1"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
