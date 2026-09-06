@@ -24,3 +24,6 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 .vercel
+
+# listado de tareas local, no se versiona
+listadoTareas.txt
