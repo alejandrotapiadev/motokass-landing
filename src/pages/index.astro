@@ -3,6 +3,24 @@ import MainLayout from "../layouts/MainLayout.astro";
 import ServiceSelector from "../components/ServiceSelector.astro";
 import Testimonios from "../components/Testimonios.astro";
 import Map from "../components/Map.astro";
+import { getCollection } from "astro:content";
+import { readingTime } from "../lib/readingTime";
+
+const allPosts = await getCollection("blog");
+const ultimosPosts = allPosts
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .slice(0, 3);
+
+function getSlug(id: string) {
+  return id.replace(/\.md$/, "");
+}
+
+const CATEGORY_COLORS: Record<string, string> = {
+  Novedades:    "#dc2626",
+  Mantenimiento:"#0891b2",
+  Rutas:        "#16a34a",
+  Consejos:     "#7c3aed",
+};
 ---
 
 <MainLayout
@@ -11,5 +29,228 @@ import Map from "../components/Map.astro";
 >
   <ServiceSelector />
   <Testimonios />
+
+  <!-- SECCIÓN BLOG -->
+  <section class="blog-preview">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <span class="section-eyebrow">Noticias y consejos</span>
+          <h2>Lo último del blog</h2>
+          <p>Guías de mantenimiento, novedades del catálogo y las mejores rutas desde Ávila.</p>
+        </div>
+        <a href="/blog" class="ver-todo-link">Ver todos los artículos →</a>
+      </div>
+
+      <div class="blog-grid">
+        {ultimosPosts.map((post, i) => (
+          <a
+            href={`/blog/${getSlug(post.id)}`}
+            class={`blog-card${i === 0 ? " blog-card--featured" : ""}`}
+            aria-label={`Leer artículo: ${post.data.title}`}
+          >
+            <div class="blog-card__img">
+              <img
+                src={post.data.image}
+                alt={post.data.imageAlt}
+                loading={i === 0 ? "eager" : "lazy"}
+                decoding="async"
+              />
+              <span
+                class="cat-badge"
+                style={`background:${CATEGORY_COLORS[post.data.category]}`}
+              >
+                {post.data.category}
+              </span>
+            </div>
+            <div class="blog-card__body">
+              <div class="post-meta">
+                <time datetime={post.data.date.toISOString()}>
+                  {post.data.date.toLocaleDateString("es-ES", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </time>
+                <span>·</span>
+                <span>{readingTime(post.body ?? "")} min</span>
+              </div>
+              <h3>{post.data.title}</h3>
+              <p class="excerpt">{post.data.description}</p>
+              <span class="read-more">Leer artículo →</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
   <Map />
 </MainLayout>
+
+<style>
+/* ── BLOG PREVIEW ── */
+.blog-preview {
+  padding: 4rem 0;
+  background: #f8fafc;
+}
+
+.section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.section-eyebrow {
+  display: inline-block;
+  color: var(--color-secondary);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.35rem;
+}
+
+.section-head h2 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  color: var(--color-primary);
+  font-weight: 800;
+  margin: 0 0 0.35rem;
+  line-height: 1.2;
+}
+
+.section-head p {
+  color: var(--color-muted);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.ver-todo-link {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding-bottom: 0.25rem;
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.ver-todo-link:hover { border-color: var(--color-primary); }
+
+/* ── GRID ── */
+.blog-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+/* ── CARD ── */
+.blog-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.25s, transform 0.2s;
+}
+
+.blog-card:hover {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  transform: translateY(-4px);
+}
+
+.blog-card__img {
+  position: relative;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+}
+
+.blog-card__img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.blog-card:hover .blog-card__img img { transform: scale(1.05); }
+
+.cat-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.22rem 0.65rem;
+  border-radius: 999px;
+  z-index: 2;
+}
+
+.blog-card__body {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  flex: 1;
+}
+
+.post-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.76rem;
+  color: #94a3b8;
+}
+
+.blog-card__body h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.excerpt {
+  font-size: 0.85rem;
+  color: #64748b;
+  line-height: 1.6;
+  margin: 0;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.read-more {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-top: auto;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1024px) {
+  .blog-grid { grid-template-columns: repeat(2, 1fr); }
+  .blog-card--featured { grid-column: span 2; }
+  .blog-card--featured .blog-card__img { aspect-ratio: 21/9; }
+}
+
+@media (max-width: 640px) {
+  .blog-grid { grid-template-columns: 1fr; }
+  .blog-card--featured { grid-column: span 1; }
+  .blog-card--featured .blog-card__img { aspect-ratio: 16/9; }
+  .section-head { flex-direction: column; align-items: flex-start; }
+}
+</style>
