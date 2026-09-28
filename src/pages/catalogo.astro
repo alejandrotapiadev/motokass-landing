@@ -1,134 +1,42 @@
 ---
 import MainLayout from "../layouts/MainLayout.astro";
 import FilteredMotoList from "../components/FilteredMotoList.jsx";
-import RiejuCatalogo from "../resources/RiejuCatalogo.json";
-import ShercoCatalogo from "../resources/ShercoCatalogo.json";
+import Breadcrumbs from "../components/ui/Breadcrumbs.astro";
+import { getAllMotorcycles, toLegacyMoto, MOTO_SEGMENTS } from "../lib/catalog/motorcycles";
 
-// Mapeamos Rieju
-const motosRieju = RiejuCatalogo.catalogo.modelos.map((moto) => ({
-  marca: RiejuCatalogo.catalogo.marca,
-  nombre: moto.modelo,
-  precio: moto.precio_eur,
-  imagen: moto.imagen,
-  specs: moto.specs,
-  stock: moto.stock,
-  nuevo: (moto as any).nuevo ?? false,
-  categoria: (moto as any).categoria ?? null,
-}));
+const motos = getAllMotorcycles().map(toLegacyMoto);
+const segmentos = MOTO_SEGMENTS.map((s) => ({ value: s.slug, label: s.name }));
 
-// Mapeamos Sherco
-const motosSherco = ShercoCatalogo.catalogo.modelos.map((moto) => ({
-  marca: ShercoCatalogo.catalogo.marca,
-  nombre: moto.modelo,
-  precio: moto.precio_eur,
-  imagen: moto.imagen,
-  specs: moto.specs,
-  stock: moto.stock,
-  nuevo: (moto as any).nuevo ?? false,
-  categoria: (moto as any).categoria ?? null,
-}));
-
-// Intercalamos Rieju y Sherco: R1, S1, R2, S2… para que la tienda
-// no muestre todas las de una marca seguidas.
-const motos: any[] = [];
-const maxLen = Math.max(motosRieju.length, motosSherco.length);
-for (let i = 0; i < maxLen; i++) {
-  if (i < motosRieju.length)  motos.push(motosRieju[i]);
-  if (i < motosSherco.length) motos.push(motosSherco[i]);
-}
+// ?segmento=enduro (enlaces de la home / menú) y ?marca=Rieju
+const segParam = Astro.url.searchParams.get("segmento") ?? "";
+const initialSegmento = MOTO_SEGMENTS.some((s) => s.slug === segParam) ? segParam : "";
+const marcaParam = Astro.url.searchParams.get("marca") ?? "";
+const initialMarca = ["Rieju", "Sherco"].find((m) => m.toLowerCase() === marcaParam.toLowerCase()) ?? "";
+const segInfo = MOTO_SEGMENTS.find((s) => s.slug === initialSegmento);
+const h1 = segInfo ? `Motos ${segInfo.name.toLowerCase()}` : "Catálogo de motos";
 ---
 
 <MainLayout
   title="MOTOKASS - Catálogo de Motos | Rieju y Sherco en Ávila"
-  description="Catálogo de motos en MOTOKASS. Distribuidor oficial de Rieju y Sherco en Ávila. Filtra por marca, categoría, cilindrada y tipo de motor."
+  description="Catálogo de motos en MOTOKASS. Distribuidor oficial de Rieju y Sherco en Ávila. Filtra por tipo, marca, categoría, cilindrada y tipo de motor."
 >
-  <section class="section">
+  <section class="cat-top">
     <div class="container">
-      <FilteredMotoList motos={motos} client:load />
+      <Breadcrumbs items={[{ label: "Inicio", href: "/" }, { label: "Motos" }]} />
+      <h1 class="display">{h1}</h1>
+      <p>Distribuidor oficial Rieju &amp; Sherco en Ávila. {motos.length} modelos con financiación, prueba de moto y taller propio.</p>
+    </div>
+  </section>
+  <section class="section catalogo">
+    <div class="container">
+      <FilteredMotoList motos={motos} segmentos={segmentos} initialSegmento={initialSegmento} initialMarca={initialMarca} client:load />
     </div>
   </section>
 </MainLayout>
 
 <style>
-body {
-  background-color: var(--color-gray-light);
-  color: var(--color-gray-dark);
-  font-family: 'Inter', sans-serif;
-  margin: 0;
-  padding: 0;
-}
-
-.top_header {
-  text-align: center;
-  padding: 2rem 0;
-}
-.section{
-  padding: 0;
-}
-.container{
-  padding: 2em;
-}
-
-.top_header h1 {
-  color: var(--color-primary);
-  font-size: 2.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.top_header .section-subtitle {
-  color: var(--color-gray-dark);
-  font-size: 1.125rem;
-}
-
-.motos-list {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  margin-top: 2rem;
-}
-
-.moto-link {
-  display: block;
-  width: 100%;
-  text-decoration: none;
-}
-
-.moto-link:hover {
-  transform: translateY(-2px);
-  transition: transform 0.2s ease;
-}
-
-.compra-section {
-  text-align: center;
-  background: var(--color-white);
-  padding: 2rem;
-  border-radius: 1rem;
-  margin-top: 3rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-}
-
-.compra-section h2 {
-  color: var(--color-primary);
-  margin-bottom: 1rem;
-}
-
-.compra-section p {
-  margin-bottom: 1.5rem;
-}
-
-.compra-section .btn-primary {
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  background: var(--color-primary);
-  color: var(--color-white);
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s ease;
-  border: none;
-}
-
-.compra-section .btn-primary:hover {
-  background: var(--color-primary-dark);
-  transform: translateY(-2px);
-}
+.cat-top { padding: 1.5rem 0 0; }
+.cat-top h1 { font-size: clamp(2.6rem, 6.5vw, 5rem); margin: 1.25rem 0 .5rem; }
+.cat-top p { color: var(--text-2); margin: 0; max-width: 60ch; }
+.catalogo { padding: 1.75rem 0 4rem; }
 </style>

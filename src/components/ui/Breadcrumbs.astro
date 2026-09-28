@@ -1,0 +1,36 @@
+---
+/** Migas de pan con schema BreadcrumbList. El último elemento es la página actual. */
+interface Crumb {
+  label: string;
+  href?: string;
+}
+interface Props {
+  items: Crumb[];
+  class?: string;
+}
+const { items, class: className } = Astro.props;
+const site = "https://motokass.com";
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: items.map((c, i) => ({
+    "@type": "ListItem",
+    position: i + 1,
+    name: c.label,
+    ...(c.href ? { item: new URL(c.href, site).toString() } : {}),
+  })),
+};
+---
+
+<nav class:list={["breadcrumbs", className]} aria-label="Migas de pan">
+  <ol>
+    {items.map((c, i) =>
+      i === items.length - 1 ? (
+        <li aria-current="page">{c.label}</li>
+      ) : (
+        <li>{c.href ? <a href={c.href}>{c.label}</a> : c.label}</li>
+      ),
+    )}
+  </ol>
+</nav>
+<script type="application/ld+json" set:html={JSON.stringify(schema)} />

@@ -1,0 +1,97 @@
+---
+import { Picture } from "astro:assets";
+import heroImg from "../../assets/img/backgrounds/tienda3.png";
+import { TOTAL_MOTORCYCLES } from "../../lib/catalog/motorcycles";
+
+// Redondeo a la decena inferior: "Más de 60 modelos" con 67 en catálogo.
+const modelos = Math.floor(TOTAL_MOTORCYCLES / 10) * 10;
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero__media">
+    <Picture
+      src={heroImg}
+      formats={["avif", "webp"]}
+      widths={[480, 768, 1024]}
+      sizes="(max-width: 900px) 100vw, 58vw"
+      alt="Sherco de enduro en la tienda MOTOKASS de Ávila, con la pared de cascos al fondo"
+      loading="eager"
+      fetchpriority="high"
+    />
+  </div>
+  <div class="hero__content container">
+    <div class="hero__copy">
+      <span class="eyebrow">Concesionario oficial en Ávila</span>
+      <h1 id="hero-title" class="display">Tu próxima moto<br /><span>empieza aquí.</span></h1>
+      <p class="hero__lead">Rieju &amp; Sherco oficiales en Ávila.</p>
+      <ul class="hero__facts">
+        <li>Más de {modelos} modelos</li>
+        <li>Financiación</li>
+        <li>Prueba de moto</li>
+        <li>Taller propio</li>
+      </ul>
+      <div class="hero__ctas">
+        <a href="/catalogo" class="btn btn--accent">Ver motos</a>
+        <a href="#encuentra-tu-moto" class="btn btn--outline-light">Encuentra tu moto</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+.hero {
+  position: relative;
+  background: var(--ink);
+  color: #fff;
+  min-height: min(760px, calc(100svh - var(--header-h)));
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+.hero__media {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 60%;
+}
+.hero__media :global(img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 40% center;
+}
+.hero__media::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--ink) 0%, rgba(14,15,18,.55) 22%, rgba(14,15,18,0) 55%);
+  z-index: 1;
+}
+.hero__content { position: relative; z-index: 2; width: 100%; }
+.hero__copy { max-width: 600px; padding: 4rem 0; }
+.hero h1 {
+  font-size: clamp(3.1rem, 7vw, 5.75rem);
+  margin: 0 0 1.25rem;
+}
+.hero h1 span { color: var(--text-inv-2); }
+.hero__lead { font-size: clamp(1.1rem, 1.6vw, 1.35rem); font-weight: 600; margin: 0 0 1rem; }
+.hero__facts {
+  list-style: none;
+  margin: 0 0 2.25rem;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem 0;
+  color: var(--text-inv-2);
+  font-size: .95rem;
+}
+.hero__facts li + li::before { content: "·"; margin: 0 .6rem; color: var(--accent); font-weight: 900; }
+.hero__ctas { display: flex; flex-wrap: wrap; gap: .75rem; }
+
+@media (max-width: 900px) {
+  .hero { flex-direction: column; align-items: stretch; min-height: 0; }
+  .hero__media { position: relative; width: 100%; aspect-ratio: 16 / 10; }
+  .hero__media::before { background: linear-gradient(0deg, var(--ink) 2%, rgba(14,15,18,.6) 30%, rgba(14,15,18,0) 65%); }
+  .hero__copy { padding: 0 0 2.5rem; margin-top: -2.25rem; }
+  .hero__ctas .btn { flex: 1 1 auto; }
+}
+</style>

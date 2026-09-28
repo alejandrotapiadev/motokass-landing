@@ -1,0 +1,44 @@
+---
+import Icon from "../ui/Icon.astro";
+import ProductGrid from "../commerce/ProductGrid";
+import { getFeaturedEquipment } from "../../lib/catalog/equipment";
+import { EQUIPMENT_CATEGORIES } from "../../lib/catalog/equipment-categories";
+import { whatsappUrl } from "../../lib/site";
+
+const { products, source } = await getFeaturedEquipment(4);
+const icons = Object.fromEntries(EQUIPMENT_CATEGORIES.map((c) => [c.slug, c.icon]));
+---
+
+<section class="section section--alt" aria-labelledby="featured-eq-title">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Selección MOTOKASS</span>
+        <h2 id="featured-eq-title">Equipamiento destacado</h2>
+        <p>Productos seleccionados para acompañarte en cada ruta.</p>
+      </div>
+      {products.length > 0 && <a href="/equipamiento" class="link-arrow">Ver equipamiento <Icon name="arrow-right" size={14} /></a>}
+    </div>
+
+    {source === "mock" && <p class="dev-mock-banner">Datos DEMO de desarrollo — no son productos reales</p>}
+
+    {products.length > 0 ? (
+      <ProductGrid products={products} icons={icons} client:visible />
+    ) : (
+      <div class="empty-state">
+        <strong>Nuestro catálogo online de equipamiento llega muy pronto.</strong>
+        Mientras tanto, pregúntanos por cascos, guantes, chaquetas o botas: te decimos qué tenemos en tienda.
+        <div class="empty-state__ctas">
+          <a href={whatsappUrl("Hola, quería consultar por equipamiento: ")} class="btn btn--dark" target="_blank" rel="noopener noreferrer" data-track="click_whatsapp" data-track-location="home_equipment_empty">
+            <Icon name="whatsapp" size={18} /> Consultar por WhatsApp
+          </a>
+        </div>
+      </div>
+    )}
+  </div>
+</section>
+
+<style>
+.empty-state__ctas { margin-top: 1.25rem; display: flex; justify-content: center; }
+.empty-state { background: #fff; }
+</style>

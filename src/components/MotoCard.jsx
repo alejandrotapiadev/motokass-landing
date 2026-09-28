@@ -1,3 +1,6 @@
+import { formatPriceRound } from '../lib/catalog/types';
+import './MotoCard.css';
+
 const CC_ESTANDAR = [50, 125, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000, 1100, 1200, 1300];
 
 function redondearCC(cc) {
@@ -8,145 +11,62 @@ function redondearCC(cc) {
   return `${nearest} cc`;
 }
 
-export default function MotoCard({ marca, nombre, precio, imagen, stock = true, nuevo = false, specs = {} }) {
+/**
+ * Tarjeta de moto. El enlace a la ficha lo pone el contenedor
+ * (FilteredMotoList, home…), la tarjeta solo pinta.
+ *
+ * @param {{
+ *   marca: string, nombre: string, imagen: string,
+ *   precio?: number | null, stock?: boolean, nuevo?: boolean,
+ *   specs?: Record<string, any>, categoria?: string | null,
+ *   subcategoria?: string | null, priority?: boolean,
+ *   [key: string]: any
+ * }} props
+ */
+export default function MotoCard({
+  marca, nombre, precio = null, imagen, stock = true, nuevo = false, specs = {},
+  categoria = null, subcategoria = null, priority = false,
+}) {
   const cilindrada = redondearCC(specs?.cilindrada_cc);
+  const tipo = subcategoria || categoria;
+  const electrica = specs?.potencia_kw != null && !specs?.cilindrada_cc;
   return (
-    <>
       <div className={`moto-card${!stock ? " moto-card--agotada" : ""}`}>
         <div className="moto-card__img-wrapper">
           {imagen && (
             <img
               src={imagen}
               alt={nombre}
-              loading="lazy"
+              loading={priority ? 'eager' : 'lazy'}
               decoding="async"
-              width="400"
-              height="220"
+              width="640"
+              height="400"
             />
           )}
-          {!stock && <span className="badge-agotada">Sin stock</span>}
-          {nuevo && stock && <span className="badge-nuevo">Nuevo</span>}
+          <div className="moto-card__badges">
+            {nuevo && stock && <span className="badge-nuevo">Nuevo</span>}
+            {!stock && <span className="badge-agotada">Sin stock</span>}
+          </div>
         </div>
 
         <div className="moto-info">
-          <span className={`moto-brand ${marca.toLowerCase()}`}>{marca}</span>
+          <div className="moto-info__top">
+            <span className={`moto-brand ${marca.toLowerCase()}`}>{marca}</span>
+            {tipo && <span className="moto-tipo">{tipo}</span>}
+          </div>
           <h3>{nombre}</h3>
-          {cilindrada && <span className="moto-cc">{cilindrada}</span>}
-          <span className="price">Consultar precio</span>
+          <div className="moto-meta">
+            {cilindrada && <span className="moto-cc">{cilindrada}</span>}
+            {electrica && <span className="moto-cc">{specs.potencia_kw} kW</span>}
+            <span className={`moto-stock${stock ? '' : ' moto-stock--no'}`}>{stock ? 'Disponible' : 'Consultar disponibilidad'}</span>
+          </div>
+          <div className="moto-foot">
+            {precio != null
+              ? <span className="price"><small>PVP</small> {formatPriceRound(precio)}</span>
+              : <span className="price price--ask">Consultar precio</span>}
+            <span className="moto-cta" aria-hidden="true">Ver moto →</span>
+          </div>
         </div>
       </div>
-
-      <style>
-        {`
-        .moto-card {
-          background: white;
-          border-radius: 1rem;
-          overflow: hidden;
-          box-shadow: 0 10px 24px rgba(0,0,0,0.08);
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
-          display: flex;
-          flex-direction: column;
-          height: 350px;
-        }
-
-        .moto-card:hover {
-          transform: translateY(-6px);
-          box-shadow: 0 20px 40px rgba(0,0,0,0.12);
-        }
-
-        .moto-card--agotada {
-          opacity: 0.75;
-        }
-
-        .moto-card--agotada:hover {
-          transform: none;
-          box-shadow: 0 10px 24px rgba(0,0,0,0.08);
-        }
-
-        .moto-card__img-wrapper {
-          position: relative;
-          height: 220px;
-          overflow: hidden;
-          background: #f1f5f9;
-        }
-
-        .moto-card__img-wrapper img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-
-        .badge-agotada {
-          position: absolute;
-          top: 10px;
-          right: 10px;
-          background: #6b7280;
-          color: white;
-          font-size: 0.72rem;
-          font-weight: 700;
-          text-transform: uppercase;
-          padding: 0.25rem 0.65rem;
-          border-radius: 999px;
-          letter-spacing: 0.5px;
-        }
-
-        .badge-nuevo {
-          position: absolute;
-          top: 10px;
-          left: 10px;
-          background: #16a34a;
-          color: white;
-          font-size: 0.72rem;
-          font-weight: 700;
-          text-transform: uppercase;
-          padding: 0.25rem 0.65rem;
-          border-radius: 999px;
-          letter-spacing: 0.5px;
-        }
-
-        .moto-info {
-          padding: 1rem;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-        }
-
-        .moto-info h3 {
-          font-size: 1.1rem;
-          margin: 0.25rem 0;
-          color: #1e293b;
-        }
-
-        .moto-brand {
-          font-size: 0.75rem;
-          font-weight: 700;
-          text-transform: uppercase;
-          display: inline-block;
-          margin-bottom: 0.4rem;
-          padding: 0.2rem 0.5rem;
-          border-radius: 0.25rem;
-          color: white;
-          letter-spacing: 0.5px;
-        }
-
-        .moto-brand.sherco { background: #0d9488; }
-        .moto-brand.rieju  { background: #dc2626; }
-
-        .moto-cc {
-          font-size: 0.8rem;
-          color: #64748b;
-          font-weight: 600;
-          margin-bottom: 0.25rem;
-        }
-
-        .price {
-          font-weight: 700;
-          font-size: 1.1rem;
-          color: #1F3F7A;
-        }
-        `}
-      </style>
-    </>
   );
 }

@@ -1,0 +1,189 @@
+---
+import MainLayout from "../../../layouts/MainLayout.astro";
+import Breadcrumbs from "../../../components/ui/Breadcrumbs.astro";
+import ProductDetail from "../../../components/commerce/ProductDetail";
+import ProductGrid from "../../../components/commerce/ProductGrid";
+import StoreTrust from "../../../components/commerce/StoreTrust.astro";
+import { getCategory, EQUIPMENT_CATEGORIES } from "../../../lib/catalog/equipment-categories";
+import { getEquipmentBySlug, getRelatedEquipment, getComplementaryEquipment } from "../../../lib/catalog/equipment";
+import { AVAILABILITY_SCHEMA } from "../../../lib/catalog/types";
+import { getHelpTopics } from "../../../lib/commerce/help-topics";
+import { STORE_CONFIG } from "../../../lib/commerce/store-config";
+import { whatsappUrl, SITE } from "../../../lib/site";
+
+const category = getCategory(Astro.params.categoria ?? "");
+if (!category) return Astro.rewrite("/404");
+const { product } = await getEquipmentBySlug(category.slug, Astro.params.producto ?? "");
+if (!product) return Astro.rewrite("/404");
+
+const [related, complementary] = await Promise.all([getRelatedEquipment(product, 4), getComplementaryEquipment(product, 4)]);
+const icons = Object.fromEntries(EQUIPMENT_CATEGORIES.map((c) => [c.slug, c.icon]));
+const pageUrl = new URL(product.url, SITE.url).toString();
+const helpTopics = getHelpTopics();
+const shippingTopic = helpTopics.find((t) => t.slug === "envios");
+const returnsTopic = helpTopics.find((t) => t.slug === "devoluciones");
+
+// Product schema (solo con datos existentes; sin inventar valoraciones)
+const productSchema = {
+  "@context": "https://schema.org",
+  "@type": "Product",
+  name: product.name,
+  description: product.description || undefined,
+  image: product.images.length ? product.images : undefined,
+  sku: product.sku ?? undefined,
+  gtin13: product.ean ?? undefined,
+  brand: { "@type": "Brand", name: product.brand },
+  category: category.name,
+  color: product.colors.map((c) => c.name).join(", ") || undefined,
+  ...(product.rating != null && product.reviewCount > 0
+    ? { aggregateRating: { "@type": "AggregateRating", ratingValue: product.rating, reviewCount: product.reviewCount } }
+    : {}),
+  offers: {
+    "@type": "Offer",
+    url: pageUrl,
+    priceCurrency: "EUR",
+    price: product.price,
+    availability: AVAILABILITY_SCHEMA[product.availability],
+    itemCondition: "https://schema.org/NewCondition",
+    seller: { "@type": "Organization", name: SITE.name },
+  },
+};
+
+const sections = [
+  { id: "descripcion", title: "Descripción", body: product.description ? [product.description] : [] },
+  { id: "caracteristicas", title: "Características", list: product.features },
+  { id: "materiales", title: "Materiales", list: product.materials },
+  { id: "tecnologia", title: "Tecnología", list: product.technology },
+].filter((s) => (s.body?.length ?? 0) + (s.list?.length ?? 0) > 0);
+
+const sizeHelpUrl = whatsappUrl(`Hola, tengo una duda sobre la talla de ${product.brand} ${product.name}: `);
+---
+
+<MainLayout
+  title={`${product.name} · ${product.brand} | ${category.name} | MOTOKASS`}
+  description={(product.description || `${product.name} de ${product.brand}. ${category.subtitle}`).slice(0, 155)}
+  ogImage={product.images[0] ?? undefined}
+  noindex={product.isMock === true}
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(productSchema)} />
+
+  <div class="container pdp">
+    {product.isMock && <p class="dev-mock-banner">Producto DEMO de desarrollo — no es un producto real</p>}
+    <Breadcrumbs
+      items={[
+        { label: "Inicio", href: "/" },
+        { label: "Equipamiento", href: "/equipamiento" },
+        { label: category.name, href: `/equipamiento/${category.slug}` },
+        { label: product.name },
+      ]}
+    />
+
+    <div class="pdp__main">
+      <ProductDetail
+        client:load
+        product={product}
+        categoryIcon={category.icon}
+        sizeHelpUrl={sizeHelpUrl}
+        sizeGuideUrl={STORE_CONFIG.sizeGuideAvailable ? "/ayuda/tallas" : null}
+      />
+    </div>
+
+    <div class="pdp__trust">
+      <StoreTrust variant="bar" />
+    </div>
+
+    <div class="pdp__info">
+      {sections.map((s, i) => (
+        <details class="acc" open={i === 0}>
+          <summary><h2>{s.title}</h2></summary>
+          <div class="acc__body">
+            {s.body?.map((p) => <p>{p}</p>)}
+            {s.list && s.list.length > 0 && <ul>{s.list.map((li) => <li>{li}</li>)}</ul>}
+          </div>
+        </details>
+      ))}
+
+      <details class="acc">
+        <summary><h2>Guía de tallas</h2></summary>
+        <div class="acc__body">
+          {STORE_CONFIG.sizeGuideAvailable ? (
+            <p><a href="/ayuda/tallas">Consulta la guía de tallas</a>.</p>
+          ) : (
+            <p>Cada marca talla de forma distinta. Si tienes dudas, <a href={sizeHelpUrl} target="_blank" rel="noopener noreferrer">escríbenos por WhatsApp</a> o ven a probártelo a nuestra tienda de Ávila.</p>
+          )}
+        </div>
+      </details>
+
+      <details class="acc">
+        <summary><h2>Envíos y devoluciones</h2></summary>
+        <div class="acc__body">
+          {shippingTopic ? shippingTopic.paragraphs.map((p) => <p>{p}</p>) : null}
+          {returnsTopic ? returnsTopic.paragraphs.map((p) => <p>{p}</p>) : null}
+          {!shippingTopic && !returnsTopic && (
+            <p>Consúltanos las opciones de entrega y cambio para este producto por WhatsApp, teléfono ({SITE.phoneDisplay}) o en nuestra tienda de Ávila.</p>
+          )}
+        </div>
+      </details>
+
+      {product.faq.length > 0 && (
+        <details class="acc">
+          <summary><h2>Preguntas frecuentes</h2></summary>
+          <div class="acc__body">
+            <dl>
+              {product.faq.map((f) => (
+                <>
+                  <dt>{f.q}</dt>
+                  <dd>{f.a}</dd>
+                </>
+              ))}
+            </dl>
+          </div>
+        </details>
+      )}
+    </div>
+  </div>
+
+  {related.length > 0 && (
+    <section class="section section--alt" aria-labelledby="related-title">
+      <div class="container">
+        <div class="section-head"><h2 id="related-title">Productos relacionados</h2></div>
+        <ProductGrid products={related} icons={icons} client:visible />
+      </div>
+    </section>
+  )}
+
+  {complementary.length > 0 && (
+    <section class="section" aria-labelledby="complete-title">
+      <div class="container">
+        <div class="section-head"><h2 id="complete-title">Completa tu equipamiento</h2></div>
+        <ProductGrid products={complementary} icons={icons} client:visible />
+      </div>
+    </section>
+  )}
+</MainLayout>
+
+<style>
+.pdp { padding-top: 1.25rem; padding-bottom: 2rem; }
+.pdp__main { margin-top: 1.25rem; }
+.pdp__trust { margin: 2.5rem 0 0; border-top: 1px solid var(--line); }
+.pdp__info { max-width: 860px; margin: 2rem 0 2rem; }
+.acc { border-bottom: 1px solid var(--line); }
+.acc summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.1rem 0;
+  cursor: pointer;
+  list-style: none;
+}
+.acc summary::-webkit-details-marker { display: none; }
+.acc summary::after { content: "+"; font-size: 1.5rem; font-weight: 300; }
+.acc[open] summary::after { content: "–"; }
+.acc h2 { font-size: 1.5rem; text-transform: uppercase; margin: 0; }
+.acc__body { padding: 0 0 1.5rem; color: var(--text-2); line-height: 1.7; }
+.acc__body p { margin: 0 0 .75rem; }
+.acc__body ul { margin: 0; padding-left: 1.2rem; }
+.acc__body a { color: var(--text); text-decoration: underline; }
+.acc__body dt { font-weight: 700; color: var(--text); margin-top: .75rem; }
+.acc__body dd { margin: .25rem 0 0; }
+</style>

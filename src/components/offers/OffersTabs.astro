@@ -1,0 +1,185 @@
+---
+/**
+ * Ofertas agrupadas por línea de negocio (tabs accesibles).
+ * Fuentes reales: motos con compareAtPrice, equipamiento rebajado (Supabase)
+ * y ofertas de taller (src/data/workshop-offers.ts). Nada inventado.
+ */
+import Icon from "../ui/Icon.astro";
+import MotoCard from "../MotoCard.jsx";
+import ProductGrid from "../commerce/ProductGrid";
+import { getMotorcycleOffers, toLegacyMoto } from "../../lib/catalog/motorcycles";
+import { getEquipmentOffers } from "../../lib/catalog/equipment";
+import { EQUIPMENT_CATEGORIES } from "../../lib/catalog/equipment-categories";
+import { getActiveWorkshopOffers } from "../../data/workshop-offers";
+import { formatPrice } from "../../lib/catalog/types";
+
+interface Props {
+  limit?: number;
+  id?: string;
+}
+const { limit = 4, id = "ofertas" } = Astro.props;
+
+const motos = getMotorcycleOffers().slice(0, limit);
+const { products: equipment, source } = await getEquipmentOffers(limit);
+const workshop = getActiveWorkshopOffers().slice(0, limit);
+const icons = Object.fromEntries(EQUIPMENT_CATEGORIES.map((c) => [c.slug, c.icon]));
+
+const tabs = [
+  { key: "motos", label: "Motos", count: motos.length },
+  { key: "equipamiento", label: "Equipamiento", count: equipment.length },
+  { key: "taller", label: "Taller", count: workshop.length },
+];
+const initial = tabs.find((t) => t.count > 0)?.key ?? "motos";
+---
+
+<div class="offers" data-tabs>
+  <div class="offers__tabs" role="tablist" aria-label="Tipo de oferta">
+    {tabs.map((t) => (
+      <button
+        type="button"
+        role="tab"
+        id={`${id}-tab-${t.key}`}
+        aria-controls={`${id}-panel-${t.key}`}
+        aria-selected={t.key === initial ? "true" : "false"}
+        tabindex={t.key === initial ? 0 : -1}
+        class="offers__tab"
+      >
+        {t.label}
+        <span class="offers__count">{t.count}</span>
+      </button>
+    ))}
+  </div>
+
+  <div role="tabpanel" id={`${id}-panel-motos`} aria-labelledby={`${id}-tab-motos`} hidden={initial !== "motos"} class="offers__panel">
+    {motos.length ? (
+      <ul class="offers__motos">
+        {motos.map((m) => <li><a href={m.url}><MotoCard {...toLegacyMoto(m)} /></a></li>)}
+      </ul>
+    ) : (
+      <div class="empty-state">
+        <strong>Ahora mismo no hay motos con precio rebajado.</strong>
+        Pregúntanos por las condiciones de financiación y disponibilidad de cualquier modelo.
+        <p><a href="/catalogo" class="link-arrow">Ver catálogo <Icon name="arrow-right" size={14} /></a></p>
+      </div>
+    )}
+  </div>
+
+  <div role="tabpanel" id={`${id}-panel-equipamiento`} aria-labelledby={`${id}-tab-equipamiento`} hidden={initial !== "equipamiento"} class="offers__panel">
+    {source === "mock" && equipment.length > 0 && <p class="dev-mock-banner">Datos DEMO de desarrollo</p>}
+    {equipment.length ? (
+      <ProductGrid products={equipment} icons={icons} client:visible />
+    ) : (
+      <div class="empty-state">
+        <strong>No hay equipamiento rebajado en este momento.</strong>
+        <p><a href="/equipamiento" class="link-arrow">Ver equipamiento <Icon name="arrow-right" size={14} /></a></p>
+      </div>
+    )}
+  </div>
+
+  <div role="tabpanel" id={`${id}-panel-taller`} aria-labelledby={`${id}-tab-taller`} hidden={initial !== "taller"} class="offers__panel">
+    {workshop.length ? (
+      <ul class="offers__workshop">
+        {workshop.map((o) => (
+          <li class="wo">
+            <Icon name={o.icon ?? "wrench"} size={28} />
+            <h3>{o.title}</h3>
+            <p>{o.description}</p>
+            <div class="wo__price">
+              <strong>{formatPrice(o.price)}</strong>
+              {o.regularPrice && <s>{formatPrice(o.regularPrice)}</s>}
+            </div>
+            <a href="/CitaPrevia" class="btn btn--dark btn--sm" data-track="book_workshop" data-track-location="offers">Pedir cita</a>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <div class="empty-state">
+        <strong>No hay promociones de taller activas.</strong>
+        Pide tu cita y te damos presupuesto sin compromiso.
+        <p><a href="/CitaPrevia" class="link-arrow" data-track="book_workshop" data-track-location="offers_empty">Pedir cita <Icon name="arrow-right" size={14} /></a></p>
+      </div>
+    )}
+  </div>
+</div>
+
+<style>
+.offers__tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 1.75rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.offers__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .9rem 1.25rem;
+  background: none;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-2);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.offers__tab[aria-selected="true"] { color: var(--text); border-bottom-color: var(--accent); }
+.offers__tab:hover { color: var(--text); }
+.offers__count {
+  font-family: var(--font-body);
+  font-size: .7rem;
+  font-weight: 800;
+  min-width: 22px;
+  padding: .15rem .4rem;
+  border-radius: 999px;
+  background: var(--paper-2);
+  color: var(--text-2);
+}
+.offers__tab[aria-selected="true"] .offers__count { background: var(--ink); color: #fff; }
+.offers__panel .empty-state p { margin: 1rem 0 0; }
+.offers__motos, .offers__workshop {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.25rem;
+}
+.wo { border: 1px solid var(--line); border-radius: var(--radius); padding: 1.5rem; display: grid; gap: .6rem; align-content: start; }
+.wo h3 { font-size: 1.4rem; text-transform: uppercase; margin: .25rem 0 0; }
+.wo p { color: var(--text-2); margin: 0; font-size: .92rem; line-height: 1.55; }
+.wo__price { display: flex; gap: .6rem; align-items: baseline; }
+.wo__price strong { font-size: 1.5rem; color: var(--accent); }
+.wo__price s { color: var(--text-2); }
+.wo .btn { justify-self: start; margin-top: .4rem; }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-tabs]").forEach((root) => {
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const select = (tab: HTMLButtonElement) => {
+      tabs.forEach((t) => {
+        const on = t === tab;
+        t.setAttribute("aria-selected", String(on));
+        t.tabIndex = on ? 0 : -1;
+        const panel = document.getElementById(t.getAttribute("aria-controls")!);
+        if (panel) panel.hidden = !on;
+      });
+    };
+    tabs.forEach((t, i) => {
+      t.addEventListener("click", () => select(t));
+      t.addEventListener("keydown", (e) => {
+        const dir = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+        if (!dir) return;
+        const next = tabs[(i + dir + tabs.length) % tabs.length];
+        select(next);
+        next.focus();
+      });
+    });
+  });
+</script>

@@ -8,12 +8,13 @@ export interface MotoFiltro {
 
 export function getTipoMotor(moto: MotoFiltro): '2T' | '4T' | 'Eléctrico' | null {
   const t = (moto.specs?.tipo_motor || '').toLowerCase();
+  // Primero combustión: "4T … con arranque eléctrico" (Sherco ST-E) no es eléctrica.
+  if (t.includes('2t') || t.includes('2 temps')) return '2T';
+  if (t.includes('4t') || t.includes('4 temps')) return '4T';
   if (
     t.includes('eléctrico') || t.includes('electrico') ||
     t.includes('shimano') || moto.specs?.potencia_kw != null
   ) return 'Eléctrico';
-  if (t.includes('2t') || t.includes('2 temps')) return '2T';
-  if (t.includes('4t') || t.includes('4 temps')) return '4T';
   return null;
 }
 

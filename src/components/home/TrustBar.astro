@@ -1,0 +1,61 @@
+---
+import Icon from "../ui/Icon.astro";
+import { TOTAL_MOTORCYCLES } from "../../lib/catalog/motorcycles";
+
+const modelos = Math.floor(TOTAL_MOTORCYCLES / 10) * 10;
+const items = [
+  { icon: "moto", title: `+${modelos} modelos`, text: "Rieju & Sherco" },
+  { icon: "euro", title: "Financiación", text: "Opciones para tu moto" },
+  { icon: "key", title: "Prueba de moto", text: "Súbete y pruébala" },
+  { icon: "wrench", title: "Taller propio", text: "Servicio multimarca" },
+];
+---
+
+<section class="trust" aria-label="Por qué comprar en MOTOKASS">
+  <ul class="container trust__list">
+    {items.map((i) => (
+      <li>
+        <Icon name={i.icon} size={30} strokeWidth={1.5} />
+        <div>
+          <strong>{i.title}</strong>
+          <span>{i.text}</span>
+        </div>
+      </li>
+    ))}
+  </ul>
+</section>
+
+<style>
+.trust { background: var(--graphite); color: #fff; border-top: 1px solid var(--line-dark); }
+.trust__list {
+  list-style: none;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+.trust li {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem 1rem;
+}
+.trust li + li { border-left: 1px solid var(--line-dark); }
+.trust :global(svg) { color: var(--accent); flex-shrink: 0; }
+.trust strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+.trust span { font-size: .85rem; color: var(--text-inv-2); }
+
+@media (max-width: 900px) {
+  .trust__list { grid-template-columns: repeat(2, 1fr); padding: 0; }
+  .trust li { padding: 1.1rem 1rem; }
+  .trust li:nth-child(3) { border-left: 0; }
+  .trust li:nth-child(n+3) { border-top: 1px solid var(--line-dark); }
+  .trust strong { font-size: 1.1rem; }
+}
+</style>

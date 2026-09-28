@@ -1,0 +1,88 @@
+---
+import Icon from "../ui/Icon.astro";
+import { getFeaturedMotorcycles } from "../../lib/catalog/motorcycles";
+
+// Foto real de catálogo (fabricante) para la prueba de moto
+const testRideMoto = getFeaturedMotorcycles(6).find((m) => m.brand === "Sherco") ?? getFeaturedMotorcycles(1)[0];
+---
+
+<section class="ftr" aria-label="Financiación y prueba de moto">
+  <div class="ftr__panel ftr__panel--finance">
+    <div class="ftr__inner">
+      <span class="eyebrow">Financiación</span>
+      <h2 class="display">Llévate tu moto.<br />Paga a tu ritmo.</h2>
+      <p>Te ayudamos a encontrar la opción de financiación que mejor encaja contigo. Cuéntanos qué moto te interesa y te preparamos un cálculo personalizado, sin compromiso.</p>
+      <a href="/contacto?asunto=financiacion" class="btn btn--light">
+        <Icon name="euro" size={18} /> Calcular financiación
+      </a>
+    </div>
+  </div>
+
+  <div class="ftr__panel ftr__panel--ride">
+    {testRideMoto?.images[0] && <img src={testRideMoto.images[0]} alt="" loading="lazy" decoding="async" width="960" height="600" />}
+    <div class="ftr__inner">
+      <span class="eyebrow">Prueba de moto</span>
+      <h2 class="display">No la imagines.<br />Pruébala.</h2>
+      <p>Reserva una prueba y súbete a la moto antes de decidir.</p>
+      <a href="/CitaPrevia?motivo=prueba" class="btn btn--accent" data-track="book_test_ride" data-track-location="home">
+        <Icon name="key" size={18} /> Reservar una prueba
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+.ftr { display: grid; grid-template-columns: 1fr 1fr; }
+.ftr__panel {
+  position: relative;
+  min-height: 480px;
+  display: flex;
+  align-items: flex-end;
+  color: #fff;
+  overflow: hidden;
+  isolation: isolate;
+}
+.ftr__panel--finance { background: var(--brand); }
+.ftr__panel--finance::before {
+  content: "€";
+  position: absolute;
+  right: -2rem;
+  top: -4rem;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 26rem;
+  line-height: 1;
+  color: rgba(255,255,255,.06);
+  z-index: -1;
+}
+.ftr__panel--ride { background: var(--ink); }
+.ftr__panel--ride img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+}
+.ftr__panel--ride::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(14,15,18,.1) 0%, rgba(14,15,18,.88) 75%);
+  z-index: -1;
+}
+.ftr__inner { padding: clamp(2rem, 5vw, 4rem); max-width: 620px; }
+.ftr h2 { font-size: clamp(2.4rem, 3.8vw, 3.6rem); margin: 0 0 1rem; }
+.ftr p { color: rgba(255,255,255,.8); line-height: 1.6; margin: 0 0 1.75rem; }
+.ftr__panel--finance .eyebrow { color: #fff; opacity: .75; }
+.ftr__panel--ride .eyebrow { color: #fff; opacity: .8; }
+
+@media (max-width: 900px) {
+  .ftr { grid-template-columns: 1fr; }
+  .ftr__panel { min-height: 380px; }
+  .ftr__panel--ride { min-height: 460px; }
+  .ftr__panel--ride img { object-position: center top; height: 60%; }
+  .ftr__panel--ride::after { background: linear-gradient(180deg, rgba(14,15,18,0) 20%, var(--ink) 58%); }
+  .ftr .btn { width: 100%; }
+}
+</style>

@@ -1,0 +1,156 @@
+---
+import { Image } from "astro:assets";
+import Icon from "../ui/Icon.astro";
+import cascosImg from "../../assets/img/equipamiento/cascos-tienda.png";
+import { getActiveCategories, categoryUrl } from "../../lib/catalog/equipment-categories";
+
+interface Props {
+  title?: string;
+  subtitle?: string;
+  headingLevel?: "h1" | "h2";
+}
+const {
+  title = "Equípate para disfrutar",
+  subtitle = "Todo lo que necesitas para salir en moto, en un solo lugar.",
+  headingLevel = "h2",
+} = Astro.props;
+const Heading = headingLevel;
+
+// Portadas reales disponibles. Añadir aquí nuevas fotos por categoría.
+const COVERS = { cascos: cascosImg } as const;
+
+const categories = getActiveCategories();
+---
+
+<section class="section eq-cats" aria-labelledby="eq-cats-title">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Tienda de equipamiento</span>
+        <Heading id="eq-cats-title">{title}</Heading>
+        <p>{subtitle}</p>
+      </div>
+      <a href="/equipamiento" class="link-arrow">Ver toda la tienda <Icon name="arrow-right" size={14} /></a>
+    </div>
+
+    <ul class="eq-grid">
+      {categories.map((c, i) => {
+        const cover = c.cover ? COVERS[c.cover] : null;
+        return (
+          <li class:list={["eq-tile", { "eq-tile--photo": cover, "eq-tile--lead": i === 0 }]}>
+            <a href={categoryUrl(c.slug)} aria-label={`Ver ${c.name.toLowerCase()}`}>
+              {cover ? (
+                <Image src={cover} alt={`${c.name} en la tienda MOTOKASS`} widths={[320, 480]} sizes="(max-width: 760px) 100vw, 40vw" loading="lazy" class="eq-tile__img" />
+              ) : (
+                <span class="eq-tile__icon"><Icon name={c.icon} size={120} strokeWidth={0.9} /></span>
+              )}
+              <span class="eq-tile__label">
+                <strong>{c.name}</strong>
+                <span class="eq-tile__btn">Ver {c.name.toLowerCase()} <Icon name="arrow-right" size={14} /></span>
+              </span>
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+</section>
+
+<style>
+.eq-cats .section-head h1, .eq-cats .section-head h2 {
+  font-size: clamp(2rem, 4.2vw, 3.25rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: .95;
+  margin: 0;
+}
+.eq-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr;
+  grid-template-rows: repeat(2, minmax(220px, 1fr));
+  gap: 1rem;
+}
+.eq-tile--lead { grid-row: span 2; }
+.eq-tile a {
+  position: relative;
+  display: block;
+  height: 100%;
+  min-height: 220px;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: var(--graphite);
+  color: #fff;
+  isolation: isolate;
+}
+.eq-tile:nth-child(odd):not(.eq-tile--photo) a { background: var(--graphite-2); }
+.eq-tile__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .6s var(--ease);
+}
+.eq-tile--photo a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(14,15,18,0) 40%, rgba(14,15,18,.85) 100%);
+}
+.eq-tile__icon {
+  position: absolute;
+  top: 50%;
+  right: 8%;
+  transform: translateY(-58%);
+  color: rgba(255,255,255,.22);
+  transition: color .3s, transform .5s var(--ease);
+}
+.eq-tile a:hover .eq-tile__img { transform: scale(1.05); }
+.eq-tile a:hover .eq-tile__icon { color: rgba(255,255,255,.45); transform: translateY(-58%) scale(1.05); }
+.eq-tile__label {
+  position: absolute;
+  z-index: 1;
+  left: 1.25rem;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  display: grid;
+  gap: .6rem;
+}
+.eq-tile__label strong {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3.2vw, 2.8rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: .9;
+}
+.eq-tile--lead .eq-tile__label strong { font-size: clamp(2.6rem, 4.5vw, 4rem); }
+.eq-tile__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  justify-self: start;
+  font-size: .75rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  padding: .6rem .9rem;
+  background: #fff;
+  color: var(--ink);
+  border-radius: 2px;
+  transition: background .2s, color .2s;
+}
+.eq-tile a:hover .eq-tile__btn { background: var(--accent); color: #fff; }
+
+@media (max-width: 900px) {
+  .eq-grid { grid-template-columns: 1fr 1fr; grid-template-rows: none; }
+  .eq-tile--lead { grid-column: span 2; grid-row: auto; }
+  .eq-tile--lead a { min-height: 320px; }
+  .eq-tile a { min-height: 180px; aspect-ratio: auto; }
+  .eq-tile__icon :global(svg) { width: 84px; height: 84px; }
+  .eq-tile__label { left: 1rem; right: 1rem; bottom: 1rem; }
+  .eq-tile__btn { padding: .5rem .6rem; font-size: .62rem; letter-spacing: .06em; white-space: nowrap; }
+}
+</style>

@@ -1,0 +1,58 @@
+---
+import Icon from "../ui/Icon.astro";
+import { SITE, directionsUrl } from "../../lib/site";
+
+const embedUrl = `https://www.google.com/maps?q=${SITE.geo.lat},${SITE.geo.lng}&hl=es&z=16&output=embed`;
+---
+
+<section class="loc" aria-labelledby="loc-title">
+  <div class="loc__info">
+    <span class="eyebrow">Tienda y taller</span>
+    <h2 id="loc-title" class="display">Ven a conocernos</h2>
+    <ul class="loc__list">
+      <li>
+        <Icon name="pin" size={20} />
+        <span>{SITE.address.street}<br />{SITE.address.postalCode} {SITE.address.city}</span>
+      </li>
+      <li>
+        <Icon name="clock" size={20} />
+        <span class="loc__hours">
+          {SITE.schedule.map((s) => <span><em>{s.days}</em> {s.hours}</span>)}
+        </span>
+      </li>
+      <li>
+        <Icon name="phone" size={20} />
+        <a href={`tel:${SITE.phone}`} data-track="click_call" data-track-location="home_location">{SITE.phoneDisplay}</a>
+      </li>
+    </ul>
+    <div class="loc__ctas">
+      <a href={directionsUrl} target="_blank" rel="noopener noreferrer" class="btn btn--light">Cómo llegar</a>
+      <a href="/contacto" class="btn btn--outline-light">Contactar</a>
+    </div>
+  </div>
+  <div class="loc__map">
+    <iframe src={embedUrl} title="Ubicación de MOTOKASS en Google Maps" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+  </div>
+</section>
+
+<style>
+.loc { display: grid; grid-template-columns: minmax(320px, 5fr) 7fr; background: var(--ink); color: #fff; }
+.loc__info { padding: clamp(2.5rem, 6vw, 5rem) clamp(1.25rem, 5vw, 4rem); }
+.loc h2 { font-size: clamp(2.5rem, 5vw, 4rem); margin: 0 0 2rem; }
+.loc__list { list-style: none; margin: 0 0 2.25rem; padding: 0; display: grid; gap: 1.25rem; }
+.loc__list li { display: flex; gap: .85rem; align-items: flex-start; line-height: 1.5; }
+.loc__list :global(svg) { color: var(--accent); flex-shrink: 0; margin-top: 2px; }
+.loc__list a { font-weight: 700; }
+.loc__hours { display: grid; gap: .2rem; }
+.loc__hours em { font-style: normal; color: var(--text-inv-2); display: inline-block; min-width: 9.5rem; }
+.loc__ctas { display: flex; gap: .75rem; flex-wrap: wrap; }
+.loc__map { min-height: 420px; background: var(--graphite); }
+.loc__map iframe { width: 100%; height: 100%; border: 0; display: block; filter: grayscale(.35); }
+
+@media (max-width: 900px) {
+  .loc { grid-template-columns: 1fr; }
+  .loc__map { min-height: 300px; }
+  .loc__ctas .btn { flex: 1; }
+  .loc__hours em { min-width: 0; display: block; }
+}
+</style>

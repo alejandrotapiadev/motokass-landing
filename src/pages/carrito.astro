@@ -1,0 +1,23 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+import Breadcrumbs from "../components/ui/Breadcrumbs.astro";
+import CartPage from "../components/commerce/CartPage";
+import StoreTrust from "../components/commerce/StoreTrust.astro";
+import { getWhatsappNumber } from "../lib/site";
+---
+
+<MainLayout title="Carrito | MOTOKASS" description="Tu carrito de compra en MOTOKASS." noindex>
+  <section class="section cart-page">
+    <div class="container">
+      <Breadcrumbs items={[{ label: "Inicio", href: "/" }, { label: "Carrito" }]} />
+      <h1 class="display">Tu carrito</h1>
+      <CartPage client:load whatsappNumber={getWhatsappNumber()} />
+    </div>
+  </section>
+  <StoreTrust />
+</MainLayout>
+
+<style>
+.cart-page { padding-top: 1.5rem; }
+.cart-page h1 { font-size: clamp(2.6rem, 6vw, 4.5rem); margin: 1.25rem 0 2rem; }
+</style>

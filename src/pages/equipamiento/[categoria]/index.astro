@@ -1,0 +1,168 @@
+---
+import MainLayout from "../../../layouts/MainLayout.astro";
+import Breadcrumbs from "../../../components/ui/Breadcrumbs.astro";
+import EquipmentListing from "../../../components/commerce/EquipmentListing";
+import StoreTrust from "../../../components/commerce/StoreTrust.astro";
+import Icon from "../../../components/ui/Icon.astro";
+import { getCategory, getActiveCategories, categoryUrl } from "../../../lib/catalog/equipment-categories";
+import { getEquipmentByCategory } from "../../../lib/catalog/equipment";
+import { whatsappUrl } from "../../../lib/site";
+
+const category = getCategory(Astro.params.categoria ?? "");
+if (!category) return Astro.rewrite("/404");
+
+const { products, source } = await getEquipmentByCategory(category.slug);
+const siblings = getActiveCategories().filter((c) => c.slug !== category.slug);
+
+// Si viene ?tipo=integral, afinamos el H1 sin cambiar la URL canónica.
+const tipo = Astro.url.searchParams.get("tipo");
+const tipoLabel = tipo ? category.types.find((t) => t.value === tipo)?.label : null;
+const h1 = tipoLabel ? `${category.h1} ${tipoLabel.toLowerCase()}` : category.h1;
+
+const itemList = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  name: category.h1,
+  numberOfItems: products.length,
+  itemListElement: products.slice(0, 30).map((p, i) => ({
+    "@type": "ListItem",
+    position: i + 1,
+    url: new URL(p.url, "https://motokass.com").toString(),
+    name: p.name,
+  })),
+};
+---
+
+<MainLayout title={category.seo.title} description={category.seo.description} noindex={source === "mock"}>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(itemList)} />
+
+  <section class="cat-head">
+    <div class="container">
+      <Breadcrumbs
+        items={[
+          { label: "Inicio", href: "/" },
+          { label: "Equipamiento", href: "/equipamiento" },
+          { label: category.name },
+        ]}
+      />
+      <div class="cat-head__row">
+        <div>
+          <h1 class="display">{h1}</h1>
+          <p class="cat-head__sub">{category.subtitle}</p>
+        </div>
+        <span class="cat-head__icon" aria-hidden="true"><Icon name={category.icon} size={96} strokeWidth={0.9} /></span>
+      </div>
+      {category.types.length > 0 && (
+        <nav class="cat-types" aria-label={`Tipos de ${category.name.toLowerCase()}`}>
+          <a href={categoryUrl(category.slug)} aria-current={!tipo ? "page" : undefined}>Todos</a>
+          {category.types.map((t) => (
+            <a href={categoryUrl(category.slug, t.value)} aria-current={tipo === t.value ? "page" : undefined}>{t.label}</a>
+          ))}
+        </nav>
+      )}
+    </div>
+  </section>
+
+  <section class="cat-body">
+    <div class="container">
+      {source === "mock" && <p class="dev-mock-banner">Datos DEMO de desarrollo — no son productos reales</p>}
+
+      {products.length > 0 ? (
+        <EquipmentListing
+          client:load
+          products={products}
+          categorySlug={category.slug}
+          categoryName={category.name}
+          categoryIcon={category.icon}
+          types={category.types}
+          sizeScale={category.sizeScale}
+          initialQuery={Astro.url.searchParams.toString()}
+        />
+      ) : (
+        <div class="empty-state">
+          <strong>Muy pronto verás aquí nuestros {category.name.toLowerCase()}.</strong>
+          Mientras tanto, consúltanos disponibilidad y tallas: te atendemos por WhatsApp o en la tienda.
+          <p style="margin-top:1rem">
+            <a href={whatsappUrl(`Hola, quería consultar por ${category.name.toLowerCase()}: `)} class="btn btn--dark" target="_blank" rel="noopener noreferrer" data-track="click_whatsapp" data-track-location={`category_${category.slug}_empty`}>
+              <Icon name="whatsapp" size={18} /> Consultar {category.name.toLowerCase()}
+            </a>
+          </p>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <section class="section section--alt cat-seo">
+    <div class="container cat-seo__grid">
+      <div>
+        <h2>{category.name} en MOTOKASS Ávila</h2>
+        <p>{category.intro}</p>
+      </div>
+      <StoreTrust variant="compact" />
+    </div>
+  </section>
+
+  <section class="section cat-more" aria-labelledby="more-cats">
+    <div class="container">
+      <h2 id="more-cats">Completa tu equipamiento</h2>
+      <ul>
+        {siblings.map((c) => (
+          <li>
+            <a href={categoryUrl(c.slug)}>
+              <Icon name={c.icon} size={40} strokeWidth={1.2} />
+              <span>{c.name}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+</MainLayout>
+
+<style>
+.cat-head { padding: 1.5rem 0 1rem; }
+.cat-head__row { display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; margin: 1.5rem 0 1.25rem; }
+.cat-head h1 { font-size: clamp(2.6rem, 6.5vw, 5rem); margin: 0 0 .5rem; }
+.cat-head__sub { color: var(--text-2); font-size: 1.05rem; margin: 0; max-width: 60ch; }
+.cat-head__icon { color: var(--line); }
+.cat-types { display: flex; gap: .5rem; overflow-x: auto; scrollbar-width: none; padding-bottom: .25rem; }
+.cat-types a {
+  white-space: nowrap;
+  padding: .55rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: .85rem;
+  font-weight: 600;
+}
+.cat-types a:hover { border-color: var(--ink); }
+.cat-types a[aria-current="page"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+.cat-body { padding: 1rem 0 4rem; }
+
+.cat-seo__grid { display: grid; grid-template-columns: 2fr 1fr; gap: 3rem; align-items: start; }
+.cat-seo h2 { font-size: 2rem; text-transform: uppercase; }
+.cat-seo p { color: var(--text-2); line-height: 1.7; margin: 0; }
+
+.cat-more h2 { font-size: 2rem; text-transform: uppercase; margin-bottom: 1.5rem; }
+.cat-more ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
+.cat-more a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .75rem;
+  padding: 1.75rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  transition: border-color .2s;
+}
+.cat-more a:hover { border-color: var(--ink); }
+
+@media (max-width: 760px) {
+  .cat-head__icon { display: none; }
+  .cat-seo__grid { grid-template-columns: 1fr; gap: 1.5rem; }
+  .cat-more ul { grid-template-columns: repeat(2, 1fr); }
+}
+</style>

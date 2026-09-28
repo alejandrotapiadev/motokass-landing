@@ -1,0 +1,71 @@
+---
+import { getCollection } from "astro:content";
+import Icon from "../ui/Icon.astro";
+import { readingTime } from "../../lib/readingTime";
+
+const posts = (await getCollection("blog"))
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .slice(0, 3);
+---
+
+<section class="section" aria-labelledby="blog-title">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Blog</span>
+        <h2 id="blog-title">Consejos para motoristas</h2>
+        <p>Mantenimiento, rutas desde Ávila y novedades del catálogo.</p>
+      </div>
+      <a href="/blog" class="link-arrow">Ver todos los artículos <Icon name="arrow-right" size={14} /></a>
+    </div>
+
+    <ul class="bt">
+      {posts.map((post) => (
+        <li>
+          <a href={`/blog/${post.id.replace(/\.md$/, "")}`} class="bt__card">
+            <span class="bt__img">
+              <img src={post.data.image} alt={post.data.imageAlt} loading="lazy" decoding="async" width="640" height="360" />
+            </span>
+            <span class="bt__meta">{post.data.category} · {readingTime(post.body ?? "")} min</span>
+            <h3>{post.data.title}</h3>
+            <p>{post.data.description}</p>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+.bt { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+.bt__card { display: grid; gap: .6rem; }
+.bt__img { display: block; aspect-ratio: 16 / 9; overflow: hidden; border-radius: var(--radius); background: var(--paper-2); }
+.bt__img img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s var(--ease); }
+.bt__card:hover img { transform: scale(1.04); }
+.bt__meta { font-size: .72rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-top: .4rem; }
+.bt h3 { font-size: 1.5rem; text-transform: uppercase; margin: 0; }
+.bt__card:hover h3 { text-decoration: underline; text-decoration-thickness: 2px; }
+.bt p {
+  margin: 0;
+  color: var(--text-2);
+  font-size: .92rem;
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+@media (max-width: 900px) {
+  .bt {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 80%;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    margin: 0 calc(var(--gutter) * -1);
+    padding: 0 var(--gutter) .5rem;
+    scrollbar-width: none;
+  }
+  .bt li { scroll-snap-align: start; }
+}
+</style>

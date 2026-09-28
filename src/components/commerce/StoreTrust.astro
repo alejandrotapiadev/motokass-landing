@@ -1,0 +1,46 @@
+---
+/** Argumentos de confianza de la tienda: solo los que son verdad hoy (ver store-config.ts). */
+import Icon from "../ui/Icon.astro";
+import { getStoreTrustPoints } from "../../lib/commerce/store-config";
+
+interface Props {
+  variant?: "bar" | "compact";
+}
+const { variant = "bar" } = Astro.props;
+const points = getStoreTrustPoints();
+---
+
+<ul class:list={["st", `st--${variant}`]}>
+  {points.map((p) => (
+    <li>
+      <Icon name={p.icon} size={variant === "bar" ? 26 : 20} strokeWidth={1.5} />
+      <span><strong>{p.title}</strong> <span>{p.text}</span></span>
+    </li>
+  ))}
+</ul>
+
+<style>
+.st { list-style: none; margin: 0; padding: 0; }
+.st--bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  border-bottom: 1px solid var(--line);
+  max-width: var(--container-width);
+  margin: 0 auto;
+}
+.st--bar li { display: flex; align-items: center; gap: .85rem; padding: 1.25rem var(--gutter); }
+.st--bar strong { display: block; font-size: .9rem; }
+.st--bar li > span > span { font-size: .82rem; color: var(--text-2); }
+.st :global(svg) { color: var(--brand); flex-shrink: 0; }
+
+.st--compact { display: grid; gap: .6rem; }
+.st--compact li { display: flex; align-items: center; gap: .6rem; font-size: .88rem; }
+.st--compact li > span > span { color: var(--text-2); }
+.st--compact li > span > span::before { content: "· "; }
+
+@media (max-width: 640px) {
+  .st--bar { grid-template-columns: 1fr 1fr; }
+  .st--bar li { padding: .9rem 1rem; gap: .6rem; }
+  .st--bar li > span > span { display: none; }
+}
+</style>

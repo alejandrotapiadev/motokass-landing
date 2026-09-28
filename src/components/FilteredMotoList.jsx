@@ -99,9 +99,18 @@ function CustomSelect({ value, onChange, options, placeholder }) {
 
 /* ── FilteredMotoList ────────────────────────────────────────────── */
 
-export default function FilteredMotoList({ motos }) {
+/**
+ * @param {{
+ *   motos: any[],
+ *   segmentos?: { value: string, label: string }[],
+ *   initialSegmento?: string,
+ *   initialMarca?: string
+ * }} props
+ */
+export default function FilteredMotoList({ motos, segmentos = [], initialSegmento = '', initialMarca = '' }) {
   const [busqueda,    setBusqueda]    = useState('');
-  const [marca,       setMarca]       = useState('');
+  const [segmento,    setSegmento]    = useState(initialSegmento);
+  const [marca,       setMarca]       = useState(initialMarca);
   const [categoria,   setCategoria]   = useState('');
   const [cilindrada,  setCilindrada]  = useState('');
   const [tipoMotor,   setTipoMotor]   = useState('');
@@ -117,24 +126,35 @@ export default function FilteredMotoList({ motos }) {
   const filtradas = useMemo(() => motos.filter(m => {
     const q = busqueda.toLowerCase();
     return (!q        || m.nombre.toLowerCase().includes(q) || m.marca.toLowerCase().includes(q))
+        && (!segmento  || (m.segmentos ?? []).includes(segmento))
         && (!marca     || m.marca === marca)
         && (!categoria || m.categoria === categoria)
         && (!cilindrada || getRangoCilindrada(m) === cilindrada)
         && (!tipoMotor  || getTipoMotor(m) === tipoMotor)
         && (!soloStock  || m.stock !== false)
       && (!soloNuevo  || m.nuevo === true);
-  }), [busqueda, marca, categoria, cilindrada, tipoMotor, soloStock, soloNuevo, motos]);
+  }), [busqueda, segmento, marca, categoria, cilindrada, tipoMotor, soloStock, soloNuevo, motos]);
 
   useEffect(() => { setPagina(1); },
-    [busqueda, marca, categoria, cilindrada, tipoMotor, soloStock, soloNuevo]);
+    [busqueda, segmento, marca, categoria, cilindrada, tipoMotor, soloStock, soloNuevo]);
+
+  // Mantiene ?segmento= en la URL para que sea compartible (enlaces de la home)
+  const primerRender = useRef(true);
+  useEffect(() => {
+    if (primerRender.current) { primerRender.current = false; return; }
+    if (typeof window === 'undefined') return;
+    const url = new URL(window.location.href);
+    if (segmento) url.searchParams.set('segmento', segmento); else url.searchParams.delete('segmento');
+    window.history.replaceState(null, '', url.pathname + url.search);
+  }, [segmento]);
 
   const totalPag  = Math.max(1, Math.ceil(filtradas.length / MOTOS_POR_PAGINA));
   const inicio    = (pagina - 1) * MOTOS_POR_PAGINA;
   const pagMoots  = filtradas.slice(inicio, inicio + MOTOS_POR_PAGINA);
-  const hayFiltros = busqueda || marca || categoria || cilindrada || tipoMotor || soloStock || soloNuevo;
+  const hayFiltros = busqueda || segmento || marca || categoria || cilindrada || tipoMotor || soloStock || soloNuevo;
 
   const irA = (n) => { setPagina(n); gridRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
-  const limpiar = () => { setBusqueda(''); setMarca(''); setCategoria(''); setCilindrada(''); setTipoMotor(''); setSoloStock(false); setSoloNuevo(false); };
+  const limpiar = () => { setBusqueda(''); setSegmento(''); setMarca(''); setCategoria(''); setCilindrada(''); setTipoMotor(''); setSoloStock(false); setSoloNuevo(false); };
 
   return (
     <>
@@ -150,6 +170,9 @@ export default function FilteredMotoList({ motos }) {
             onInput={(e) => setBusqueda(e.target.value)}
             className="filtro-search"
           />
+          {segmentos.length > 0 && (
+            <CustomSelect value={segmento} onChange={setSegmento} options={segmentos} placeholder="Todos los tipos" />
+          )}
           <CustomSelect value={marca}    onChange={setMarca}    options={opcionesMarca}     placeholder="Todas las marcas" />
           <CustomSelect value={categoria} onChange={setCategoria} options={opcionesCategoria} placeholder="Todas las categorías" />
           <CustomSelect value={cilindrada} onChange={setCilindrada} options={RANGOS_CC}        placeholder="Cilindrada" />
@@ -221,8 +244,8 @@ export default function FilteredMotoList({ motos }) {
         .filtro-wrap {
           background: white;
           padding: 1.25rem 1.5rem 1rem;
-          border-radius: 1rem;
-          box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+          border-radius: var(--radius);
+          border: 1px solid var(--line);
           margin-bottom: 2rem;
           display: flex;
           flex-direction: column;
@@ -251,7 +274,7 @@ export default function FilteredMotoList({ motos }) {
           flex: 2;
           min-width: 200px;
           padding: 0.65rem 1rem;
-          border-radius: 0.6rem;
+          border-radius: var(--radius);
           border: 1.5px solid #e5e7eb;
           font-size: 0.92rem;
           color: #1e293b;
@@ -260,7 +283,7 @@ export default function FilteredMotoList({ motos }) {
         }
         .filtro-search:focus {
           outline: none;
-          border-color: #1F3F7A;
+          border-color: var(--ink);
           background: white;
         }
 
@@ -277,7 +300,7 @@ export default function FilteredMotoList({ motos }) {
           align-items: center;
           gap: 0.5rem;
           padding: 0.65rem 0.9rem;
-          border-radius: 0.6rem;
+          border-radius: var(--radius);
           border: 1.5px solid #e5e7eb;
           background: #fafafa;
           color: #1e293b;
@@ -288,15 +311,15 @@ export default function FilteredMotoList({ motos }) {
         }
         .csel__trigger:hover,
         .csel--open .csel__trigger {
-          border-color: #1F3F7A;
+          border-color: var(--ink);
           background: white;
         }
         .csel--open .csel__trigger {
           border-bottom-left-radius: 0;
           border-bottom-right-radius: 0;
-          box-shadow: 0 -2px 0 0 #1F3F7A inset;
+          box-shadow: 0 -2px 0 0 var(--ink) inset;
         }
-        .csel__val       { flex: 1; font-weight: 600; color: #1F3F7A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .csel__val       { flex: 1; font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .csel__placeholder { flex: 1; color: #9ca3af; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .csel__clear {
           color: #9ca3af;
@@ -315,11 +338,11 @@ export default function FilteredMotoList({ motos }) {
           top: calc(100% - 1px);
           left: 0; right: 0;
           background: white;
-          border: 1.5px solid #1F3F7A;
+          border: 1.5px solid var(--ink);
           border-top: none;
-          border-bottom-left-radius: 0.6rem;
-          border-bottom-right-radius: 0.6rem;
-          box-shadow: 0 8px 24px rgba(31,63,122,0.13);
+          border-bottom-left-radius: var(--radius);
+          border-bottom-right-radius: var(--radius);
+          box-shadow: 0 8px 24px rgba(14,15,18,0.12);
           z-index: 200;
           overflow: hidden;
           max-height: 260px;
@@ -349,11 +372,11 @@ export default function FilteredMotoList({ motos }) {
         }
         .csel__option:last-child { border-bottom: none; }
         .csel__option:hover:not(.csel__option--active) {
-          background: #EEF3FB;
-          color: #1F3F7A;
+          background: var(--paper-2);
+          color: var(--ink);
         }
         .csel__option--active {
-          background: #1F3F7A;
+          background: var(--ink);
           color: white;
           font-weight: 600;
         }
@@ -391,8 +414,8 @@ export default function FilteredMotoList({ motos }) {
           transition: all 0.15s;
           white-space: nowrap;
         }
-        .chip:hover  { border-color: #1F3F7A; color: #1F3F7A; background: #EEF3FB; }
-        .chip--on    { background: #1F3F7A; border-color: #1F3F7A; color: white; }
+        .chip:hover  { border-color: var(--ink); color: var(--ink); background: var(--paper-2); }
+        .chip--on    { background: var(--ink); border-color: var(--ink); color: white; }
 
         /* STOCK + LIMPIAR */
         .label-stock {
@@ -405,13 +428,13 @@ export default function FilteredMotoList({ motos }) {
           cursor: pointer;
           white-space: nowrap;
         }
-        .label-stock input { accent-color: #1F3F7A; width: 15px; height: 15px; cursor: pointer; }
+        .label-stock input { accent-color: var(--ink); width: 15px; height: 15px; cursor: pointer; }
         .btn-limpiar {
           background: #fef2f2;
           color: #dc2626;
           border: 1.5px solid #fecaca;
           padding: 0.5rem 1rem;
-          border-radius: 0.6rem;
+          border-radius: var(--radius);
           cursor: pointer;
           font-weight: 600;
           font-size: 0.85rem;
@@ -431,16 +454,16 @@ export default function FilteredMotoList({ motos }) {
         /* GRID */
         .motos-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-          gap: 2rem;
+          grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+          gap: 1.25rem;
           scroll-margin-top: 1rem;
         }
         .moto-link {
           display: block;
           text-decoration: none;
-          border-radius: 1rem;
+          border-radius: var(--radius);
         }
-        .moto-link:focus-visible { outline: 3px solid #1F3F7A; outline-offset: 2px; }
+        .moto-link:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
         .sin-resultados {
           grid-column: 1 / -1;
           text-align: center;
@@ -470,8 +493,8 @@ export default function FilteredMotoList({ motos }) {
           cursor: pointer;
           transition: all 0.15s;
         }
-        .pag-btn:hover:not(:disabled) { border-color: #1F3F7A; color: #1F3F7A; background: #EEF3FB; }
-        .pag-btn--on  { background: #1F3F7A; border-color: #1F3F7A; color: white; }
+        .pag-btn:hover:not(:disabled) { border-color: var(--ink); color: var(--ink); background: var(--paper-2); }
+        .pag-btn--on  { background: var(--ink); border-color: var(--ink); color: white; }
         .pag-btn--arrow { font-size: 1.25rem; line-height: 1; }
         .pag-btn:disabled { opacity: 0.3; cursor: not-allowed; }
         .pag-ellipsis { min-width: 24px; text-align: center; color: #9ca3af; line-height: 38px; }

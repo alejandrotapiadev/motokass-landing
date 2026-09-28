@@ -1,0 +1,91 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+import Icon from "../components/ui/Icon.astro";
+import { searchAll } from "../lib/catalog/search-index";
+import { GROUP_LABEL, type SearchGroup } from "../lib/catalog/search";
+import { formatPrice } from "../lib/catalog/types";
+
+const q = (Astro.url.searchParams.get("q") ?? "").trim().slice(0, 80);
+const results = q ? await searchAll(q, 24) : null;
+const order: SearchGroup[] = ["motorcycle", "equipment", "blog"];
+const icon: Record<SearchGroup, string> = { motorcycle: "moto", equipment: "helmet", blog: "doc" };
+---
+
+<MainLayout title={q ? `Resultados para «${q}» | MOTOKASS` : "Buscar | MOTOKASS"} description="Busca motos, equipamiento y artículos en MOTOKASS." noindex>
+  <section class="section search-page">
+    <div class="container">
+      <h1 class="display">Buscar</h1>
+      <form action="/buscar" method="get" role="search" class="sp-form">
+        <Icon name="search" size={22} />
+        <input type="search" name="q" value={q} placeholder="Motos, cascos, guantes, marcas…" aria-label="Buscar" autofocus={!q} />
+        <button type="submit" class="btn btn--dark">Buscar</button>
+      </form>
+
+      {results && (
+        <p class="sp-count" aria-live="polite">
+          {results.total} {results.total === 1 ? "resultado" : "resultados"} para <strong>«{q}»</strong>
+        </p>
+      )}
+
+      {results && results.total === 0 && (
+        <div class="empty-state">
+          <strong>No hemos encontrado nada.</strong>
+          Prueba con una marca (Rieju, Sherco), un tipo de moto (enduro, trial) o una categoría (cascos, guantes).
+        </div>
+      )}
+
+      {results &&
+        order
+          .filter((g) => results.groups[g].length)
+          .map((g) => (
+            <section class="sp-group" aria-labelledby={`sp-${g}`}>
+              <h2 id={`sp-${g}`}>{GROUP_LABEL[g]} <span>{results.groups[g].length}</span></h2>
+              <ul>
+                {results.groups[g].map((d) => (
+                  <li>
+                    <a href={d.url} class="sp-item">
+                      <span class="sp-thumb">
+                        {d.image ? <img src={d.image} alt="" loading="lazy" width="120" height="90" /> : <Icon name={icon[g]} size={28} />}
+                      </span>
+                      <span class="sp-text">
+                        <strong>{d.title}</strong>
+                        <span>{d.subtitle}</span>
+                      </span>
+                      {d.price != null && <span class="sp-price">{formatPrice(d.price)}</span>}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))}
+    </div>
+  </section>
+</MainLayout>
+
+<script>
+  import { track } from "../lib/analytics";
+  const q = new URLSearchParams(location.search).get("q");
+  if (q) track("search", { search_term: q, source: "results_page" });
+</script>
+
+<style>
+.search-page h1 { font-size: clamp(2.6rem, 6vw, 4.5rem); margin: 0 0 1.25rem; }
+.sp-form { display: flex; align-items: center; gap: .75rem; border: 1.5px solid var(--ink); border-radius: var(--radius); padding: .35rem .35rem .35rem 1rem; max-width: 760px; }
+.sp-form input { flex: 1; min-width: 0; border: 0; outline: 0; font-size: 1.1rem; padding: .5rem 0; }
+.sp-count { color: var(--text-2); margin: 1.5rem 0; }
+.sp-group { margin-top: 2rem; }
+.sp-group h2 { font-size: 1.8rem; text-transform: uppercase; display: flex; align-items: center; gap: .6rem; border-bottom: 1px solid var(--line); padding-bottom: .6rem; }
+.sp-group h2 span { font-family: var(--font-body); font-size: .75rem; background: var(--paper-2); padding: .2rem .5rem; border-radius: 999px; }
+.sp-group ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: .5rem 1.5rem; }
+.sp-item { display: flex; align-items: center; gap: 1rem; padding: .6rem; border-radius: var(--radius); }
+.sp-item:hover { background: var(--paper-2); }
+.sp-thumb { width: 96px; height: 72px; flex-shrink: 0; display: grid; place-items: center; background: var(--paper-2); color: var(--text-2); overflow: hidden; border-radius: 2px; }
+.sp-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.sp-text { flex: 1; min-width: 0; display: grid; }
+.sp-text span { font-size: .82rem; color: var(--text-2); }
+.sp-price { font-weight: 700; white-space: nowrap; }
+@media (max-width: 560px) {
+  .sp-group ul { grid-template-columns: 1fr; }
+  .sp-form .btn { padding: 0 1rem; }
+}
+</style>

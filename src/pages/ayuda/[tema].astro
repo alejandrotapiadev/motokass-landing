@@ -1,0 +1,26 @@
+---
+import MainLayout from "../../layouts/MainLayout.astro";
+import Breadcrumbs from "../../components/ui/Breadcrumbs.astro";
+import { getHelpTopics } from "../../lib/commerce/help-topics";
+
+const topic = getHelpTopics().find((t) => t.slug === Astro.params.tema);
+if (!topic) return Astro.rewrite("/404");
+---
+
+<MainLayout title={`${topic.title} | MOTOKASS`} description={`${topic.title} de la tienda online de MOTOKASS.`}>
+  <section class="section">
+    <div class="container help">
+      <Breadcrumbs items={[{ label: "Inicio", href: "/" }, { label: "Ayuda" }, { label: topic.title }]} />
+      <h1 class="display">{topic.title}</h1>
+      {topic.paragraphs.map((p) => <p>{p}</p>)}
+      <p>¿Tienes dudas? <a href="/contacto">Contacta con nosotros</a>.</p>
+    </div>
+  </section>
+</MainLayout>
+
+<style>
+.help { max-width: 760px; }
+.help h1 { font-size: clamp(2.5rem, 6vw, 4rem); margin: 1.5rem 0; }
+.help p { line-height: 1.7; color: var(--text-2); }
+.help a { text-decoration: underline; color: var(--text); }
+</style>

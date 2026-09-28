@@ -54,7 +54,7 @@ export default function ChatBot() {
   return (
     <>
       {isOpen && (
-        <div style={{
+        <div className="mk-chat-panel" style={{
           position: "fixed",
           bottom: "13rem",
           right: "1.5rem",
@@ -282,6 +282,7 @@ export default function ChatBot() {
 
       {/* Botón flotante */}
       <button
+        className="mk-chat-fab"
         onClick={() => setIsOpen(o => !o)}
         aria-label={isOpen ? "Cerrar asistente" : "Abrir asistente MOTOKASS"}
         style={{
