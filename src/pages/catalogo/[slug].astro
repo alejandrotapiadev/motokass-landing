@@ -1,34 +1,58 @@
 ---
 import MainLayout from "../../layouts/MainLayout.astro";
-import { toSlug } from "../../lib/slug.ts";
-import RiejuData from "../../resources/RiejuCatalogo.json";
-import ShercoData from "../../resources/ShercoCatalogo.json";
+import Breadcrumbs from "../../components/ui/Breadcrumbs.astro";
+import Icon from "../../components/ui/Icon.astro";
+import { getMotorcycleBySlug, MOTO_SEGMENTS } from "../../lib/catalog/motorcycles";
+import { formatPriceRound, AVAILABILITY_SCHEMA } from "../../lib/catalog/types";
+import { whatsappUrl, SITE } from "../../lib/site";
 
 const { slug } = Astro.params;
+const producto = getMotorcycleBySlug(slug ?? "");
 
-type Moto = {
-  modelo: string;
-  specs: Record<string, string | number | boolean | null>;
-  precio_eur: number | null;
-  imagen: string;
-  stock: boolean;
-  nuevo?: boolean;
-  categoria?: string;
-  url_ficha?: string;
-};
-
-const todasLasMotos: Array<{ marca: string; moto: Moto }> = [
-  ...RiejuData.catalogo.modelos.map((m) => ({ marca: RiejuData.catalogo.marca, moto: m as unknown as Moto })),
-  ...ShercoData.catalogo.modelos.map((m) => ({ marca: ShercoData.catalogo.marca, moto: m as unknown as Moto })),
-];
-
-const encontrada = todasLasMotos.find(({ moto }) => toSlug(moto.modelo) === slug);
-
-if (!encontrada) {
-  return Astro.redirect("/404");
+if (!producto) {
+  return Astro.rewrite("/404");
 }
 
-const { marca, moto } = encontrada;
+const marca = producto.brand;
+const moto = {
+  modelo: producto.name,
+  specs: producto.specs as Record<string, string | number | boolean | null>,
+  precio_eur: producto.price,
+  imagen: producto.images[0] ?? "",
+  stock: producto.availability !== "out_of_stock",
+  categoria: producto.category ?? undefined,
+};
+const segmento = MOTO_SEGMENTS.find((s) => producto.segments.includes(s.slug));
+const pruebaUrl = `/CitaPrevia?motivo=prueba&moto=${encodeURIComponent(moto.modelo)}`;
+const wa = whatsappUrl(`Hola, me interesa la ${moto.modelo}. `);
+const modelo = moto.modelo.toLowerCase().startsWith(marca.toLowerCase() + " ")
+  ? moto.modelo.slice(marca.length + 1)
+  : moto.modelo;
+
+// Schema Motorcycle (subtipo de Product). Offer solo si hay PVP publicado.
+const motoSchema = {
+  "@context": "https://schema.org",
+  "@type": "Motorcycle",
+  name: moto.modelo,
+  brand: { "@type": "Brand", name: marca },
+  model: modelo,
+  image: moto.imagen || undefined,
+  category: [producto.category, producto.subcategory].filter(Boolean).join(" / ") || undefined,
+  vehicleModelDate: producto.year ? String(producto.year) : undefined,
+  url: new URL(producto.url, SITE.url).toString(),
+  ...(producto.price != null
+    ? {
+        offers: {
+          "@type": "Offer",
+          priceCurrency: "EUR",
+          price: producto.price,
+          availability: AVAILABILITY_SCHEMA[producto.availability],
+          itemCondition: "https://schema.org/NewCondition",
+          seller: { "@type": "MotorcycleDealer", name: SITE.name },
+        },
+      }
+    : {}),
+};
 
 const specsLabels: Record<string, string> = {
   cilindrada_cc:       "Cilindrada",
@@ -80,15 +104,20 @@ const specsVisibles = specsOrder
 
 <MainLayout
   title={`${moto.modelo} | MOTOKASS`}
-  description={`Ficha técnica de la ${moto.modelo}. Distribuidor oficial ${marca} en Ávila. Consulta precio en MOTOKASS.`}
+  description={`Ficha técnica de la ${moto.modelo}. Distribuidor oficial ${marca} en Ávila.${moto.precio_eur != null ? ` PVP ${formatPriceRound(moto.precio_eur)}.` : ""} Financiación, prueba de moto y taller propio en MOTOKASS.`}
   ogImage={moto.imagen}
 >
-  <div class="page-wrapper">
-    <div class="breadcrumb">
-      <a href="/catalogo">Catálogo</a>
-      <span>/</span>
-      <span>{moto.modelo}</span>
-    </div>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(motoSchema)} />
+  <div class="page-wrapper" data-moto={moto.modelo} data-marca={marca} data-precio={moto.precio_eur ?? ""}>
+    <Breadcrumbs
+      class="ficha-crumbs"
+      items={[
+        { label: "Inicio", href: "/" },
+        { label: "Motos", href: "/catalogo" },
+        ...(segmento ? [{ label: segmento.name, href: `/catalogo?segmento=${segmento.slug}` }] : []),
+        { label: moto.modelo },
+      ]}
+    />
 
     <div class="ficha">
       <!-- Imagen -->
@@ -101,7 +130,22 @@ const specsVisibles = specsOrder
       <div class="ficha__detalles">
         <span class={`marca-badge marca-badge--${marca.toLowerCase()}`}>{marca}</span>
         <h1>{moto.modelo}</h1>
-        <div class="precio">Consultar precio</div>
+        {moto.precio_eur != null ? (
+          <div class="precio"><small>PVP</small> {formatPriceRound(moto.precio_eur)}</div>
+        ) : (
+          <div class="precio precio--ask">Consultar precio</div>
+        )}
+        <p class="precio-nota">Pregúntanos por la financiación, la disponibilidad y el precio final con matriculación.</p>
+
+        <div class="ctas">
+          <a href={pruebaUrl} class="btn btn--accent" data-track="book_test_ride" data-track-location="moto_detail" data-track-moto={moto.modelo}>
+            <Icon name="key" size={18} /> Reservar prueba
+          </a>
+          <a href="#interes" class="btn btn--outline">{moto.stock ? "Contactar" : "Avisarme cuando esté"}</a>
+          <a href={wa} class="ctas__wa" target="_blank" rel="noopener noreferrer" data-track="click_whatsapp" data-track-location="moto_detail">
+            <Icon name="whatsapp" size={18} /> Preguntar por WhatsApp
+          </a>
+        </div>
 
         <!-- Specs -->
         <div class="specs">
@@ -116,13 +160,6 @@ const specsVisibles = specsOrder
           </ul>
         </div>
 
-        <!-- CTA principal -->
-        {moto.stock ? (
-          <a href="#interes" class="btn-primary">Me interesa esta moto</a>
-        ) : (
-          <a href="#interes" class="btn-primary btn-primary--outline">Avisar cuando esté disponible</a>
-        )}
-        <a href="/CitaPrevia" class="btn-secondary">Agendar cita de prueba</a>
       </div>
     </div>
 
@@ -179,6 +216,17 @@ const specsVisibles = specsOrder
 </MainLayout>
 
 <script>
+  import { track } from "../../lib/analytics";
+  const wrapper = document.querySelector<HTMLElement>(".page-wrapper[data-moto]");
+  if (wrapper) {
+    track("view_motorcycle", {
+      item_name: wrapper.dataset.moto,
+      item_brand: wrapper.dataset.marca,
+      price: wrapper.dataset.precio ? Number(wrapper.dataset.precio) : null,
+      currency: "EUR",
+    });
+  }
+
   const form = document.getElementById("interes-form") as HTMLFormElement;
   const btn = document.getElementById("interes-btn") as HTMLButtonElement;
   const btnText = document.getElementById("interes-btn-text")!;
@@ -258,22 +306,14 @@ const specsVisibles = specsOrder
   padding: 2rem 1.5rem 4rem;
 }
 
-.breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: .5rem;
-  font-size: .875rem;
-  color: #64748b;
-  margin-bottom: 2rem;
-}
+.page-wrapper :global(.ficha-crumbs) { margin-bottom: 2rem; }
 
-.breadcrumb a {
-  color: var(--color-primary);
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.breadcrumb a:hover { text-decoration: underline; }
+.precio small { font-size: .8rem; color: var(--text-2); letter-spacing: .1em; }
+.precio--ask { font-size: 1.5rem; }
+.precio-nota { margin: -.5rem 0 0; font-size: .85rem; color: var(--text-2); }
+.ctas { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
+.ctas__wa { display: inline-flex; align-items: center; gap: .4rem; font-size: .88rem; font-weight: 600; color: #128c4a; padding: .5rem 0; }
+.ctas__wa:hover { text-decoration: underline; }
 
 /* FICHA GRID */
 .ficha {
@@ -285,16 +325,17 @@ const specsVisibles = specsOrder
 
 .ficha__imagen {
   position: relative;
-  border-radius: 16px;
+  border-radius: var(--radius);
   overflow: hidden;
-  background: #f1f5f9;
+  background: #fff;
+  border: 1px solid var(--line);
   aspect-ratio: 4/3;
 }
 
 .ficha__imagen img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .badge-agotada {
@@ -333,17 +374,18 @@ const specsVisibles = specsOrder
 .marca-badge--sherco { background: #0d9488; }
 
 .ficha__detalles h1 {
-  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-size: clamp(2.2rem, 4vw, 3.2rem);
   font-weight: 800;
-  color: #1e293b;
-  line-height: 1.15;
+  text-transform: uppercase;
+  color: var(--text);
+  line-height: 1;
   margin: 0;
 }
 
 .precio {
-  font-size: 2rem;
+  font-size: 2.2rem;
   font-weight: 800;
-  color: var(--color-primary);
+  color: var(--text);
 }
 
 /* SPECS */

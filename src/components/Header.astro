@@ -1,170 +1,441 @@
 ---
-import logo from "../assets/img/concept/logoHeaderPulido-Photoroom.png";
+import { Image } from "astro:assets";
+import logo from "../assets/img/brand/logo-mk.png";
+import promoImg from "../assets/img/backgrounds/tienda3.png";
+import Icon from "./ui/Icon.astro";
+import CartCount from "./commerce/CartCount";
+import GlobalSearch from "./search/GlobalSearch";
+import { getMegaMenu, getActiveCategories, categoryUrl } from "../lib/catalog/equipment-categories";
+import { MOTO_SEGMENTS } from "../lib/catalog/motorcycles";
+import { SITE, whatsappUrl } from "../lib/site";
+
+const path = Astro.url.pathname.toLowerCase();
+const isActive = (prefix: string) => (prefix === "/" ? path === "/" : path.startsWith(prefix.toLowerCase()));
+
+const megaMenu = getMegaMenu();
+const categories = getActiveCategories();
+const wa = whatsappUrl();
+
+const NAV = [
+  { label: "Motos", href: "/catalogo", match: "/catalogo" },
+  { label: "Equipamiento", href: "/equipamiento", match: "/equipamiento", mega: true },
+  { label: "Ofertas", href: "/Ofertas", match: "/ofertas" },
+  { label: "Comparar", href: "/comparar", match: "/comparar" },
+  { label: "Taller", href: "/taller", match: "/taller" },
+  { label: "Blog", href: "/blog", match: "/blog" },
+];
 ---
 
-<header class="header">
-  <div class="header-content">
-    <div class="header-left">
-      <img src={logo.src} alt="Logotipo Motokass" class="logo" />
-      <a href="/"><h1>MOT<span class="highlight">O</span>KASS</h1></a>
-    </div>
-    <div class="header-right">
-      <nav>
-        <ul class="nav-links">
-          <li><a href="/catalogo">Catálogo</a></li>
-          <li><a href="/comparar">Comparar</a></li>
-          <li><a href="/taller">Taller</a></li>
-          <li><a href="/blog">Blog</a></li>
-          <li><a href="/contacto">Contacto</a></li>
-          <li><a href="/Ofertas">Ofertas</a></li>
-        </ul>
-      </nav>
-      <a href="tel:+34920254044" class="btn-llamar" aria-label="Llamar a MOTOKASS">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
-        </svg>
-        920 254 044
+<a class="skip-link" href="#main">Saltar al contenido</a>
+
+<header class="site-header" id="site-header">
+  <div class="bar container">
+    <button class="icon-btn only-mobile" type="button" aria-label="Abrir menú" aria-controls="mobile-drawer" aria-expanded="false" data-drawer-open>
+      <Icon name="menu" size={24} />
+    </button>
+
+    <a href="/" class="brand" aria-label="MOTOKASS, inicio">
+      <Image src={logo} alt="" width={40} height={40} class="brand__logo" loading="eager" />
+      <span class="brand__word">MOTO<span>KASS</span></span>
+    </a>
+
+    <nav class="main-nav only-desktop" aria-label="Principal">
+      <ul>
+        {NAV.map((item) => (
+          <li class={item.mega ? "has-mega" : undefined}>
+            {item.mega ? (
+              <>
+                <a href={item.href} class:list={["nav-link", { "is-active": isActive(item.match) }]} aria-current={isActive(item.match) ? "page" : undefined}>
+                  {item.label}
+                </a>
+                <button class="mega-toggle" type="button" aria-expanded="false" aria-controls="mega-equipamiento" aria-label="Mostrar categorías de equipamiento">
+                  <Icon name="chevron-down" size={14} strokeWidth={2.2} />
+                </button>
+                <div class="mega" id="mega-equipamiento">
+                  <div class="mega__inner container">
+                    <div class="mega__cols">
+                      {megaMenu.map((col) => (
+                        <div class="mega__col">
+                          <a href={col.href} class="mega__title">{col.title}</a>
+                          <ul>
+                            {col.links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                    <a href="/equipamiento" class="mega__promo">
+                      <Image src={promoImg} alt="Tienda MOTOKASS con cascos y equipamiento" widths={[360, 540]} sizes="360px" loading="lazy" />
+                      <span class="mega__promo-text">
+                        <strong>Equípate para la próxima ruta</strong>
+                        <span class="link-arrow">Ver todo <Icon name="arrow-right" size={14} /></span>
+                      </span>
+                    </a>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <a href={item.href} class:list={["nav-link", { "is-active": isActive(item.match) }]} aria-current={isActive(item.match) ? "page" : undefined}>
+                {item.label}
+              </a>
+            )}
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="actions">
+      <button class="icon-btn" type="button" aria-label="Buscar motos o equipamiento" data-open-search>
+        <Icon name="search" size={22} />
+      </button>
+      <a href={wa} class="icon-btn only-desktop wa" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" data-track="click_whatsapp" data-track-location="header">
+        <Icon name="whatsapp" size={20} />
+      </a>
+      <a href="/carrito" class="icon-btn cart-btn" aria-label="Carrito">
+        <Icon name="cart" size={23} />
+        <CartCount client:idle />
       </a>
     </div>
   </div>
 </header>
 
+<GlobalSearch client:idle />
+
+<!-- Drawer móvil -->
+<div class="drawer" id="mobile-drawer" hidden>
+  <div class="drawer__backdrop" data-drawer-close></div>
+  <div class="drawer__panel" role="dialog" aria-modal="true" aria-label="Menú">
+    <div class="drawer__head">
+      <span class="brand__word">MOTO<span>KASS</span></span>
+      <button class="icon-btn" type="button" aria-label="Cerrar menú" data-drawer-close>
+        <Icon name="close" size={24} />
+      </button>
+    </div>
+
+    <nav class="drawer__nav" aria-label="Menú móvil">
+      <details open>
+        <summary>Motos <Icon name="chevron-down" size={18} /></summary>
+        <ul>
+          <li><a href="/catalogo">Todo el catálogo</a></li>
+          {MOTO_SEGMENTS.map((s) => <li><a href={`/catalogo?segmento=${s.slug}`}>{s.name}</a></li>)}
+          <li><a href="/comparar">Comparar motos</a></li>
+        </ul>
+      </details>
+      <details>
+        <summary>Equipamiento <Icon name="chevron-down" size={18} /></summary>
+        <ul>
+          <li><a href="/equipamiento">Ver todo</a></li>
+          {categories.map((c) => <li><a href={categoryUrl(c.slug)}>{c.name}</a></li>)}
+        </ul>
+      </details>
+      <a href="/Ofertas" class="drawer__link">Ofertas</a>
+      <details>
+        <summary>Taller <Icon name="chevron-down" size={18} /></summary>
+        <ul>
+          <li><a href="/taller">Servicios</a></li>
+          <li><a href="/CitaPrevia">Pedir cita</a></li>
+        </ul>
+      </details>
+      <a href="/blog" class="drawer__link">Blog</a>
+      <a href="/contacto" class="drawer__link">Contacto</a>
+      <a href="/faq" class="drawer__link">Preguntas frecuentes</a>
+    </nav>
+
+    <div class="drawer__foot">
+      <a href={`tel:${SITE.phone}`} class="btn btn--outline btn--block" data-track="click_call" data-track-location="drawer">
+        <Icon name="phone" size={18} /> {SITE.phoneDisplay}
+      </a>
+      <a href={wa} class="btn btn--block wa-btn" target="_blank" rel="noopener noreferrer" data-track="click_whatsapp" data-track-location="drawer">
+        <Icon name="whatsapp" size={18} /> WhatsApp
+      </a>
+    </div>
+  </div>
+</div>
+
 <style>
-header {
-  background-color: var(--color-primary);
-  width: 100%;
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  z-index: 1000;
+  background: #fff;
+  color: var(--ink);
+  padding: .75rem 1rem;
+  font-weight: 700;
+}
+.skip-link:focus { left: 1rem; top: 1rem; }
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 500;
+  background: var(--ink);
+  color: var(--text-inv);
+  border-bottom: 1px solid var(--line-dark);
 }
 
-.header-content {
-  width: 100%;
+.bar {
+  height: var(--header-h);
   display: flex;
-  justify-content: space-around;
-}
-
-.header-left {
-  width: 40%;
-  display: flex;
-  justify-content: center;
   align-items: center;
+  gap: 1.5rem;
 }
 
-.header-left img {
-  width: 100px;
-  height: auto;
-}
-
-.header-left h1 {
-  margin-left: 0.5em;
-  margin-bottom: 0;
-  color: var(--color-white);
-}
-
-.header-left span {
-  color: var(--color-white);
-}
-
-.header-right {
-  width: 45%;
+.brand {
   display: flex;
-  justify-content: center;
   align-items: center;
+  gap: .6rem;
+  flex-shrink: 0;
 }
+.brand__logo { width: 40px; height: 40px; }
+.brand__word {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.7rem;
+  letter-spacing: .04em;
+  color: #fff;
+  line-height: 1;
+}
+.brand__word span { color: var(--brand-2); }
 
-.nav-links {
+/* ── Nav desktop ── */
+.main-nav { flex: 1; height: 100%; }
+.main-nav > ul {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: clamp(.75rem, 2vw, 2rem);
   list-style: none;
-  display: flex;
-  gap: clamp(1.2rem, 3vw, 3.5rem);
   margin: 0;
   padding: 0;
+  height: 100%;
 }
-
-.nav-links a {
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 1.3rem;
-  color: var(--color-white);
+.main-nav li { display: flex; align-items: center; }
+.nav-link {
   position: relative;
-  padding: 5px 0;
-  transition: color 0.3s ease;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text-inv);
+  transition: color .15s;
 }
-
-.nav-links a:hover {
-  opacity: 0.5;
-}
-
-.nav-links a::after {
+.nav-link::after {
   content: "";
   position: absolute;
-  left: 0;
-  bottom: -4px;
-  width: 0%;
-  height: 2px;
-  background-color: var(--color-white);
-  transition: width 0.3s ease;
+  left: 0; right: 0; bottom: 0;
+  height: 3px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transition: transform .2s var(--ease);
+}
+.nav-link:hover, .nav-link.is-active { color: #fff; }
+.nav-link:hover::after, .nav-link.is-active::after { transform: scaleX(1); }
+
+.mega-toggle {
+  background: none;
+  border: 0;
+  color: var(--text-inv-2);
+  padding: .25rem;
+  margin-left: .1rem;
+  cursor: pointer;
+  display: flex;
+}
+.mega-toggle[aria-expanded="true"] :global(svg) { transform: rotate(180deg); }
+
+/* ── Mega menú ── */
+.mega {
+  position: absolute;
+  left: 0; right: 0;
+  top: 100%;
+  background: #fff;
+  color: var(--text);
+  border-top: 1px solid var(--line);
+  box-shadow: var(--shadow-2);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity .18s var(--ease), transform .18s var(--ease), visibility 0s .18s;
+}
+.has-mega:hover .mega,
+.has-mega:focus-within .mega,
+.has-mega.is-open .mega {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition-delay: 0s;
+}
+.has-mega.is-closed .mega { opacity: 0; visibility: hidden; }
+.mega__inner {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 3rem;
+  padding-top: 2rem;
+  padding-bottom: 2.25rem;
+}
+.mega__cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 2rem; }
+.mega__title {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: .75rem;
+}
+.mega__title:hover { color: var(--accent); }
+.mega__col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
+.mega__col li { display: block; }
+.mega__col ul a { color: var(--text-2); font-size: .92rem; }
+.mega__col ul a:hover { color: var(--text); text-decoration: underline; }
+.mega__promo {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: var(--ink);
+}
+.mega__promo :global(img) { width: 100%; height: 100%; object-fit: cover; opacity: .8; transition: transform .5s var(--ease); }
+.mega__promo:hover :global(img) { transform: scale(1.04); }
+.mega__promo-text {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 1.25rem;
+  color: #fff;
+  background: linear-gradient(transparent, rgba(0,0,0,.75));
+  display: grid;
+  gap: .5rem;
+}
+.mega__promo-text strong { font-family: var(--font-display); font-size: 1.6rem; text-transform: uppercase; line-height: 1; }
+
+/* ── Acciones ── */
+.actions { display: flex; align-items: center; gap: .25rem; margin-left: auto; }
+.icon-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: none;
+  border: 0;
+  border-radius: var(--radius);
+  color: inherit;
+  cursor: pointer;
+  transition: background .15s;
+}
+.icon-btn:hover { background: var(--graphite-2); }
+.wa:hover { color: var(--whatsapp); }
+
+.only-mobile { display: none; }
+
+/* ── Drawer ── */
+.drawer { position: fixed; inset: 0; z-index: 900; }
+.drawer[hidden] { display: none; }
+.drawer__backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.55); animation: fade .2s ease; }
+.drawer__panel {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: min(88vw, 380px);
+  background: #fff;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  animation: slide .25s var(--ease);
+}
+.drawer__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--header-h);
+  padding: 0 .5rem 0 1.25rem;
+  background: var(--ink);
+  color: #fff;
+}
+.drawer__nav { flex: 1; overflow-y: auto; padding: .5rem 0; }
+.drawer__nav summary,
+.drawer__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  list-style: none;
+}
+.drawer__nav summary::-webkit-details-marker { display: none; }
+.drawer__nav details[open] summary :global(svg) { transform: rotate(180deg); }
+.drawer__nav ul { list-style: none; margin: 0; padding: .25rem 0 .75rem; background: var(--paper-2); }
+.drawer__nav ul a { display: block; padding: .7rem 1.5rem; font-size: .95rem; color: var(--text-2); }
+.drawer__nav ul a:active { background: var(--line); }
+.drawer__foot { display: grid; gap: .5rem; padding: 1rem 1.25rem calc(1rem + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); }
+.wa-btn { --btn-bg: var(--whatsapp); --btn-fg: #0b2e17; }
+
+@keyframes fade { from { opacity: 0; } }
+@keyframes slide { from { transform: translateX(-100%); } }
+
+@media (max-width: 1080px) {
+  .nav-link { letter-spacing: .06em; }
+  .bar { gap: 1rem; }
 }
 
-.nav-links a:hover::after {
-  width: 100%;
-}
-
-.btn-llamar {
-  display: none;
-}
-
-@media (max-width: 768px) {
-  .header-content {
-    flex-direction: column;
-    align-items: center;
-    padding: 1rem 0 0.75rem;
-    overflow: hidden;
-  }
-
-  .header-left,
-  .header-right {
-    width: 100%;
-    max-width: 100%;
-    justify-content: center;
-  }
-
-  .header-right {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .nav-links {
-    gap: 0.75rem 1.25rem;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .nav-links a {
-    font-size: 0.85rem;
-  }
-
-  .btn-llamar {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    background: #16a34a;
-    color: white;
-    font-weight: 700;
-    font-size: 1rem;
-    text-decoration: none;
-    padding: 0.6rem 1.5rem;
-    border-radius: 999px;
-    letter-spacing: 0.01em;
-    box-shadow: 0 2px 10px rgba(22, 163, 74, 0.4);
-    transition: background 0.2s, transform 0.15s;
-    margin-bottom: 0.25rem;
-  }
-
-  .btn-llamar:hover {
-    background: #15803d;
-    transform: scale(1.03);
-  }
-
-  .btn-llamar:active {
-    transform: scale(0.98);
-  }
+@media (max-width: 900px) {
+  .only-desktop { display: none !important; }
+  .only-mobile { display: inline-flex; }
+  .bar { gap: .25rem; padding-left: .5rem; padding-right: .5rem; }
+  .brand { position: absolute; left: 50%; transform: translateX(-50%); }
+  .brand__logo { display: none; }
+  .brand__word { font-size: 1.5rem; }
 }
 </style>
+
+<script>
+  // Mega menú: click/teclado además de hover
+  document.querySelectorAll<HTMLElement>(".has-mega").forEach((li) => {
+    const btn = li.querySelector<HTMLButtonElement>(".mega-toggle");
+    if (!btn) return;
+    const set = (open: boolean) => {
+      li.classList.toggle("is-open", open);
+      li.classList.toggle("is-closed", !open);
+      btn.setAttribute("aria-expanded", String(open));
+    };
+    btn.addEventListener("click", () => set(btn.getAttribute("aria-expanded") !== "true"));
+    li.addEventListener("mouseleave", () => li.classList.remove("is-open", "is-closed"));
+    li.addEventListener("mouseenter", () => li.classList.remove("is-closed"));
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && li.matches(":hover, :focus-within, .is-open")) {
+        set(false);
+        btn.focus();
+      }
+    });
+  });
+
+  // Drawer móvil
+  const drawer = document.getElementById("mobile-drawer");
+  const opener = document.querySelector<HTMLButtonElement>("[data-drawer-open]");
+  const openDrawer = () => {
+    if (!drawer) return;
+    drawer.hidden = false;
+    document.body.style.overflow = "hidden";
+    opener?.setAttribute("aria-expanded", "true");
+    drawer.querySelector<HTMLElement>("[data-drawer-close].icon-btn")?.focus();
+  };
+  const closeDrawer = () => {
+    if (!drawer) return;
+    drawer.hidden = true;
+    document.body.style.overflow = "";
+    opener?.setAttribute("aria-expanded", "false");
+    opener?.focus();
+  };
+  opener?.addEventListener("click", openDrawer);
+  drawer?.querySelectorAll("[data-drawer-close]").forEach((el) => el.addEventListener("click", closeDrawer));
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && drawer && !drawer.hidden) closeDrawer();
+  });
+</script>

@@ -1,0 +1,82 @@
+/* Estilos de MotoCard (compartidos, no por instancia) */
+.moto-card {
+  background: #fff;
+  border: 1px solid var(--line, #e3e3e0);
+  border-radius: var(--radius, 4px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: border-color .2s ease, box-shadow .25s ease;
+}
+.moto-card:hover { border-color: var(--ink, #0e0f12); box-shadow: 0 12px 32px rgba(14,15,18,.10); }
+.moto-card--agotada .moto-card__img-wrapper img { filter: grayscale(.6); opacity: .75; }
+
+.moto-card__img-wrapper {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--paper-2, #f4f4f2);
+}
+.moto-card__img-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .5s cubic-bezier(.2,.7,.2,1);
+}
+.moto-card:hover .moto-card__img-wrapper img { transform: scale(1.04); }
+
+.moto-card__badges { position: absolute; top: 10px; left: 10px; display: flex; gap: 6px; }
+.badge-agotada, .badge-nuevo {
+  color: #fff;
+  font-size: .66rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  padding: .25rem .5rem;
+  border-radius: 2px;
+}
+.badge-agotada { background: #6b7079; }
+.badge-nuevo { background: var(--accent, #d7261e); }
+
+.moto-info { padding: 1rem 1.1rem 1.1rem; flex: 1; display: flex; flex-direction: column; gap: .45rem; }
+.moto-info__top { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+.moto-info h3 {
+  font-family: var(--font-display, sans-serif);
+  font-size: 1.35rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  line-height: 1.05;
+  margin: 0;
+  color: var(--text, #15171b);
+}
+.moto-brand {
+  font-size: .66rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  padding: .2rem .45rem;
+  border-radius: 2px;
+  color: #fff;
+}
+.moto-brand.sherco { background: #0d7f75; }
+.moto-brand.rieju  { background: #c8261e; }
+.moto-tipo { font-size: .72rem; font-weight: 600; color: var(--text-2, #5f6570); text-transform: uppercase; letter-spacing: .06em; }
+.moto-meta { display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; font-size: .8rem; }
+.moto-cc { font-weight: 700; color: var(--text, #15171b); }
+.moto-stock { color: var(--ok, #1e8e4e); font-weight: 600; }
+.moto-stock--no { color: var(--text-2, #5f6570); }
+.moto-foot {
+  margin-top: auto;
+  padding-top: .75rem;
+  border-top: 1px solid var(--line, #e3e3e0);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: .5rem;
+}
+.price { font-weight: 800; font-size: 1.15rem; color: var(--text, #15171b); }
+.price small { font-size: .65rem; font-weight: 700; color: var(--text-2, #5f6570); letter-spacing: .08em; }
+.price--ask { font-size: .95rem; }
+.moto-cta { font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; white-space: nowrap; }
+.moto-card:hover .moto-cta { color: var(--accent, #d7261e); }

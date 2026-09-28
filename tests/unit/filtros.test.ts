@@ -19,6 +19,10 @@ describe('getTipoMotor', () => {
     expect(getTipoMotor({ specs: { tipo_motor: 'Shimano EP8' } })).toBe('Eléctrico');
   });
 
+  it('no confunde "arranque eléctrico" de un 4T con moto eléctrica', () => {
+    expect(getTipoMotor({ specs: { tipo_motor: '4T monocilíndrico con inyección electrónica y arranque eléctrico' } })).toBe('4T');
+  });
+
   it('detecta eléctrico por potencia_kw', () => {
     expect(getTipoMotor({ specs: { tipo_motor: '', potencia_kw: 3.5 } })).toBe('Eléctrico');
   });

@@ -1,0 +1,62 @@
+---
+import Icon from "../ui/Icon.astro";
+import { TOTAL_MOTORCYCLES } from "../../lib/catalog/motorcycles";
+
+const modelos = Math.floor(TOTAL_MOTORCYCLES / 10) * 10;
+// Todas las afirmaciones están respaldadas por la FAQ / web actual.
+const items = [
+  { icon: "award", title: "Distribuidor oficial", text: "Rieju & Sherco" },
+  { icon: "moto", title: `+${modelos} modelos`, text: "Una gama para cada motorista" },
+  { icon: "key", title: "Prueba de moto", text: "Conócela antes de decidir" },
+  { icon: "euro", title: "Financiación", text: "Te ayudamos a encontrar la opción adecuada" },
+  { icon: "doc", title: "Matriculación", text: "Nos encargamos de la gestión" },
+  { icon: "wrench", title: "Taller propio", text: "Servicio postventa y multimarca" },
+];
+---
+
+<section class="section" aria-labelledby="why-title">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Por qué MOTOKASS</span>
+        <h2 id="why-title">Todo tu mundo moto, en un sitio</h2>
+      </div>
+    </div>
+    <ul class="why">
+      {items.map((i) => (
+        <li>
+          <Icon name={i.icon} size={34} strokeWidth={1.4} />
+          <h3>{i.title}</h3>
+          <p>{i.text}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+.why {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+.why li {
+  padding: 2rem 1.75rem;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.why :global(svg) { color: var(--accent); margin-bottom: 1rem; }
+.why h3 { font-size: 1.6rem; text-transform: uppercase; margin: 0 0 .3rem; }
+.why p { color: var(--text-2); margin: 0; }
+
+@media (max-width: 900px) {
+  .why { grid-template-columns: repeat(2, 1fr); }
+  .why li { padding: 1.25rem 1rem; }
+  .why h3 { font-size: 1.25rem; }
+  .why p { font-size: .88rem; }
+}
+</style>

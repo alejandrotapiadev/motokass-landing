@@ -1,0 +1,5 @@
+---
+// /equipamiento es la ruta canónica de la tienda: /tienda y /tienda/* redirigen (301).
+const { slug } = Astro.params;
+return Astro.redirect(`/equipamiento${slug ? `/${slug}` : ""}${Astro.url.search}`, 301);
+---

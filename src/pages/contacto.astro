@@ -1,5 +1,11 @@
 ---
 import MainLayout from "../layouts/MainLayout.astro";
+
+// ?asunto=financiacion → rellena el mensaje (CTA "Calcular financiación" de la home)
+const ASUNTOS: Record<string, string> = {
+  financiacion: "Hola, me gustaría que me preparaseis un cálculo de financiación para la moto: ",
+};
+const mensajeInicial = ASUNTOS[Astro.url.searchParams.get("asunto") ?? ""] ?? "";
 ---
 
 <MainLayout
@@ -42,7 +48,7 @@ import MainLayout from "../layouts/MainLayout.astro";
             </div>
 
             <div class="form__group">
-              <textarea id="message" name="message" rows="5" required placeholder=" "></textarea>
+              <textarea id="message" name="message" rows="5" required placeholder=" ">{mensajeInicial}</textarea>
               <label for="message">Mensaje <span class="required">*</span></label>
               <span class="field-error" id="message-error" role="alert"></span>
             </div>

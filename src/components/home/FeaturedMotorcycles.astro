@@ -1,0 +1,62 @@
+---
+import Icon from "../ui/Icon.astro";
+import MotoCard from "../MotoCard.jsx";
+import { getFeaturedMotorcycles, toLegacyMoto } from "../../lib/catalog/motorcycles";
+
+const motos = getFeaturedMotorcycles(4);
+---
+
+<section class="section" aria-labelledby="featured-motos-title">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Rieju &amp; Sherco</span>
+        <h2 id="featured-motos-title">Descubre tu próxima moto</h2>
+        <p>Novedades y modelos disponibles en nuestro concesionario de Ávila.</p>
+      </div>
+    </div>
+
+    <ul class="moto-grid">
+      {motos.map((m) => (
+        <li>
+          <a href={m.url} class="moto-grid__link" aria-label={`Ver moto ${m.name}`}>
+            <MotoCard {...toLegacyMoto(m)} />
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <div class="center-cta">
+      <a href="/catalogo" class="btn btn--dark">Ver todas las motos <Icon name="arrow-right" size={16} /></a>
+    </div>
+  </div>
+</section>
+
+<style>
+.moto-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+.moto-grid__link { display: block; height: 100%; }
+.center-cta { display: flex; justify-content: center; margin-top: 2.5rem; }
+
+@media (max-width: 1080px) { .moto-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) {
+  .moto-grid {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 82%;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    margin: 0 calc(var(--gutter) * -1);
+    padding: 0 var(--gutter) .5rem;
+    scrollbar-width: none;
+  }
+  .moto-grid li { scroll-snap-align: start; }
+  .center-cta .btn { width: 100%; }
+}
+</style>

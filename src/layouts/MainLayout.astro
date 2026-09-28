@@ -6,14 +6,20 @@ import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 import CookieBanner from "../components/CookieBanner.astro";
 import ChatBot from "../components/ChatBot";
+import BottomNav from "../components/BottomNav.astro";
+import CartToast from "../components/commerce/CartToast";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 
 const {
   title = "MOTOKASS — Concesionario y Taller de Motos en Ávila",
-  description = "Distribuidor oficial Rieju y Sherco en Ávila. Catálogo de motos, taller mecánico, cita previa y asesoramiento personalizado.",
+  description = "Distribuidor oficial Rieju y Sherco en Ávila. Catálogo de motos, equipamiento para motoristas, taller mecánico y cita previa.",
   ogImage = "https://motokass.com/fachada.png",
+  canonical,
+  noindex = false,
 } = Astro.props;
+
+const canonicalUrl = canonical ?? new URL(Astro.url.pathname, "https://motokass.com").toString();
 ---
 
 <!DOCTYPE html>
@@ -119,6 +125,9 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="google-site-verification" content="LGtP0_svT6qHUjXgeFwugHSspMv_9X8iOq1i5e_LKVY">
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+    <meta name="theme-color" content="#0E0F12" />
 
     <!-- Open Graph -->
     <meta property="og:title" content={title} />
@@ -143,19 +152,21 @@ const {
     <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"
     />
     <slot name="head" />
   </head>
   <body class="page-container">
-    <Header></Header>
-    <main class="content">
+    <Header />
+    <main class="content" id="main">
       <slot />
     </main>
     <ScrollTop />
     <WhatsApp />
     <ChatBot client:only="react" />
-    <Footer></Footer>
+    <Footer />
+    <BottomNav />
+    <CartToast client:idle />
     <CookieBanner />
     <Analytics client:only="react" beforeSend={(event) => {
       if (typeof window !== "undefined" && localStorage.getItem("cookie_consent") !== "accepted") return null;
@@ -164,6 +175,26 @@ const {
     <SpeedInsights client:only="react" />
   </body>
 </html>
+
+<script>
+  import { initClickTracking } from "../lib/analytics";
+  initClickTracking();
+</script>
+
+<style is:global>
+/* Botones flotantes existentes: en móvil WhatsApp pasa a la barra inferior */
+@media (max-width: 900px) {
+  body { padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom)); }
+  .whatsapp-btn, #scrollToTop { display: none !important; }
+  .mk-chat-fab { bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 12px) !important; right: 12px !important; }
+  .mk-chat-panel {
+    bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 76px) !important;
+    right: 12px !important;
+    width: calc(100vw - 24px) !important;
+    max-height: calc(100dvh - var(--header-h) - var(--bottom-nav-h) - 100px) !important;
+  }
+}
+</style>
 
 <style>
 /* Contenedor flex para todo el layout */
@@ -178,7 +209,7 @@ const {
     rgba(57, 90, 153, 1) 26%,
     rgba(102, 153, 242, 1) 100%
   );*/
-  background-color: var(--color-gray-medium);
+  background-color: var(--paper);
 }
 
 /* Main crece para empujar el footer abajo */
@@ -187,11 +218,5 @@ const {
   min-height: 100vh;
 }
 
-/* Footer */
-footer {
-  background: #f1f5f9;
-  padding: 1.5rem;
-  text-align: center;
-}
 
 </style>

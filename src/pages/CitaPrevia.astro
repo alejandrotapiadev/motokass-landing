@@ -1,5 +1,12 @@
 ---
 import MainLayout from "../layouts/MainLayout.astro";
+
+// ?motivo=prueba&moto=Rieju%20Aventura%20500 → llega desde las fichas de moto / home
+const MOTIVOS = ["mantenimiento", "revision", "reparacion", "diagnostico", "prueba", "otro"];
+const motivoParam = Astro.url.searchParams.get("motivo") ?? "";
+const motivoInicial = MOTIVOS.includes(motivoParam) ? motivoParam : "";
+const motoParam = (Astro.url.searchParams.get("moto") ?? "").slice(0, 80);
+const esPrueba = motivoInicial === "prueba";
 ---
 
 <MainLayout
@@ -9,8 +16,10 @@ import MainLayout from "../layouts/MainLayout.astro";
   <div class="page-wrapper">
     <div class="container">
       <div class="form-header">
-        <h1>Agendar una cita</h1>
-        <p>Rellena el formulario y te confirmaremos la cita por email.</p>
+        <h1>{esPrueba ? "Reservar una prueba de moto" : "Agendar una cita"}</h1>
+        <p>{esPrueba
+          ? "Elige día y hora, dinos qué moto quieres probar y te confirmaremos la prueba por email."
+          : "Rellena el formulario y te confirmaremos la cita por email."}</p>
       </div>
 
       <div id="success-msg" class="alert alert--success" hidden aria-live="polite">
@@ -39,8 +48,8 @@ import MainLayout from "../layouts/MainLayout.astro";
             <input type="tel" id="telefono" name="telefono" placeholder="600 000 000" autocomplete="tel" />
           </div>
           <div class="form-group">
-            <label for="vehiculo">Vehículo <span class="required">*</span></label>
-            <input type="text" id="vehiculo" name="vehiculo" placeholder="Ej: Rieju MRT 50 2023" />
+            <label for="vehiculo">{esPrueba ? "Moto que quieres probar" : "Vehículo"} <span class="required">*</span></label>
+            <input type="text" id="vehiculo" name="vehiculo" placeholder="Ej: Rieju MRT 50 2023" value={motoParam} />
             <span class="field-error" id="vehiculo-error" role="alert"></span>
           </div>
         </div>
@@ -71,12 +80,13 @@ import MainLayout from "../layouts/MainLayout.astro";
         <div class="form-group">
           <label for="motivo">Motivo <span class="required">*</span></label>
           <select id="motivo" name="motivo">
-            <option value="">Selecciona un motivo</option>
-            <option value="mantenimiento">Mantenimiento</option>
-            <option value="revision">Revisión</option>
-            <option value="reparacion">Reparación</option>
-            <option value="diagnostico">Diagnóstico electrónico</option>
-            <option value="otro">Otro</option>
+            <option value="" selected={!motivoInicial}>Selecciona un motivo</option>
+            <option value="mantenimiento" selected={motivoInicial === "mantenimiento"}>Mantenimiento</option>
+            <option value="revision" selected={motivoInicial === "revision"}>Revisión</option>
+            <option value="reparacion" selected={motivoInicial === "reparacion"}>Reparación</option>
+            <option value="diagnostico" selected={motivoInicial === "diagnostico"}>Diagnóstico electrónico</option>
+            <option value="prueba" selected={motivoInicial === "prueba"}>Prueba de moto</option>
+            <option value="otro" selected={motivoInicial === "otro"}>Otro</option>
           </select>
           <span class="field-error" id="motivo-error" role="alert"></span>
         </div>
@@ -111,6 +121,7 @@ import MainLayout from "../layouts/MainLayout.astro";
 
 <script>
   import { esDiaCerrado, toDateStr } from '../utils/festivos';
+  import { track } from '../lib/analytics';
 
   const form = document.getElementById("cita-form") as HTMLFormElement;
   const submitBtn = document.getElementById("submit-btn") as HTMLButtonElement;
@@ -189,6 +200,7 @@ import MainLayout from "../layouts/MainLayout.astro";
       const json = await res.json();
 
       if (res.ok) {
+        track(data.motivo === "prueba" ? "book_test_ride" : "book_workshop", { motivo: data.motivo, vehiculo: data.vehiculo });
         form.reset();
         successMsg.hidden = false;
         successMsg.scrollIntoView({ behavior: "smooth", block: "center" });

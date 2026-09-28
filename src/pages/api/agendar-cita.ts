@@ -11,6 +11,7 @@ const MOTIVO_LABEL: Record<string, string> = {
   revision: "Revisión",
   reparacion: "Reparación",
   diagnostico: "Diagnóstico electrónico",
+  prueba: "Prueba de moto",
   otro: "Otro",
 };
 

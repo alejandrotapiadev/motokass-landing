@@ -1,0 +1,36 @@
+---
+import { ICONS, WHATSAPP_PATH } from "./icons";
+
+interface Props {
+  name: string;
+  size?: number;
+  class?: string;
+  strokeWidth?: number;
+  label?: string;
+}
+
+const { name, size = 22, class: className, strokeWidth = 1.7, label } = Astro.props;
+const isWhatsapp = name === "whatsapp";
+---
+
+{isWhatsapp ? (
+  <svg class={className} width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden={label ? undefined : "true"} role={label ? "img" : undefined} aria-label={label}>
+    <path d={WHATSAPP_PATH} />
+  </svg>
+) : (
+  <svg
+    class={className}
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width={strokeWidth}
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden={label ? undefined : "true"}
+    role={label ? "img" : undefined}
+    aria-label={label}
+    set:html={ICONS[name] ?? ""}
+  />
+)}

@@ -1,0 +1,78 @@
+---
+import MainLayout from "../../layouts/MainLayout.astro";
+import Breadcrumbs from "../../components/ui/Breadcrumbs.astro";
+import EquipmentCategories from "../../components/home/EquipmentCategories.astro";
+import StoreTrust from "../../components/commerce/StoreTrust.astro";
+import ProductGrid from "../../components/commerce/ProductGrid";
+import Icon from "../../components/ui/Icon.astro";
+import { getEquipment } from "../../lib/catalog/equipment";
+import { EQUIPMENT_CATEGORIES, getActiveCategories } from "../../lib/catalog/equipment-categories";
+import { whatsappUrl } from "../../lib/site";
+
+const { products, source } = await getEquipment();
+const icons = Object.fromEntries(EQUIPMENT_CATEGORIES.map((c) => [c.slug, c.icon]));
+const latest = products.filter((p) => p.availability !== "out_of_stock").slice(0, 8);
+const categories = getActiveCategories();
+---
+
+<MainLayout
+  title="Equipamiento para motoristas en Ávila | Cascos, guantes, chaquetas y botas | MOTOKASS"
+  description="Tienda de equipamiento para motoristas en Ávila: cascos, guantes, chaquetas, camisetas y botas. Asesoramiento en tienda física, taller propio y atención por WhatsApp."
+  noindex={source === "mock"}
+>
+  <section class="eq-hero">
+    <div class="container">
+      <Breadcrumbs items={[{ label: "Inicio", href: "/" }, { label: "Equipamiento" }]} class="eq-hero__crumbs" />
+      <h1 class="display">Equipamiento<br />para motoristas</h1>
+      <p>Cascos, guantes, chaquetas, camisetas y botas para salir en moto con seguridad y estilo. Te asesoramos en nuestra tienda de Ávila.</p>
+      <nav class="eq-hero__cats" aria-label="Categorías">
+        {categories.map((c) => <a href={`/equipamiento/${c.slug}`}>{c.name}</a>)}
+      </nav>
+    </div>
+  </section>
+
+  <StoreTrust />
+
+  <EquipmentCategories title="Compra por categoría" subtitle="Encuentra lo que necesitas para tu próxima ruta." />
+
+  <section class="section section--alt" aria-labelledby="latest-title">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <h2 id="latest-title">Novedades en tienda</h2>
+        </div>
+      </div>
+      {source === "mock" && <p class="dev-mock-banner">Datos DEMO de desarrollo — no son productos reales</p>}
+      {latest.length ? (
+        <ProductGrid products={latest} icons={icons} client:visible />
+      ) : (
+        <div class="empty-state" style="background:#fff">
+          <strong>Estamos preparando el catálogo online.</strong>
+          Pregúntanos por cualquier producto: te decimos si lo tenemos en tienda o te lo conseguimos.
+          <p style="margin-top:1rem">
+            <a href={whatsappUrl("Hola, quería consultar por equipamiento: ")} class="btn btn--dark" target="_blank" rel="noopener noreferrer" data-track="click_whatsapp" data-track-location="shop_empty">
+              <Icon name="whatsapp" size={18} /> Consultar por WhatsApp
+            </a>
+          </p>
+        </div>
+      )}
+    </div>
+  </section>
+</MainLayout>
+
+<style>
+.eq-hero { background: var(--ink); color: #fff; padding: 2rem 0 3.5rem; }
+.eq-hero :global(.eq-hero__crumbs ol) { color: var(--text-inv-2); }
+.eq-hero :global(.eq-hero__crumbs [aria-current]) { color: #fff; }
+.eq-hero h1 { font-size: clamp(3rem, 8vw, 6rem); margin: 1.5rem 0 1rem; }
+.eq-hero p { color: var(--text-inv-2); max-width: 56ch; font-size: 1.05rem; line-height: 1.6; margin: 0 0 1.75rem; }
+.eq-hero__cats { display: flex; flex-wrap: wrap; gap: .5rem; }
+.eq-hero__cats a {
+  padding: .55rem 1rem;
+  border: 1px solid var(--line-dark);
+  border-radius: 999px;
+  font-size: .85rem;
+  font-weight: 600;
+}
+.eq-hero__cats a:hover { border-color: #fff; }
+</style>

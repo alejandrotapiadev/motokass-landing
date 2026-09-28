@@ -1,38 +1,10 @@
 ---
 import MainLayout from "../layouts/MainLayout.astro";
 import ComparadorMotos from "../components/ComparadorMotos.jsx";
-import RiejuCatalogo from "../resources/RiejuCatalogo.json";
-import ShercoCatalogo from "../resources/ShercoCatalogo.json";
+import { getAllMotorcycles, toLegacyMoto } from "../lib/catalog/motorcycles";
 
-const motosRieju = (RiejuCatalogo.catalogo.modelos as any[]).map((moto) => ({
-  marca:     RiejuCatalogo.catalogo.marca,
-  nombre:    moto.modelo,
-  imagen:    moto.imagen,
-  specs:     moto.specs,
-  stock:     moto.stock,
-  nuevo:     moto.nuevo     ?? false,
-  categoria: moto.categoria ?? null,
-  año:       moto.año       ?? null,
-}));
-
-const motosSherco = (ShercoCatalogo.catalogo.modelos as any[]).map((moto) => ({
-  marca:     ShercoCatalogo.catalogo.marca,
-  nombre:    moto.modelo,
-  imagen:    moto.imagen,
-  specs:     moto.specs,
-  stock:     moto.stock,
-  nuevo:     moto.nuevo     ?? false,
-  categoria: moto.categoria ?? null,
-  año:       moto.año       ?? null,
-}));
-
-// Intercalado R1, S1, R2, S2… igual que en catálogo
-const motos: any[] = [];
-const maxLen = Math.max(motosRieju.length, motosSherco.length);
-for (let i = 0; i < maxLen; i++) {
-  if (i < motosRieju.length)  motos.push(motosRieju[i]);
-  if (i < motosSherco.length) motos.push(motosSherco[i]);
-}
+// Mismo orden intercalado R1, S1, R2, S2… que el catálogo
+const motos = getAllMotorcycles().map(toLegacyMoto);
 ---
 
 <MainLayout

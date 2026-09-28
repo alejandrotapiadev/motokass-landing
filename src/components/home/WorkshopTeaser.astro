@@ -1,0 +1,71 @@
+---
+import { Picture } from "astro:assets";
+import Icon from "../ui/Icon.astro";
+import tallerImg from "../../assets/img/backgrounds/taller.png";
+
+const services = [
+  { icon: "doc", label: "Revisión" },
+  { icon: "oil", label: "Aceite" },
+  { icon: "brake", label: "Frenos" },
+  { icon: "tire", label: "Neumáticos" },
+  { icon: "diagnostic", label: "Diagnóstico" },
+  { icon: "wrench", label: "Mantenimiento" },
+];
+---
+
+<section class="section section--alt" aria-labelledby="workshop-title">
+  <div class="container ws">
+    <div class="ws__media">
+      <Picture src={tallerImg} formats={["avif", "webp"]} widths={[480, 800, 1200]} sizes="(max-width: 900px) 100vw, 50vw" alt="Taller de MOTOKASS en Ávila con dos elevadores de motos" loading="lazy" />
+    </div>
+    <div class="ws__copy">
+      <span class="eyebrow">Taller propio multimarca</span>
+      <h2 id="workshop-title" class="display">Tu moto también necesita un buen equipo.</h2>
+      <p>Especialistas en Rieju y Sherco, y aceptamos cualquier marca. Mantenimiento, reparación y diagnóstico con cita previa.</p>
+      <ul class="ws__services">
+        {services.map((s) => (
+          <li><Icon name={s.icon} size={22} /> {s.label}</li>
+        ))}
+      </ul>
+      <div class="ws__ctas">
+        <a href="/CitaPrevia" class="btn btn--dark" data-track="book_workshop" data-track-location="home">Pedir cita</a>
+        <a href="/taller" class="link-arrow">Ver servicios <Icon name="arrow-right" size={14} /></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+.ws { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 5vw, 5rem); align-items: center; }
+.ws__media { aspect-ratio: 4 / 3; overflow: hidden; border-radius: var(--radius); }
+.ws__media :global(img) { width: 100%; height: 100%; object-fit: cover; }
+.ws h2 { font-size: clamp(2.3rem, 4.2vw, 3.6rem); margin: 0 0 1rem; }
+.ws__copy > p { color: var(--text-2); line-height: 1.65; margin: 0 0 1.75rem; }
+.ws__services {
+  list-style: none;
+  margin: 0 0 2rem;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: .6rem;
+}
+.ws__services li {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  padding: .8rem .9rem;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: .9rem;
+}
+.ws__services :global(svg) { color: var(--brand); flex-shrink: 0; }
+.ws__ctas { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+
+@media (max-width: 900px) {
+  .ws { grid-template-columns: 1fr; }
+  .ws__services { grid-template-columns: repeat(2, 1fr); }
+  .ws__ctas .btn { flex: 1; }
+}
+</style>
