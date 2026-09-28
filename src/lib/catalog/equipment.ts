@@ -23,7 +23,8 @@ const CACHE_TTL_MS = 60_000;
 let cache: { at: number; result: EquipmentResult; featuredIds: Set<string> } | null = null;
 
 function mockAllowed(): boolean {
-  return import.meta.env.DEV === true || import.meta.env.EQUIPMENT_USE_MOCK === "true";
+  // Astro convierte "true" en booleano al inyectar la variable: comparar como string.
+  return import.meta.env.DEV === true || String(import.meta.env.EQUIPMENT_USE_MOCK) === "true";
 }
 
 async function loadAll(): Promise<{ result: EquipmentResult; featuredIds: Set<string> }> {
