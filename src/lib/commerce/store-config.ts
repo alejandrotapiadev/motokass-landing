@@ -15,6 +15,15 @@ export interface ShippingPolicy {
   deliveryTime: string;
   /** Zonas, p.ej. "Península". */
   zones: string;
+  /** Países admitidos en el checkout (ISO 3166-1 alfa-2), p.ej. ["ES"]. */
+  countries: string[];
+}
+
+export interface TaxConfig {
+  /** true = los precios del catálogo ya incluyen el IVA (lo que muestra hoy la web). */
+  pricesIncludeTax: boolean;
+  /** Tipo de IVA a desglosar, p.ej. 0.21. null = no confirmado: no se desglosa. */
+  rate: number | null;
 }
 
 export interface ReturnsPolicy {
@@ -26,8 +35,14 @@ export interface ReturnsPolicy {
 
 export interface StoreConfig {
   currency: "EUR";
-  /** Hay pasarela de pago conectada (Stripe, Redsys…). */
+  /**
+   * Pago online con Stripe. Solo se activa de verdad si además hay al menos
+   * un método de entrega (shipping o pickupInStore) y las claves de Stripe
+   * están en el entorno (ver isOnlineCheckoutConfigured / getCheckoutEnv).
+   */
   onlinePaymentEnabled: boolean;
+  /** Pedido por WhatsApp (checkout manual). Alternativa o único canal. */
+  manualOrderEnabled: boolean;
   /** Métodos visibles en la ficha/carrito, solo si onlinePaymentEnabled. */
   paymentMethods: string[];
   shipping: ShippingPolicy | null;
@@ -37,11 +52,20 @@ export interface StoreConfig {
   /** Guía de tallas genérica (por marca se añadirá en el producto). */
   sizeGuideAvailable: boolean;
   maxQuantityPerLine: number;
+  tax: TaxConfig;
+  /** Minutos que se reserva el stock mientras el cliente paga (Stripe exige ≥ 30). */
+  checkoutReservationMinutes: number;
+  /**
+   * El negocio ha completado y revisado /condiciones-venta (sin marcadores
+   * PENDIENTE). Sin esto no se activa el pago online.
+   */
+  legalTermsReviewed: boolean;
 }
 
 export const STORE_CONFIG: StoreConfig = {
   currency: "EUR",
   onlinePaymentEnabled: false,
+  manualOrderEnabled: true,
   paymentMethods: [],
   shipping: null,
   returns: null,
@@ -49,7 +73,59 @@ export const STORE_CONFIG: StoreConfig = {
   promoCodesEnabled: false,
   sizeGuideAvailable: false,
   maxQuantityPerLine: 10,
+  tax: { pricesIncludeTax: true, rate: null },
+  checkoutReservationMinutes: 30,
+  legalTermsReviewed: false,
 };
+
+export type DeliveryMethod = "shipping" | "pickup";
+
+export interface DeliveryOption {
+  id: DeliveryMethod;
+  label: string;
+  description: string;
+  /** Coste en euros antes de aplicar el envío gratuito. */
+  price: number;
+  freeFrom: number | null;
+  /** Países admitidos (solo envío). */
+  countries: string[];
+}
+
+/** Métodos de entrega disponibles según la configuración (nunca inventados). */
+export function getDeliveryOptions(config: StoreConfig = STORE_CONFIG): DeliveryOption[] {
+  const options: DeliveryOption[] = [];
+  if (config.shipping && config.shipping.countries.length) {
+    options.push({
+      id: "shipping",
+      label: "Envío a domicilio",
+      description: `${config.shipping.zones} · ${config.shipping.deliveryTime}`,
+      price: config.shipping.flatRate,
+      freeFrom: config.shipping.freeFrom,
+      countries: config.shipping.countries,
+    });
+  }
+  if (config.pickupInStore) {
+    options.push({
+      id: "pickup",
+      label: "Recogida en tienda",
+      description: "En nuestra tienda de Ávila",
+      price: 0,
+      freeFrom: null,
+      countries: [],
+    });
+  }
+  return options;
+}
+
+/** Configuración comercial suficiente para cobrar online (sin mirar claves). */
+export function isOnlineCheckoutConfigured(config: StoreConfig = STORE_CONFIG): boolean {
+  return (
+    config.onlinePaymentEnabled &&
+    config.legalTermsReviewed &&
+    getDeliveryOptions(config).length > 0 &&
+    config.checkoutReservationMinutes >= 30
+  );
+}
 
 /**
  * Argumentos de confianza que SÍ son verdaderos hoy (verificados en la web
@@ -64,7 +140,7 @@ export interface TrustPoint {
 
 export function getStoreTrustPoints(config: StoreConfig = STORE_CONFIG): TrustPoint[] {
   const points: TrustPoint[] = [];
-  if (config.onlinePaymentEnabled) {
+  if (isOnlineCheckoutConfigured(config)) {
     points.push({ key: "payment", title: "Pago seguro", text: config.paymentMethods.join(" · ") || "Pasarela segura", icon: "lock" });
   }
   if (config.shipping) {

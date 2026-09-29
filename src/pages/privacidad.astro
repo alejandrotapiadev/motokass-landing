@@ -1,7 +1,10 @@
 ---
 import MainLayout from "../layouts/MainLayout.astro";
+import { STORE_CONFIG, isOnlineCheckoutConfigured } from "../lib/commerce/store-config";
 
 const FECHA_ACTUALIZACION = "16 de mayo de 2026";
+// Las filas de compras online solo aparecen cuando la venta online está activa.
+const onlineSales = isOnlineCheckoutConfigured(STORE_CONFIG);
 ---
 
 <MainLayout
@@ -50,6 +53,13 @@ const FECHA_ACTUALIZACION = "16 de mayo de 2026";
               <td>Dirección de email</td>
               <td>Envío de información sobre novedades y promociones</td>
             </tr>
+            {onlineSales && (
+              <tr>
+                <td>Compra en la tienda online</td>
+                <td>Nombre, email, teléfono (opcional), dirección de entrega, notas y detalle del pedido</td>
+                <td>Gestionar el pedido, el pago, la entrega y la atención posventa</td>
+              </tr>
+            )}
           </tbody>
         </table>
 
@@ -57,6 +67,7 @@ const FECHA_ACTUALIZACION = "16 de mayo de 2026";
         <ul>
           <li><strong>Cita previa y contacto:</strong> Ejecución de una relación precontractual o contractual (art. 6.1.b RGPD).</li>
           <li><strong>Suscripción a novedades:</strong> Consentimiento expreso del interesado (art. 6.1.a RGPD). Puedes retirar este consentimiento en cualquier momento.</li>
+          {onlineSales && <li><strong>Compras online:</strong> Ejecución del contrato de compraventa (art. 6.1.b RGPD) y cumplimiento de obligaciones legales (art. 6.1.c RGPD).</li>}
         </ul>
 
         <h2>4. Destinatarios de los datos</h2>
@@ -65,6 +76,9 @@ const FECHA_ACTUALIZACION = "16 de mayo de 2026";
           <li><strong>Supabase Inc.</strong> — plataforma de base de datos donde se almacenan las citas y suscripciones. Servidores en la Unión Europea.</li>
           <li><strong>Resend Inc.</strong> — plataforma de envío de emails transaccionales. Los datos se utilizan exclusivamente para la entrega del correo.</li>
           <li><strong>Vercel Inc.</strong> — proveedor de alojamiento web. Puede procesar temporalmente datos de tráfico conforme a su política de privacidad.</li>
+          {onlineSales && (
+            <li><strong>Stripe</strong> — pasarela de pago de la tienda online. Trata los datos de pago directamente; MOTOKASS no recibe ni almacena datos de tarjeta.</li>
+          )}
         </ul>
         <p>No se ceden datos a terceros con fines comerciales ni se realizan transferencias internacionales fuera del Espacio Económico Europeo sin las garantías adecuadas.</p>
 

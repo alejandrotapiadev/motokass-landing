@@ -3,7 +3,7 @@ import Icon from "../ui/Icon";
 import { useCart } from "../../lib/commerce/useCart";
 import { cart } from "../../lib/commerce/cart";
 import { removeFromCart } from "../../lib/commerce/actions";
-import { getCheckoutProvider } from "../../lib/commerce/checkout";
+import { getCheckoutOptions, type CheckoutProvider } from "../../lib/commerce/checkout";
 import { STORE_CONFIG } from "../../lib/commerce/store-config";
 import { formatPrice } from "../../lib/catalog/types";
 import { track } from "../../lib/analytics";
@@ -11,19 +11,21 @@ import "./CartPage.css";
 
 interface Props {
   whatsappNumber: string;
+  /** Pago online listo (lo calcula el servidor: configuración + claves). */
+  onlineReady: boolean;
 }
 
-export default function CartPage({ whatsappNumber }: Props) {
+export default function CartPage({ whatsappNumber, onlineReady }: Props) {
   const { state, totals } = useCart();
   const [hydrated, setHydrated] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [promo, setPromo] = useState("");
-  const provider = getCheckoutProvider(whatsappNumber);
+  const { primary, alternative } = getCheckoutOptions({ whatsappNumber, onlineReady });
 
   useEffect(() => setHydrated(true), []);
 
-  async function checkout() {
+  async function checkout(provider: CheckoutProvider) {
     setBusy(true);
     setError(null);
     track("begin_checkout", {
@@ -33,8 +35,11 @@ export default function CartPage({ whatsappNumber }: Props) {
       provider: provider.id,
     });
     const result = await provider.begin(state, totals);
-    if (result.kind === "redirect") {
+    if (result.kind === "redirect" && result.newTab) {
       window.open(result.url, "_blank", "noopener");
+    } else if (result.kind === "redirect") {
+      window.location.assign(result.url);
+      return;
     } else {
       setError(result.message);
     }
@@ -156,10 +161,15 @@ export default function CartPage({ whatsappNumber }: Props) {
           <p className="cart__free">Te faltan {formatPrice(totals.remainingForFreeShipping)} para el envío gratis.</p>
         )}
 
-        <button type="button" className="btn btn--accent btn--block cart__cta" onClick={checkout} disabled={busy}>
-          {busy ? "Un momento…" : provider.ctaLabel}
+        <button type="button" className="btn btn--accent btn--block cart__cta" onClick={() => checkout(primary)} disabled={busy}>
+          {busy ? "Un momento…" : primary.ctaLabel}
         </button>
-        <p className="cart__note">{provider.note}</p>
+        <p className="cart__note">{primary.note}</p>
+        {alternative && (
+          <button type="button" className="btn btn--outline btn--block" onClick={() => checkout(alternative)} disabled={busy}>
+            {alternative.ctaLabel}
+          </button>
+        )}
         {error && <p className="cart__error" role="alert">{error}</p>}
       </aside>
     </div>

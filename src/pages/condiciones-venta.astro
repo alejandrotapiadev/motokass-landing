@@ -1,0 +1,152 @@
+---
+/**
+ * Condiciones generales de venta de la tienda online.
+ *
+ * IMPORTANTE: estructura preparada, NO es asesoramiento jurídico. Los
+ * bloques marcados «PENDIENTE» deben completarlos el negocio y su asesor
+ * antes de activar el pago online (STORE_CONFIG.legalTermsReviewed = true).
+ * Las secciones de envío/devoluciones se rellenan solas desde STORE_CONFIG.
+ */
+import MainLayout from "../layouts/MainLayout.astro";
+import { SITE } from "../lib/site";
+import { STORE_CONFIG } from "../lib/commerce/store-config";
+import { formatPrice } from "../lib/catalog/types";
+
+const FECHA_ACTUALIZACION = "[PENDIENTE: fecha de publicación]";
+const cfg = STORE_CONFIG;
+const draft = !cfg.legalTermsReviewed;
+---
+
+<MainLayout
+  title="Condiciones de venta | MOTOKASS"
+  description="Condiciones generales de venta de la tienda online de MOTOKASS: precios, pago, envíos, devoluciones y desistimiento."
+  noindex={draft}
+>
+  <section class="legal-hero">
+    <div class="legal-hero__inner">
+      <span class="legal-sup">Legal</span>
+      <h1>Condiciones de venta</h1>
+      <p>Última actualización: {FECHA_ACTUALIZACION}</p>
+    </div>
+  </section>
+
+  <section class="legal-body">
+    <div class="legal-container">
+      <div class="legal-card">
+        {draft && (
+          <p class="legal-draft">
+            Documento en preparación. La venta online todavía no está activa: los pedidos se gestionan por WhatsApp o en tienda.
+          </p>
+        )}
+
+        <h2>1. Datos del vendedor</h2>
+        <p>
+          Titular: {SITE.name}, NIF {SITE.taxId}, con domicilio en {SITE.address.street}, {SITE.address.postalCode} {SITE.address.city} (España).
+          Email: <a href={`mailto:${SITE.email}`}>{SITE.email}</a> · Teléfono: {SITE.phoneDisplay}.
+        </p>
+        <p><mark class="pending">[PENDIENTE: datos registrales adicionales si proceden (razón social, inscripción…)]</mark></p>
+
+        <h2>2. Objeto</h2>
+        <p>
+          Estas condiciones regulan la compra de equipamiento para motoristas a través de la tienda online de motokass.com.
+          La venta de motocicletas no se realiza online.
+        </p>
+
+        <h2>3. Proceso de compra</h2>
+        <p>
+          El cliente añade los productos al carrito, indica sus datos de contacto y el método de entrega, revisa el resumen con el
+          importe total y realiza el pago en la pasarela segura de Stripe. El pedido se considera confirmado cuando el pago es
+          aceptado; en ese momento se envía un email de confirmación con el número de pedido.
+        </p>
+
+        <h2>4. Precios e impuestos</h2>
+        <p>
+          Los precios se muestran en euros{cfg.tax.pricesIncludeTax ? " e incluyen el IVA" : ""}. Los gastos de entrega se indican
+          antes del pago.
+        </p>
+        {cfg.tax.rate == null && <p><mark class="pending">[PENDIENTE: confirmar el tipo de IVA aplicable y su desglose]</mark></p>}
+
+        <h2>5. Formas de pago</h2>
+        <p>
+          El pago se realiza a través de Stripe. {SITE.name} no recibe ni almacena los datos de la tarjeta.
+          {cfg.paymentMethods.length > 0 && ` Métodos disponibles: ${cfg.paymentMethods.join(", ")}.`}
+        </p>
+        {cfg.paymentMethods.length === 0 && <p><mark class="pending">[PENDIENTE: métodos de pago activados en Stripe]</mark></p>}
+
+        <h2>6. Envío y entrega</h2>
+        {cfg.shipping ? (
+          <p>
+            Enviamos a {cfg.shipping.zones}. Plazo estimado: {cfg.shipping.deliveryTime}. Coste: {formatPrice(cfg.shipping.flatRate)}
+            {cfg.shipping.freeFrom != null && `, gratis en pedidos desde ${formatPrice(cfg.shipping.freeFrom)}`}.
+          </p>
+        ) : (
+          <p><mark class="pending">[PENDIENTE: zonas, plazos, transportista y costes de envío]</mark></p>
+        )}
+        {cfg.pickupInStore && <p>También puedes recoger tu pedido en nuestra tienda de {SITE.address.city}, {SITE.address.street}.</p>}
+
+        <h2>7. Derecho de desistimiento</h2>
+        <p>
+          La normativa de consumo (Real Decreto Legislativo 1/2007) reconoce a los consumidores un derecho de desistimiento en las
+          compras a distancia.
+        </p>
+        <p>
+          <mark class="pending">[PENDIENTE (asesor legal): plazo, procedimiento para ejercerlo, formulario de desistimiento,
+          quién asume los costes de devolución, plazo de reembolso y posibles excepciones]</mark>
+        </p>
+
+        <h2>8. Devoluciones y garantía</h2>
+        {cfg.returns ? (
+          <p>Dispones de {cfg.returns.days} días para devolver tu pedido{cfg.returns.free ? " sin coste" : ""}. {cfg.returns.details}</p>
+        ) : (
+          <p><mark class="pending">[PENDIENTE: política de devoluciones de la tienda]</mark></p>
+        )}
+        <p><mark class="pending">[PENDIENTE (asesor legal): garantía legal de los productos y cómo solicitarla]</mark></p>
+
+        <h2>9. Atención al cliente y reclamaciones</h2>
+        <p>
+          Para cualquier consulta o incidencia sobre un pedido, escríbenos a <a href={`mailto:${SITE.email}`}>{SITE.email}</a> o llama
+          al {SITE.phoneDisplay} indicando tu número de pedido.
+        </p>
+        <p><mark class="pending">[PENDIENTE (asesor legal): hojas de reclamaciones y sistema de resolución de conflictos aplicable]</mark></p>
+
+        <h2>10. Legislación aplicable</h2>
+        <p><mark class="pending">[PENDIENTE (asesor legal): legislación y fuero aplicables a consumidores]</mark></p>
+
+        <div class="legal-nav">
+          <a href="/aviso-legal">Aviso legal →</a>
+          <a href="/privacidad">Política de Privacidad →</a>
+          <a href="/cookies">Política de Cookies →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</MainLayout>
+
+<style>
+  .legal-hero { background: var(--color-primary, #1F3F7A); color: white; padding: 2.5rem 1.5rem 2rem; text-align: center; }
+  .legal-hero__inner { max-width: 640px; margin: 0 auto; }
+  .legal-sup {
+    display: inline-block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+    background: rgba(255,255,255,0.15); padding: 0.25rem 0.75rem; border-radius: 999px; margin-bottom: 0.75rem;
+  }
+  .legal-hero h1 { font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 800; margin: 0 0 0.4rem; color: white; }
+  .legal-hero p { opacity: 0.65; font-size: 0.88rem; margin: 0; }
+  .legal-body { background: #f8fafc; padding: 3rem 1.5rem 5rem; }
+  .legal-container { max-width: 760px; margin: 0 auto; }
+  .legal-card { background: white; border-radius: 1rem; padding: 2.5rem 2rem; box-shadow: 0 2px 16px rgba(0,0,0,0.06); }
+  .legal-card h2 {
+    font-size: 1rem; font-weight: 700; color: var(--color-primary, #1F3F7A);
+    margin: 2rem 0 0.5rem; padding-top: 1.5rem; border-top: 1px solid #f1f5f9;
+  }
+  .legal-card h2:first-of-type { margin-top: 0; padding-top: 0; border-top: none; }
+  .legal-card p { color: #475569; font-size: 0.93rem; line-height: 1.85; margin: 0 0 0.75rem; }
+  .legal-card a { color: var(--color-primary, #1F3F7A); }
+  .legal-draft { background: #fff8e6; border: 1px solid #f5d98b; border-radius: 0.5rem; padding: 0.75rem 1rem; color: #7a5a00 !important; }
+  .pending { background: #fff3c4; padding: 0 0.2rem; }
+  .legal-nav { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #f1f5f9; }
+  .legal-nav a {
+    font-size: 0.88rem; font-weight: 600; color: var(--color-primary, #1F3F7A); text-decoration: none;
+    border: 1.5px solid #1F3F7A; padding: 0.4rem 1rem; border-radius: 0.5rem; transition: background 0.15s;
+  }
+  .legal-nav a:hover { background: #EEF3FB; }
+</style>

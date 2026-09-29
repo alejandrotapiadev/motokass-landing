@@ -4,6 +4,7 @@ import Breadcrumbs from "../components/ui/Breadcrumbs.astro";
 import CartPage from "../components/commerce/CartPage";
 import StoreTrust from "../components/commerce/StoreTrust.astro";
 import { getWhatsappNumber } from "../lib/site";
+import { isOnlineCheckoutReady } from "../lib/commerce/server";
 ---
 
 <MainLayout title="Carrito | MOTOKASS" description="Tu carrito de compra en MOTOKASS." noindex>
@@ -11,7 +12,7 @@ import { getWhatsappNumber } from "../lib/site";
     <div class="container">
       <Breadcrumbs items={[{ label: "Inicio", href: "/" }, { label: "Carrito" }]} />
       <h1 class="display">Tu carrito</h1>
-      <CartPage client:load whatsappNumber={getWhatsappNumber()} />
+      <CartPage client:load whatsappNumber={getWhatsappNumber()} onlineReady={isOnlineCheckoutReady()} />
     </div>
   </section>
   <StoreTrust />

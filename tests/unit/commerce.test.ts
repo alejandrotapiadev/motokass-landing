@@ -56,7 +56,7 @@ describe('computeTotals', () => {
   });
 
   it('con envío configurado calcula coste y umbral gratuito', () => {
-    const cfg: StoreConfig = { ...STORE_CONFIG, shipping: { flatRate: 5, freeFrom: 150, deliveryTime: '48h', zones: 'Península' } };
+    const cfg: StoreConfig = { ...STORE_CONFIG, shipping: { flatRate: 5, freeFrom: 150, deliveryTime: '48h', zones: 'Península', countries: ['ES'] } };
     const t1 = computeTotals(addLine(empty, casco, cfg), cfg);
     expect(t1.shipping).toBe(5);
     expect(t1.remainingForFreeShipping).toBe(50);
