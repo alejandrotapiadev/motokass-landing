@@ -2,9 +2,10 @@
 import MainLayout from "../../../layouts/MainLayout.astro";
 import Breadcrumbs from "../../../components/ui/Breadcrumbs.astro";
 import ProductDetail from "../../../components/commerce/ProductDetail";
+import BackToListing from "../../../components/commerce/BackToListing";
 import ProductGrid from "../../../components/commerce/ProductGrid";
 import StoreTrust from "../../../components/commerce/StoreTrust.astro";
-import { getCategory, EQUIPMENT_CATEGORIES } from "../../../lib/catalog/equipment-categories";
+import { getCategory, categoryUrl, EQUIPMENT_CATEGORIES } from "../../../lib/catalog/equipment-categories";
 import { getEquipmentBySlug, getRelatedEquipment, getComplementaryEquipment } from "../../../lib/catalog/equipment";
 import { AVAILABILITY_SCHEMA } from "../../../lib/catalog/types";
 import { getHelpTopics } from "../../../lib/commerce/help-topics";
@@ -69,14 +70,17 @@ const sizeHelpUrl = whatsappUrl(`Hola, tengo una duda sobre la talla de ${produc
 
   <div class="container pdp">
     {product.isMock && <p class="dev-mock-banner">Producto DEMO de desarrollo — no es un producto real</p>}
-    <Breadcrumbs
-      items={[
-        { label: "Inicio", href: "/" },
-        { label: "Equipamiento", href: "/equipamiento" },
-        { label: category.name, href: `/equipamiento/${category.slug}` },
-        { label: product.name },
-      ]}
-    />
+    <div class="pdp__top">
+      <BackToListing client:load fallbackHref={categoryUrl(category.slug)} fallbackLabel={`Volver a ${category.name.toLowerCase()}`} />
+      <Breadcrumbs
+        items={[
+          { label: "Inicio", href: "/" },
+          { label: "Equipamiento", href: "/equipamiento" },
+          { label: category.name, href: categoryUrl(category.slug) },
+          { label: product.name },
+        ]}
+      />
+    </div>
 
     <div class="pdp__main">
       <ProductDetail
@@ -164,6 +168,23 @@ const sizeHelpUrl = whatsappUrl(`Hola, tengo una duda sobre la talla de ${produc
 
 <style>
 .pdp { padding-top: 1.25rem; padding-bottom: 2rem; }
+.pdp__top { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1.25rem; }
+.pdp__top :global(.pd-back) {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  min-height: 40px;
+  padding: 0 .9rem 0 .7rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: .8rem;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: border-color .2s var(--ease);
+}
+.pdp__top :global(.pd-back:hover) { border-color: var(--ink); }
+.pdp__top :global(.pd-back svg) { transition: transform .2s var(--ease); }
+.pdp__top :global(.pd-back:hover svg) { transform: translateX(-3px); }
 .pdp__main { margin-top: 1.25rem; }
 .pdp__trust { margin: 2.5rem 0 0; border-top: 1px solid var(--line); }
 .pdp__info { max-width: 860px; margin: 2rem 0 2rem; }

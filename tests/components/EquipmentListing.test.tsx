@@ -94,3 +94,20 @@ describe('EquipmentListing — paginación', () => {
     expect(screen.getAllByRole('navigation', { name: 'Paginación' })).toHaveLength(1);
   });
 });
+
+describe('Volver al listado desde la ficha', () => {
+  it('el listado recuerda su contexto y la flecha vuelve a él', async () => {
+    const { default: BackToListing } = await import('@/components/commerce/BackToListing');
+    renderListing({ initialQuery: 'orden=price-asc&pagina=2' });
+    expect(sessionStorage.getItem('mk:last-listing')).toBe('/equipamiento?orden=price-asc&pagina=2');
+
+    render(<BackToListing fallbackHref="/equipamiento/cascos" fallbackLabel="Volver a cascos" />);
+    expect(screen.getByRole('link', { name: 'Volver al listado' })).toHaveAttribute('href', '/equipamiento?orden=price-asc&pagina=2');
+  });
+
+  it('sin listado previo vuelve a la categoría del producto', async () => {
+    const { default: BackToListing } = await import('@/components/commerce/BackToListing');
+    render(<BackToListing fallbackHref="/equipamiento/cascos" fallbackLabel="Volver a cascos" />);
+    expect(screen.getByRole('link', { name: 'Volver a cascos' })).toHaveAttribute('href', '/equipamiento/cascos');
+  });
+});

@@ -18,6 +18,7 @@ import {
   type EquipmentFilterState,
   type SortKey,
 } from "../../lib/catalog/equipment-filters";
+import { rememberListing } from "../../lib/catalog/listing-context";
 import { track } from "../../lib/analytics";
 import "./EquipmentListing.css";
 
@@ -62,6 +63,9 @@ export default function EquipmentListing({ products, categories, categorySlug, c
   const icons = useMemo(() => Object.fromEntries(categories.map((c) => [c.slug, c.icon])), [categories]);
 
   // Sincroniza la URL (compartible, recarga conserva filtros, orden y página)
+  // Contexto para el "volver" de la ficha de producto
+  useEffect(() => rememberListing(urlFor(current.page)), [filters, sort, current.page]);
+
   useEffect(() => {
     // Al cargar no se toca la URL, salvo que pidiera una página que no existe.
     if (firstUrlSync.current) {
