@@ -89,6 +89,7 @@
   font-size: .78rem;
   font-weight: 700;
   cursor: pointer;
+  transition: background .15s var(--ease), color .15s var(--ease), border-color .15s var(--ease);
 }
 .pc__size:hover:not(:disabled) { border-color: var(--ink); background: var(--ink); color: #fff; }
 .pc__size:disabled { color: #B7B9BD; text-decoration: line-through; cursor: not-allowed; }
@@ -141,7 +142,9 @@
   border: 1px solid rgba(0,0,0,.2);
   cursor: pointer;
   padding: 0;
+  transition: transform .15s var(--ease);
 }
+.pc__swatch:hover { transform: scale(1.15); }
 .pc__swatch[aria-checked="true"] { outline: 2px solid var(--ink); outline-offset: 2px; }
 
 .pc__price { display: flex; align-items: baseline; gap: .5rem; margin-top: .15rem; }

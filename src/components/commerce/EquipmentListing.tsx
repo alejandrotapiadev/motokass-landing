@@ -280,7 +280,7 @@ export default function EquipmentListing({ products, categories, categorySlug, c
 
         <div>
           {visible.length > 0 ? (
-            <div className="product-grid product-grid--3">
+            <div className="product-grid product-grid--3 el__grid" key={urlFor(current.page)}>
               {current.items.map((p, i) => (
                 <ProductCard key={p.id} product={p} categoryIcon={icons[p.category]} priority={i < 3} />
               ))}

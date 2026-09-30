@@ -1,3 +1,12 @@
+/* Transición suave entre páginas de la tienda (categorías, ficha). Mejora progresiva. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition { navigation: auto; }
+}
+
+/* El grid se vuelve a montar al cambiar filtros, orden o página: entrada discreta */
+.el__grid { animation: el-in .28s var(--ease) both; }
+@keyframes el-in { from { opacity: 0; transform: translateY(8px); } }
+
 .el { scroll-margin-top: calc(var(--header-h) + 1rem); }
 .el__bar {
   display: flex;
@@ -26,7 +35,11 @@
   letter-spacing: .08em;
   text-transform: uppercase;
   cursor: pointer;
+  transition: background .2s var(--ease), color .2s var(--ease);
 }
+.el__filter-btn:hover { background: var(--ink); color: #fff; }
+.el__sort { transition: border-color .2s var(--ease); }
+.el__sort:hover, .el__sort:focus-within { border-color: var(--ink); }
 .el__count { margin: 0; font-size: .88rem; color: var(--text-2); }
 .el__sort {
   margin-left: auto;
@@ -60,7 +73,11 @@
   font-size: .8rem;
   font-weight: 600;
   cursor: pointer;
+  animation: el-chip .2s var(--ease) both;
+  transition: background .2s var(--ease);
 }
+.el__chip:hover { background: var(--graphite-2); }
+@keyframes el-chip { from { opacity: 0; transform: scale(.92); } }
 .el__clear { background: none; border: 0; text-decoration: underline; font-size: .82rem; cursor: pointer; color: var(--text-2); }
 
 .el__layout { display: grid; grid-template-columns: 240px 1fr; gap: 2.5rem; align-items: start; }
@@ -116,7 +133,9 @@ a.pg__btn:hover { border-color: var(--ink); }
   font-weight: 700;
   font-size: .82rem;
   cursor: pointer;
+  transition: background .15s var(--ease), color .15s var(--ease), border-color .15s var(--ease);
 }
+.fl__size:hover { border-color: var(--ink); }
 .fl__size[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
 .fl__price { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
 .fl__price label { display: grid; gap: .25rem; font-size: .75rem; color: var(--text-2); }
@@ -124,7 +143,8 @@ a.pg__btn:hover { border-color: var(--ink); }
 
 /* Drawer */
 .el__drawer { position: fixed; inset: 0; z-index: 920; }
-.el__drawer-backdrop { position: absolute; inset: 0; background: rgba(14,15,18,.55); }
+.el__drawer-backdrop { position: absolute; inset: 0; background: rgba(14,15,18,.55); animation: el-backdrop .25s var(--ease); }
+@keyframes el-backdrop { from { opacity: 0; } }
 .el__drawer-panel {
   position: absolute;
   left: 0; right: 0; bottom: 0;

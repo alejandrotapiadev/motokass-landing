@@ -208,6 +208,9 @@ const sizeHelpUrl = whatsappUrl(`Hola, tengo una duda sobre la talla de ${produc
 .acc summary::-webkit-details-marker { display: none; }
 .acc summary::after { content: "+"; font-size: 1.5rem; font-weight: 300; }
 .acc[open] summary::after { content: "–"; }
+.acc summary::after { transition: transform .2s var(--ease); }
+.acc summary:hover::after { transform: scale(1.2); }
+.acc[open] .acc__body { animation: fadeIn .25s var(--ease); }
 .acc h2 { font-size: 1.5rem; text-transform: uppercase; margin: 0; }
 .acc__body { padding: 0 0 1.5rem; color: var(--text-2); line-height: 1.7; }
 .acc__body p { margin: 0 0 .75rem; }

@@ -94,7 +94,7 @@ export default function ProductDetail({ product: p, categoryIcon, sizeHelpUrl, s
       <div className="pd__gallery">
         <div className="pd__main">
           {images[imgIndex] ? (
-            <img src={images[imgIndex]} alt={`${p.name}${color ? ` — ${color}` : ""}`} width={900} height={900} fetchPriority="high" />
+            <img key={images[imgIndex]} src={images[imgIndex]} alt={`${p.name}${color ? ` — ${color}` : ""}`} width={900} height={900} fetchPriority="high" />
           ) : (
             <span className="pd__placeholder"><Icon name={categoryIcon} size={120} strokeWidth={1} /></span>
           )}
