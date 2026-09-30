@@ -165,7 +165,7 @@ const LIST_PARAMS: [keyof EquipmentFilterState, string][] = [
   ["colors", "color"],
 ];
 
-export function filtersFromParams(params: URLSearchParams): { filters: EquipmentFilterState; sort: SortKey } {
+export function filtersFromParams(params: URLSearchParams): { filters: EquipmentFilterState; sort: SortKey; page: number } {
   const f: EquipmentFilterState = { ...EMPTY_FILTERS };
   for (const [key, param] of LIST_PARAMS) {
     const v = params.get(param);
@@ -178,10 +178,11 @@ export function filtersFromParams(params: URLSearchParams): { filters: Equipment
   f.inStockOnly = params.get("stock") === "1";
   f.onSaleOnly = params.get("oferta") === "1";
   const sort = (SORT_OPTIONS.find((o) => o.value === params.get("orden"))?.value ?? "relevance") as SortKey;
-  return { filters: f, sort };
+  const page = Math.max(1, Math.floor(n("pagina") ?? 1));
+  return { filters: f, sort, page };
 }
 
-export function filtersToParams(f: EquipmentFilterState, sort: SortKey): URLSearchParams {
+export function filtersToParams(f: EquipmentFilterState, sort: SortKey, page = 1): URLSearchParams {
   const p = new URLSearchParams();
   for (const [key, param] of LIST_PARAMS) {
     const v = f[key] as string[];
@@ -193,5 +194,16 @@ export function filtersToParams(f: EquipmentFilterState, sort: SortKey): URLSear
   if (f.inStockOnly) p.set("stock", "1");
   if (f.onSaleOnly) p.set("oferta", "1");
   if (sort !== "relevance") p.set("orden", sort);
+  if (page > 1) p.set("pagina", String(page));
   return p;
+}
+
+/* ── Paginación (en cliente: el listado completo ya está cargado y filtrado) ── */
+
+export const PAGE_SIZE = 12;
+
+export function paginate<T>(items: T[], page: number, pageSize = PAGE_SIZE): { items: T[]; page: number; totalPages: number } {
+  const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
+  const current = Math.min(Math.max(1, page), totalPages);
+  return { items: items.slice((current - 1) * pageSize, current * pageSize), page: current, totalPages };
 }

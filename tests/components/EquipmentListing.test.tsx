@@ -62,3 +62,35 @@ describe('EquipmentListing — ordenación', () => {
     expect(within(nav()).getByRole('link', { name: 'Todos' })).toHaveAttribute('href', '/equipamiento?orden=price-asc');
   });
 });
+
+describe('EquipmentListing — paginación', () => {
+  it('"Todos" muestra todos los productos repartidos en páginas', () => {
+    renderListing();
+    expect(names()).toHaveLength(12);
+    expect(screen.getByText(/15 productos · página 1 de 2/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('link', { name: 'Página 2' }));
+    expect(names()).toHaveLength(MOCK_EQUIPMENT.length - 12);
+    expect(location.search).toBe('?pagina=2');
+    expect(screen.getByRole('link', { name: 'Página 2' })).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('combina orden y página, y vuelve a la página 1 al cambiar el orden o los filtros', () => {
+    renderListing({ initialQuery: 'orden=price-asc&pagina=2' });
+    expect(names()).toHaveLength(3);
+    expect(names().at(-1)).toBe('[DEMO] Chaqueta de cuero');
+    expect(screen.getByRole('link', { name: 'Página 1' })).toHaveAttribute('href', '/equipamiento?orden=price-asc');
+
+    fireEvent.change(screen.getByLabelText('Ordenar productos'), { target: { value: 'price-desc' } });
+    expect(names()[0]).toBe('[DEMO] Chaqueta de cuero');
+    expect(location.search).toBe('?orden=price-desc');
+  });
+
+  it('una página inexistente cae en la última y no hay paginación si cabe en una', () => {
+    renderListing({ initialQuery: 'pagina=99' });
+    expect(screen.getByText(/página 2 de 2/)).toBeInTheDocument();
+    expect(location.search).toBe('?pagina=2');
+
+    renderListing({ products: cascos, categorySlug: 'cascos', categoryName: 'Cascos' });
+    expect(screen.getAllByRole('navigation', { name: 'Paginación' })).toHaveLength(1);
+  });
+});
