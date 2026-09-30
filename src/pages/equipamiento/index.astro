@@ -4,7 +4,7 @@ import Breadcrumbs from "../../components/ui/Breadcrumbs.astro";
 import StoreTrust from "../../components/commerce/StoreTrust.astro";
 import EquipmentListing from "../../components/commerce/EquipmentListing";
 import { getEquipment } from "../../lib/catalog/equipment";
-import { ALL_SIZES, getActiveCategories } from "../../lib/catalog/equipment-categories";
+import { ALL_SIZES, getActiveCategories, getAllTypes } from "../../lib/catalog/equipment-categories";
 import { whatsappUrl } from "../../lib/site";
 
 const { products, source } = await getEquipment();
@@ -36,7 +36,7 @@ const categories = getActiveCategories().map(({ slug, name, icon }) => ({ slug, 
         categories={categories}
         categorySlug={null}
         categoryName="Productos"
-        types={[]}
+        types={getAllTypes()}
         sizeScale={ALL_SIZES}
         initialQuery={Astro.url.searchParams.toString()}
         helpUrl={whatsappUrl("Hola, quería consultar por equipamiento: ")}

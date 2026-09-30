@@ -233,6 +233,13 @@ export function categoryUrl(slug: string, type?: string): string {
   return `${SHOP_URL}/${slug}${type ? `?tipo=${encodeURIComponent(type)}` : ""}`;
 }
 
+/** Tipos de todas las categorías activas (sin repetir) para el filtro "Tipo" de "Todos". */
+export function getAllTypes(): FilterOption[] {
+  const seen = new Map<string, FilterOption>();
+  getActiveCategories().forEach((c) => c.types.forEach((t) => seen.has(t.value) || seen.set(t.value, t)));
+  return [...seen.values()];
+}
+
 /** Escala de tallas combinada (ropa + calzado) para el listado "Todos". */
 export const ALL_SIZES: string[] = [...new Set([...APPAREL_SIZES, ...HELMET_SIZES, ...BOOT_SIZES])];
 
