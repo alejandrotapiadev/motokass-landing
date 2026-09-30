@@ -124,16 +124,16 @@ describe('equipment filters', () => {
 });
 
 describe('equipment categories', () => {
-  it('activa las 5 categorías iniciales en orden', () => {
-    expect(getActiveCategories().map((c) => c.slug)).toEqual(['cascos', 'guantes', 'chaquetas', 'camisetas', 'botas']);
+  it('activa las categorías de la tienda en el orden de la navegación', () => {
+    expect(getActiveCategories().map((c) => c.slug)).toEqual(['cascos', 'chaquetas', 'camisetas', 'guantes', 'pantalones', 'botas', 'accesorios']);
   });
 
   it('las categorías inactivas no resuelven', () => {
-    expect(getCategory('pantalones')).toBeUndefined();
+    expect(getCategory('protecciones')).toBeUndefined();
   });
 
-  it('el mega menú tiene columnas Cascos, Ropa y Botas', () => {
-    expect(getMegaMenu().map((c) => c.title)).toEqual(['Cascos', 'Ropa', 'Botas']);
+  it('el mega menú tiene columnas Cascos, Ropa, Botas y Accesorios', () => {
+    expect(getMegaMenu().map((c) => c.title)).toEqual(['Cascos', 'Ropa', 'Botas', 'Accesorios']);
   });
 });
 

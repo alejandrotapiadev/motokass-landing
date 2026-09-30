@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import ProductCard from "./ProductCard";
+import CategoryNav from "./CategoryNav";
 import Icon from "../ui/Icon";
 import type { EquipmentProduct } from "../../lib/catalog/types";
 import type { FilterOption } from "../../lib/catalog/equipment-categories";
@@ -20,18 +21,23 @@ import "./EquipmentListing.css";
 
 interface Props {
   products: EquipmentProduct[];
-  categorySlug: string;
+  /** Categorías activas para la navegación y los iconos de placeholder. */
+  categories: { slug: string; name: string; icon: string }[];
+  /** slug de la categoría mostrada; null = "Todos" (toda la tienda). */
+  categorySlug: string | null;
+  /** Nombre en plural para los textos ("cascos", "productos"…). */
   categoryName: string;
-  categoryIcon: string;
   types: FilterOption[];
   sizeScale: string[];
   /** Query string inicial (renderizado en servidor con los mismos filtros). */
   initialQuery: string;
+  /** WhatsApp para consultar cuando la categoría aún no tiene productos. */
+  helpUrl: string;
 }
 
 type ListKey = "brands" | "types" | "sizes" | "colors";
 
-export default function EquipmentListing({ products, categorySlug, categoryName, categoryIcon, types, sizeScale, initialQuery }: Props) {
+export default function EquipmentListing({ products, categories, categorySlug, categoryName, types, sizeScale, initialQuery, helpUrl }: Props) {
   const initial = useMemo(() => filtersFromParams(new URLSearchParams(initialQuery)), [initialQuery]);
   const [filters, setFilters] = useState<EquipmentFilterState>(initial.filters);
   const [sort, setSort] = useState<SortKey>(initial.sort);
@@ -42,6 +48,7 @@ export default function EquipmentListing({ products, categorySlug, categoryName,
   const facets = useMemo(() => computeFacets(products, types, sizeScale), [products, types, sizeScale]);
   const visible = useMemo(() => sortProducts(applyFilters(products, filters), sort), [products, filters, sort]);
   const activeCount = countActiveFilters(filters);
+  const icons = useMemo(() => Object.fromEntries(categories.map((c) => [c.slug, c.icon])), [categories]);
 
   // Sincroniza la URL (compartible, recarga conserva filtros) + analytics
   useEffect(() => {
@@ -51,7 +58,7 @@ export default function EquipmentListing({ products, categorySlug, categoryName,
     }
     const qs = filtersToParams(filters, sort).toString();
     history.replaceState(null, "", `${location.pathname}${qs ? `?${qs}` : ""}`);
-    track("filter_category", { category: categorySlug, filters: qs || "none", results: visible.length });
+    track("filter_category", { category: categorySlug ?? "todos", filters: qs || "none", results: visible.length });
   }, [filters, sort]);
 
   useEffect(() => {
@@ -178,8 +185,29 @@ export default function EquipmentListing({ products, categorySlug, categoryName,
     </div>
   );
 
+  const nav = <CategoryNav categories={categories} active={categorySlug} />;
+
+  if (products.length === 0) {
+    return (
+      <div className="el">
+        {nav}
+        <div className="empty-state">
+          <strong>Muy pronto verás aquí nuestros {categoryName.toLowerCase()}.</strong>
+          Mientras tanto, consúltanos disponibilidad y tallas: te atendemos por WhatsApp o en la tienda.
+          <p style={{ marginTop: "1rem" }}>
+            <a href={helpUrl} className="btn btn--dark" target="_blank" rel="noopener noreferrer" data-track="click_whatsapp" data-track-location={`category_${categorySlug ?? "todos"}_empty`}>
+              <Icon name="whatsapp" size={18} /> Consultar {categoryName.toLowerCase()}
+            </a>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="el">
+      {nav}
+
       {/* Barra superior: filtrar / ordenar */}
       <div className="el__bar">
         <button type="button" className="el__filter-btn" onClick={() => setDrawerOpen(true)} aria-haspopup="dialog">
@@ -217,7 +245,7 @@ export default function EquipmentListing({ products, categorySlug, categoryName,
           {visible.length > 0 ? (
             <div className="product-grid product-grid--3">
               {visible.map((p, i) => (
-                <ProductCard key={p.id} product={p} categoryIcon={categoryIcon} priority={i < 3} />
+                <ProductCard key={p.id} product={p} categoryIcon={icons[p.category]} priority={i < 3} />
               ))}
             </div>
           ) : (

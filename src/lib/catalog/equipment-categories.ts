@@ -28,8 +28,6 @@ export interface EquipmentCategory {
   types: FilterOption[];
   /** Orden recomendado de tallas para el selector. */
   sizeScale: string[];
-  /** Imagen de portada (import de astro:assets o URL). null = tile gráfico. */
-  cover: "cascos" | null;
   active: boolean;
   order: number;
 }
@@ -63,7 +61,6 @@ export const EQUIPMENT_CATEGORIES: EquipmentCategory[] = [
       { value: "adventure", label: "Adventure" },
     ],
     sizeScale: HELMET_SIZES,
-    cover: "cascos",
     active: true,
     order: 1,
   },
@@ -90,9 +87,8 @@ export const EQUIPMENT_CATEGORIES: EquipmentCategory[] = [
       { value: "impermeable", label: "Impermeables" },
     ],
     sizeScale: APPAREL_SIZES,
-    cover: null,
     active: true,
-    order: 2,
+    order: 4,
   },
   {
     slug: "chaquetas",
@@ -118,9 +114,8 @@ export const EQUIPMENT_CATEGORIES: EquipmentCategory[] = [
       { value: "urbana", label: "Urbana" },
     ],
     sizeScale: APPAREL_SIZES,
-    cover: null,
     active: true,
-    order: 3,
+    order: 2,
   },
   {
     slug: "camisetas",
@@ -141,9 +136,8 @@ export const EQUIPMENT_CATEGORIES: EquipmentCategory[] = [
       { value: "tecnica", label: "Técnica" },
     ],
     sizeScale: APPAREL_SIZES,
-    cover: null,
     active: true,
-    order: 4,
+    order: 3,
   },
   {
     slug: "botas",
@@ -166,11 +160,9 @@ export const EQUIPMENT_CATEGORIES: EquipmentCategory[] = [
       { value: "adventure", label: "Adventure" },
     ],
     sizeScale: BOOT_SIZES,
-    cover: null,
     active: true,
-    order: 5,
+    order: 6,
   },
-  // ── Preparadas para activar cuando haya producto ──
   {
     slug: "pantalones",
     name: "Pantalones",
@@ -187,10 +179,28 @@ export const EQUIPMENT_CATEGORIES: EquipmentCategory[] = [
       { value: "cuero", label: "Cuero" },
     ],
     sizeScale: APPAREL_SIZES,
-    cover: null,
-    active: false,
-    order: 6,
+    active: true,
+    order: 5,
   },
+  {
+    slug: "accesorios",
+    name: "Accesorios",
+    singular: "accesorio",
+    icon: "bag",
+    menuGroup: "accesorios",
+    seo: {
+      title: "Accesorios para motoristas | MOTOKASS Ávila",
+      description: "Accesorios para motoristas: intercomunicadores, mochilas, antirrobos y más en MOTOKASS Ávila.",
+    },
+    h1: "Accesorios para moto",
+    subtitle: "Los complementos que completan tu equipamiento.",
+    intro: "Accesorios para ti y para tu moto: todo lo que hace cada salida más cómoda y segura.",
+    types: [],
+    sizeScale: [],
+    active: true,
+    order: 7,
+  },
+  // ── Preparadas para activar cuando haya producto ──
   {
     slug: "protecciones",
     name: "Protecciones",
@@ -203,9 +213,8 @@ export const EQUIPMENT_CATEGORIES: EquipmentCategory[] = [
     intro: "Protecciones para completar tu equipamiento en carretera y off-road.",
     types: [],
     sizeScale: APPAREL_SIZES,
-    cover: null,
     active: false,
-    order: 7,
+    order: 8,
   },
 ];
 
@@ -217,9 +226,15 @@ export function getCategory(slug: string): EquipmentCategory | undefined {
   return EQUIPMENT_CATEGORIES.find((c) => c.slug === slug && c.active);
 }
 
+/** Raíz de la tienda: listado de todas las categorías ("Todos"). */
+export const SHOP_URL = "/equipamiento";
+
 export function categoryUrl(slug: string, type?: string): string {
-  return `/equipamiento/${slug}${type ? `?tipo=${encodeURIComponent(type)}` : ""}`;
+  return `${SHOP_URL}/${slug}${type ? `?tipo=${encodeURIComponent(type)}` : ""}`;
 }
+
+/** Escala de tallas combinada (ropa + calzado) para el listado "Todos". */
+export const ALL_SIZES: string[] = [...new Set([...APPAREL_SIZES, ...HELMET_SIZES, ...BOOT_SIZES])];
 
 export function productUrl(categorySlug: string, productSlug: string): string {
   return `/equipamiento/${categorySlug}/${productSlug}`;
