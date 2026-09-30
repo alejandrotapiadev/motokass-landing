@@ -17,8 +17,14 @@ interface Props {
 }
 
 export default function ProductDetail({ product: p, categoryIcon, sizeHelpUrl, sizeGuideUrl }: Props) {
-  const [color, setColor] = useState<string | null>(p.colors[0]?.name ?? null);
-  const [size, setSize] = useState<string | null>(p.sizes.length === 1 ? p.sizes[0] : null);
+  // Color inicial: el primero con stock (si lo hay), para no abrir la ficha en una variante agotada.
+  const [color, setColor] = useState<string | null>(
+    (p.colors.find((c) => variantStock(p, c.name, null) > 0) ?? p.colors[0])?.name ?? null,
+  );
+  // Talla única: se preselecciona solo si tiene stock.
+  const [size, setSize] = useState<string | null>(
+    p.sizes.length === 1 && variantStock(p, color, p.sizes[0]) > 0 ? p.sizes[0] : null,
+  );
   const [qty, setQty] = useState(1);
   const [imgIndex, setImgIndex] = useState(0);
   const [sizeError, setSizeError] = useState(false);
@@ -51,6 +57,13 @@ export default function ProductDetail({ product: p, categoryIcon, sizeHelpUrl, s
   }, [p, color]);
   useEffect(() => setImgIndex(0), [color]);
 
+  function pickColor(name: string) {
+    setColor(name);
+    setQty(1);
+    // La talla elegida puede no tener stock en el nuevo color.
+    if (size && variantStock(p, name, size) <= 0) setSize(null);
+  }
+
   const variant = findVariant(p, color, size);
   const price = variant?.price ?? p.price;
   const discount = discountPercent({ price, compareAtPrice: p.compareAtPrice });
@@ -59,8 +72,10 @@ export default function ProductDetail({ product: p, categoryIcon, sizeHelpUrl, s
   const availability = p.variants.length ? availabilityFromStock(stockForSelection) : p.availability;
   const soldOut = availability === "out_of_stock";
   const maxQty = Math.max(1, Math.min(10, stockForSelection || 10));
+  const hasSoldOutSizes = needsSize && p.sizes.some((s) => variantStock(p, color, s) <= 0);
 
   function add(goToCart: boolean) {
+    if (soldOut) return;
     if (needsSize && !size) {
       setSizeError(true);
       document.getElementById("pd-sizes")?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -127,18 +142,21 @@ export default function ProductDetail({ product: p, categoryIcon, sizeHelpUrl, s
           <fieldset className="pd__opt">
             <legend>Color: <strong>{color}</strong></legend>
             <div className="pd__colors">
-              {p.colors.map((c) => (
-                <button
-                  key={c.name}
-                  type="button"
-                  className="pd__swatch"
-                  aria-pressed={c.name === color}
-                  aria-label={c.name}
-                  title={c.name}
-                  onClick={() => setColor(c.name)}
-                  style={{ background: c.hex ?? "#ccc" }}
-                />
-              ))}
+              {p.colors.map((c) => {
+                const out = variantStock(p, c.name, null) <= 0;
+                return (
+                  <button
+                    key={c.name}
+                    type="button"
+                    className={`pd__swatch${out ? " pd__swatch--out" : ""}`}
+                    aria-pressed={c.name === color}
+                    aria-label={`${c.name}${out ? ", agotado" : ""}`}
+                    title={`${c.name}${out ? " (agotado)" : ""}`}
+                    onClick={() => pickColor(c.name)}
+                    style={{ background: c.hex ?? "#ccc" }}
+                  />
+                );
+              })}
             </div>
           </fieldset>
         )}
@@ -159,6 +177,7 @@ export default function ProductDetail({ product: p, categoryIcon, sizeHelpUrl, s
                     aria-pressed={s === size}
                     disabled={!ok}
                     aria-label={`Talla ${s}${ok ? "" : ", agotada"}`}
+                    title={ok ? undefined : "Agotada"}
                     onClick={() => {
                       setSize(s);
                       setSizeError(false);
@@ -171,6 +190,7 @@ export default function ProductDetail({ product: p, categoryIcon, sizeHelpUrl, s
               })}
             </div>
             {sizeError && <p className="pd__error" role="alert">Elige una talla para continuar.</p>}
+            {hasSoldOutSizes && <p className="pd__size-note">Las tallas tachadas están agotadas{p.colors.length > 1 ? " en este color" : ""}.</p>}
             <div className="pd__size-help">
               {sizeGuideUrl ? (
                 <a href={sizeGuideUrl}>Guía de tallas</a>

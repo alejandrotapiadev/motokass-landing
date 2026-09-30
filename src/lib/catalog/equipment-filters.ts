@@ -51,7 +51,8 @@ export function applyFilters(products: EquipmentProduct[], f: EquipmentFilterSta
     if (f.brands.length && !f.brands.includes(p.brand)) return false;
     if (f.types.length && (!p.type || !f.types.includes(p.type))) return false;
     if (f.colors.length && !p.colors.some((c) => f.colors.includes(c.name))) return false;
-    if (f.sizes.length && !f.sizes.some((s) => (f.inStockOnly ? sizeInStock(p, s) : p.sizes.includes(s)))) return false;
+    // Filtrar por talla = talla con stock real: no sirve un producto que solo la tiene agotada.
+    if (f.sizes.length && !f.sizes.some((s) => sizeInStock(p, s))) return false;
     if (f.priceMin != null && (p.price ?? 0) < f.priceMin) return false;
     if (f.priceMax != null && (p.price ?? 0) > f.priceMax) return false;
     if (f.minRating != null && (p.rating ?? 0) < f.minRating) return false;
@@ -117,7 +118,8 @@ export function computeFacets(
     if (!types.some((x) => x.value === t)) types.push({ value: t, label: t.charAt(0).toUpperCase() + t.slice(1) });
   });
 
-  const sizeSet = new Set(products.flatMap((p) => p.sizes));
+  // Solo tallas con stock en algún producto
+  const sizeSet = new Set(products.flatMap((p) => p.sizes.filter((s) => sizeInStock(p, s))));
   const sizes = [
     ...sizeScale.filter((s) => sizeSet.has(s)),
     ...[...sizeSet].filter((s) => !sizeScale.includes(s)).sort(),
