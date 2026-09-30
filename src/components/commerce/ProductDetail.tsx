@@ -127,7 +127,7 @@ export default function ProductDetail({ product: p, categoryIcon, sizeHelpUrl, s
         <h1 className="pd__name">{p.name}</h1>
         {p.rating != null && p.reviewCount > 0 && (
           <a href="#opiniones" className="pd__rating">
-            <Stars rating={p.rating} /> <span>({p.reviewCount} {p.reviewCount === 1 ? "reseña" : "reseñas"})</span>
+            <Stars rating={p.rating} /> <span>({p.reviewCount} {p.reviewCount === 1 ? "valoración" : "valoraciones"})</span>
           </a>
         )}
 

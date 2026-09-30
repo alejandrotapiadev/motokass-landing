@@ -5,8 +5,10 @@ import ProductDetail from "../../../components/commerce/ProductDetail";
 import BackToListing from "../../../components/commerce/BackToListing";
 import ProductGrid from "../../../components/commerce/ProductGrid";
 import StoreTrust from "../../../components/commerce/StoreTrust.astro";
+import ProductReviews from "../../../components/commerce/ProductReviews.astro";
 import { getCategory, categoryUrl, EQUIPMENT_CATEGORIES } from "../../../lib/catalog/equipment-categories";
 import { getEquipmentBySlug, getRelatedEquipment, getComplementaryEquipment } from "../../../lib/catalog/equipment";
+import { getProductReviews } from "../../../lib/catalog/equipment-reviews";
 import { AVAILABILITY_SCHEMA } from "../../../lib/catalog/types";
 import { getHelpTopics } from "../../../lib/commerce/help-topics";
 import { STORE_CONFIG } from "../../../lib/commerce/store-config";
@@ -17,7 +19,11 @@ if (!category) return Astro.rewrite("/404");
 const { product } = await getEquipmentBySlug(category.slug, Astro.params.producto ?? "");
 if (!product) return Astro.rewrite("/404");
 
-const [related, complementary] = await Promise.all([getRelatedEquipment(product, 4), getComplementaryEquipment(product, 4)]);
+const [related, complementary, reviews] = await Promise.all([
+  getRelatedEquipment(product, 4),
+  getComplementaryEquipment(product, 4),
+  getProductReviews(product),
+]);
 const icons = Object.fromEntries(EQUIPMENT_CATEGORIES.map((c) => [c.slug, c.icon]));
 const pageUrl = new URL(product.url, SITE.url).toString();
 const helpTopics = getHelpTopics();
@@ -145,6 +151,8 @@ const sizeHelpUrl = whatsappUrl(`Hola, tengo una duda sobre la talla de ${produc
         </details>
       )}
     </div>
+
+    <ProductReviews product={product} reviews={reviews} />
   </div>
 
   {related.length > 0 && (

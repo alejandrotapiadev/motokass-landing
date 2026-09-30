@@ -5,7 +5,7 @@
  * tabla equipment_products de Supabase está vacía. NO son productos, marcas,
  * precios ni stock reales. Nunca se sirven en producción (ver equipment.ts).
  */
-import type { EquipmentProduct } from "./types";
+import type { EquipmentProduct, ProductReview } from "./types";
 import { rowToEquipment, type EquipmentRow } from "./equipment-mapper";
 
 const base = {
@@ -277,3 +277,11 @@ export const MOCK_EQUIPMENT: EquipmentProduct[] = ROWS.map((r, i) => ({
 }));
 
 export const MOCK_FEATURED_IDS = new Set(ROWS.filter((_, i) => i % 2 === 0).map((r) => r.id));
+
+/** Reseñas ficticias para maquetar la ficha (solo productos mock, nunca en producción). */
+export const MOCK_REVIEWS: Record<string, ProductReview[]> = {
+  "mock-1": [
+    { id: "mock-r1", author: "Cliente Demo", rating: 5, title: "[DEMO] Título de ejemplo", body: "Comentario de ejemplo para desarrollo. No es una reseña real.", date: "2026-09-12" },
+    { id: "mock-r2", author: "Otro Cliente Demo", rating: 4, body: "[DEMO] Segundo comentario de ejemplo, sin título.", date: "2026-08-30" },
+  ],
+};
