@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Herramientas MOTOKASS</title>
+<meta name="description" content="Accesos directos a las herramientas y paneles que se usan para gestionar la web de MOTOKASS." />
+<style>
+  :root {
+    --bg: #ffffff; --bg-2: #f4f4f2; --card: #ffffff; --ink: #15171b; --ink-2: #5f6570;
+    --line: #e3e3e0; --brand: #1f3f7a; --accent: #d7261e; --code: #f1f1ee;
+    --radius: 6px;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e0f12; --bg-2: #17191e; --card: #1b1e24; --ink: #ecedef; --ink-2: #a7acb6;
+      --line: #2c3038; --brand: #7aa2e8; --accent: #ff6b63; --code: #23262d;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e0f12; --bg-2: #17191e; --card: #1b1e24; --ink: #ecedef; --ink-2: #a7acb6;
+    --line: #2c3038; --brand: #7aa2e8; --accent: #ff6b63; --code: #23262d;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 var(--sans); }
+  code { font-family: var(--mono); font-size: .85em; background: var(--code); padding: .1em .35em; border-radius: 3px; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
+
+  header.top { background: #0e0f12; color: #f5f5f3; padding: 44px 0 36px; }
+  .eyebrow { color: #ff6b63; font-size: 12px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+  header.top h1 { font-size: clamp(30px, 5vw, 48px); font-weight: 800; margin: 8px 0 10px; line-height: 1.1; }
+  header.top p { color: #a7acb6; max-width: 70ch; margin: 0; }
+  header.top a { color: #9dbcf0; }
+
+  .bar { position: sticky; top: 0; z-index: 10; background: var(--bg); border-bottom: 1px solid var(--line); }
+  .bar .wrap { display: flex; gap: 8px; align-items: center; padding-top: 10px; padding-bottom: 10px; }
+  .search { flex: 1; display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 999px; padding: 0 14px; background: var(--card); }
+  .search input { flex: 1; border: 0; outline: 0; background: transparent; color: var(--ink); font: inherit; padding: 9px 0; min-width: 0; }
+  .theme-btn { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 8px 14px; font-size: 13px; cursor: pointer; white-space: nowrap; }
+
+  .quick { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 24px 0 8px; }
+  .quick a { display: flex; flex-direction: column; gap: 2px; padding: 14px 16px; border-radius: var(--radius); background: var(--ink); color: var(--bg); text-decoration: none; }
+  .quick a:hover { outline: 2px solid var(--accent); }
+  .quick strong { font-size: 15px; }
+  .quick span { font-size: 12px; opacity: .75; word-break: break-all; }
+  @media (max-width: 860px) { .quick { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+  .groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; padding: 16px 0 48px; }
+  @media (max-width: 800px) { .groups { grid-template-columns: 1fr; } }
+  .group { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  .group > header { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+  .logo { width: 36px; height: 36px; border-radius: 8px; display: grid; place-items: center; font-weight: 800; font-size: 15px; color: #fff; flex-shrink: 0; }
+  .group h2 { font-size: 17px; margin: 0; line-height: 1.2; }
+  .group header p { margin: 2px 0 0; font-size: 12.5px; color: var(--ink-2); }
+  .group ul { list-style: none; margin: 0; padding: 6px; }
+  .group li a { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 9px 10px; border-radius: 4px; text-decoration: none; color: var(--ink); }
+  .group li a:hover { background: var(--bg-2); }
+  .group li a .t { font-weight: 600; font-size: 14px; }
+  .group li a .d { display: block; font-size: 12px; color: var(--ink-2); font-weight: 400; }
+  .group li a .ext { color: var(--ink-2); font-size: 13px; flex-shrink: 0; }
+  .group .note { margin: 0; padding: 10px 16px 14px; font-size: 12.5px; color: var(--ink-2); border-top: 1px dashed var(--line); }
+  .hidden { display: none !important; }
+
+  .cmds { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin-bottom: 48px; }
+  .cmds h2 { font-size: 17px; margin: 0 0 10px; }
+  .cmds table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .cmds td { padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .cmds tr:last-child td { border-bottom: 0; }
+  .cmds td:first-child { white-space: nowrap; width: 1%; }
+  .empty { display: none; text-align: center; color: var(--ink-2); padding: 32px 0; }
+  footer { color: var(--ink-2); font-size: 13px; padding: 0 0 40px; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <span class="eyebrow">Accesos directos</span>
+    <h1>Herramientas de la web MOTOKASS</h1>
+    <p>Paneles y servicios que se usan para gestionar, desplegar y mantener la web. Algunos enlaces requieren iniciar sesión con la cuenta correspondiente. Arquitectura del proyecto: <a href="arquitectura.html">arquitectura.html</a> · Subir productos: <a href="guia-subir-producto.html">guia-subir-producto.html</a>.</p>
+  </div>
+</header>
+
+<div class="bar">
+  <div class="wrap">
+    <label class="search">
+      <span aria-hidden="true">🔍</span>
+      <input id="q" type="search" placeholder="Filtrar herramientas (dns, variables, citas, emails…)" aria-label="Filtrar herramientas" />
+    </label>
+    <button class="theme-btn" type="button" id="themeBtn" aria-label="Cambiar tema claro/oscuro">◐ Tema</button>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <div class="quick" data-group>
+    <a href="https://www.motokass.com" target="_blank" rel="noopener"><strong>Web en producción</strong><span>www.motokass.com</span></a>
+    <a href="https://motokass-landing-git-develop-alejandrotapiadevs-projects.vercel.app" target="_blank" rel="noopener"><strong>Preview develop</strong><span>rama develop</span></a>
+    <a href="https://vercel.com/alejandrotapiadevs-projects/motokass-landing" target="_blank" rel="noopener"><strong>Vercel</strong><span>proyecto motokass-landing</span></a>
+    <a href="https://github.com/alejandrotapiadev/motokass-landing" target="_blank" rel="noopener"><strong>GitHub</strong><span>repositorio</span></a>
+  </div>
+
+  <div class="groups" id="groups">
+
+    <!-- WEB -->
+    <section class="group">
+      <header>
+        <div class="logo" style="background:#d7261e">MK</div>
+        <div><h2>La web</h2><p>Entornos publicados y panel interno</p></div>
+      </header>
+      <ul>
+        <li><a href="https://www.motokass.com" target="_blank" rel="noopener"><span><span class="t">Producción</span><span class="d">www.motokass.com · rama main</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://develop.motokass.com" target="_blank" rel="noopener"><span><span class="t">develop.motokass.com</span><span class="d">Entorno de revisión (requiere CNAME en Hostinger)</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://motokass-landing-git-develop-alejandrotapiadevs-projects.vercel.app" target="_blank" rel="noopener"><span><span class="t">Preview rama develop</span><span class="d">Protegida con login de Vercel</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://motokass-landing-git-feature-40a68a-alejandrotapiadevs-projects.vercel.app" target="_blank" rel="noopener"><span><span class="t">Preview rama feature/redesign</span><span class="d">Protegida con login de Vercel</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://www.motokass.com/admin" target="_blank" rel="noopener"><span><span class="t">Panel admin</span><span class="d">Citas y suscriptores · contraseña ADMIN_PASSWORD</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://www.motokass.com/admin/citas" target="_blank" rel="noopener"><span><span class="t">Admin · Citas del taller</span><span class="d">/admin/citas</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://www.motokass.com/sitemap.xml" target="_blank" rel="noopener"><span><span class="t">Sitemap</span><span class="d">/sitemap.xml</span></span><span class="ext">↗</span></a></li>
+      </ul>
+    </section>
+
+    <!-- VERCEL -->
+    <section class="group">
+      <header>
+        <div class="logo" style="background:#000">▲</div>
+        <div><h2>Vercel</h2><p>Hosting, despliegues, dominios y variables · equipo alejandrotapiadevs-projects</p></div>
+      </header>
+      <ul>
+        <li><a href="https://vercel.com/alejandrotapiadevs-projects/motokass-landing" target="_blank" rel="noopener"><span><span class="t">Proyecto motokass-landing</span><span class="d">Resumen y último despliegue de producción</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://vercel.com/alejandrotapiadevs-projects/motokass-landing/deployments" target="_blank" rel="noopener"><span><span class="t">Deployments</span><span class="d">Historial, previews por rama, rollback, botón Share</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://vercel.com/alejandrotapiadevs-projects/motokass-landing/settings/domains" target="_blank" rel="noopener"><span><span class="t">Dominios</span><span class="d">motokass.com, www, develop.motokass.com (rama asignada)</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://vercel.com/alejandrotapiadevs-projects/motokass-landing/settings/environment-variables" target="_blank" rel="noopener"><span><span class="t">Variables de entorno</span><span class="d">Supabase, Resend, WhatsApp, Groq, EQUIPMENT_USE_MOCK…</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://vercel.com/alejandrotapiadevs-projects/motokass-landing/logs" target="_blank" rel="noopener"><span><span class="t">Logs</span><span class="d">Errores y peticiones de las funciones</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://vercel.com/alejandrotapiadevs-projects/motokass-landing/analytics" target="_blank" rel="noopener"><span><span class="t">Web Analytics</span><span class="d">Visitas (solo con cookies aceptadas)</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://vercel.com/alejandrotapiadevs-projects/motokass-landing/speed-insights" target="_blank" rel="noopener"><span><span class="t">Speed Insights</span><span class="d">Core Web Vitals reales</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://vercel.com/alejandrotapiadevs-projects/motokass-landing/settings/cron-jobs" target="_blank" rel="noopener"><span><span class="t">Cron Jobs</span><span class="d">Blog automático · lunes 10:00 UTC</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://vercel.com/alejandrotapiadevs-projects/motokass-landing/settings/deployment-protection" target="_blank" rel="noopener"><span><span class="t">Deployment Protection</span><span class="d">Login obligatorio en previews</span></span><span class="ext">↗</span></a></li>
+      </ul>
+    </section>
+
+    <!-- SUPABASE -->
+    <section class="group">
+      <header>
+        <div class="logo" style="background:#1e8e4e">S</div>
+        <div><h2>Supabase</h2><p>Base de datos PostgreSQL · proyecto <code>qjddrchpwljecavsryrg</code></p></div>
+      </header>
+      <ul>
+        <li><a href="https://supabase.com/dashboard/project/qjddrchpwljecavsryrg" target="_blank" rel="noopener"><span><span class="t">Dashboard del proyecto</span><span class="d">Estado general y uso</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://supabase.com/dashboard/project/qjddrchpwljecavsryrg/editor" target="_blank" rel="noopener"><span><span class="t">Table Editor</span><span class="d">citas, subscribers, blog_posts, equipment_products…</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://supabase.com/dashboard/project/qjddrchpwljecavsryrg/sql/new" target="_blank" rel="noopener"><span><span class="t">SQL Editor</span><span class="d">Aplicar migraciones de <code>supabase/migrations/</code></span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://supabase.com/dashboard/project/qjddrchpwljecavsryrg/settings/api" target="_blank" rel="noopener"><span><span class="t">API keys</span><span class="d">URL y service_role (no compartir)</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://supabase.com/dashboard/project/qjddrchpwljecavsryrg/logs/explorer" target="_blank" rel="noopener"><span><span class="t">Logs</span><span class="d">Consultas y errores de la base de datos</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://supabase.com/dashboard/project/qjddrchpwljecavsryrg/database/backups/scheduled" target="_blank" rel="noopener"><span><span class="t">Backups</span><span class="d">Copias de seguridad</span></span><span class="ext">↗</span></a></li>
+      </ul>
+    </section>
+
+    <!-- GITHUB -->
+    <section class="group">
+      <header>
+        <div class="logo" style="background:#24292f">GH</div>
+        <div><h2>GitHub</h2><p>Código fuente · alejandrotapiadev/motokass-landing</p></div>
+      </header>
+      <ul>
+        <li><a href="https://github.com/alejandrotapiadev/motokass-landing" target="_blank" rel="noopener"><span><span class="t">Repositorio</span><span class="d">Código y README</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://github.com/alejandrotapiadev/motokass-landing/branches" target="_blank" rel="noopener"><span><span class="t">Ramas</span><span class="d">main · develop · feature/redesign</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://github.com/alejandrotapiadev/motokass-landing/commits/develop" target="_blank" rel="noopener"><span><span class="t">Commits de develop</span><span class="d">Historial de la rama de integración</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://github.com/alejandrotapiadev/motokass-landing/compare/main...develop" target="_blank" rel="noopener"><span><span class="t">Comparar main ← develop</span><span class="d">Qué falta por subir a producción</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://github.com/alejandrotapiadev/motokass-landing/pulls" target="_blank" rel="noopener"><span><span class="t">Pull requests</span><span class="d">Revisiones y merges</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://github.com/alejandrotapiadev/motokass-landing/settings" target="_blank" rel="noopener"><span><span class="t">Ajustes del repositorio</span><span class="d">Colaboradores, ramas protegidas</span></span><span class="ext">↗</span></a></li>
+      </ul>
+    </section>
+
+    <!-- HOSTINGER -->
+    <section class="group">
+      <header>
+        <div class="logo" style="background:#673de6">H</div>
+        <div><h2>Hostinger</h2><p>Dominio motokass.com y DNS (nameservers dns-parking.com)</p></div>
+      </header>
+      <ul>
+        <li><a href="https://hpanel.hostinger.com/" target="_blank" rel="noopener"><span><span class="t">hPanel</span><span class="d">Panel principal de Hostinger</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://hpanel.hostinger.com/domains" target="_blank" rel="noopener"><span><span class="t">Dominios</span><span class="d">motokass.com → Zona DNS</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://hpanel.hostinger.com/emails" target="_blank" rel="noopener"><span><span class="t">Email</span><span class="d">Buzones del dominio, si están contratados</span></span><span class="ext">↗</span></a></li>
+      </ul>
+      <p class="note">DNS actual: <code>motokass.com</code> A → 216.198.79.1 (Vercel) · <code>www</code> CNAME → motokass.com. Pendiente: <code>develop</code> CNAME → <code>cname.vercel-dns.com</code>.</p>
+    </section>
+
+    <!-- RESEND -->
+    <section class="group">
+      <header>
+        <div class="logo" style="background:#111">R</div>
+        <div><h2>Resend</h2><p>Envío de emails · remitente noreply@motokass.com</p></div>
+      </header>
+      <ul>
+        <li><a href="https://resend.com/emails" target="_blank" rel="noopener"><span><span class="t">Emails enviados</span><span class="d">Citas, contacto, confirmación de newsletter</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://resend.com/domains" target="_blank" rel="noopener"><span><span class="t">Dominios</span><span class="d">Verificación DNS de motokass.com</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://resend.com/api-keys" target="_blank" rel="noopener"><span><span class="t">API keys</span><span class="d">RESEND_API_KEY</span></span><span class="ext">↗</span></a></li>
+      </ul>
+    </section>
+
+    <!-- IA -->
+    <section class="group">
+      <header>
+        <div class="logo" style="background:#f55036">AI</div>
+        <div><h2>Inteligencia artificial</h2><p>Chatbot y blog automático</p></div>
+      </header>
+      <ul>
+        <li><a href="https://console.groq.com/keys" target="_blank" rel="noopener"><span><span class="t">Groq · API keys</span><span class="d">GROQ_API_KEY (chatbot y blog)</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://console.groq.com/dashboard/usage" target="_blank" rel="noopener"><span><span class="t">Groq · Uso</span><span class="d">Consumo del tier gratuito</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://console.anthropic.com/" target="_blank" rel="noopener"><span><span class="t">Anthropic Console</span><span class="d">ANTHROPIC_API_KEY (configurada en Vercel)</span></span><span class="ext">↗</span></a></li>
+      </ul>
+    </section>
+
+    <!-- GOOGLE -->
+    <section class="group">
+      <header>
+        <div class="logo" style="background:#4285f4">G</div>
+        <div><h2>Google</h2><p>SEO, ficha del negocio y reseñas</p></div>
+      </header>
+      <ul>
+        <li><a href="https://search.google.com/search-console" target="_blank" rel="noopener"><span><span class="t">Search Console</span><span class="d">Indexación, sitemap y rendimiento en buscador</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://business.google.com/" target="_blank" rel="noopener"><span><span class="t">Perfil de Empresa</span><span class="d">Ficha de Moto Kass en Maps</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://www.google.com/maps/place/Moto+Kass/@40.6525761,-4.6877108,17z/data=!3m1!4b1!4m6!3m5!1s0xd40f313ac754745:0xcfeb50ee9c5664c1!8m2!3d40.6525721!4d-4.6851359!16s%2Fg%2F11kl1070yk" target="_blank" rel="noopener"><span><span class="t">Reseñas en Google Maps</span><span class="d">Fuente para las reseñas reales de la web</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://pagespeed.web.dev/analysis?url=https%3A%2F%2Fwww.motokass.com%2F" target="_blank" rel="noopener"><span><span class="t">PageSpeed Insights</span><span class="d">Lighthouse de la home</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://search.google.com/test/rich-results?url=https%3A%2F%2Fwww.motokass.com%2F" target="_blank" rel="noopener"><span><span class="t">Rich Results Test</span><span class="d">Validar schema (Product, Breadcrumb, LocalBusiness)</span></span><span class="ext">↗</span></a></li>
+      </ul>
+    </section>
+
+    <!-- REDES Y CONTACTO -->
+    <section class="group">
+      <header>
+        <div class="logo" style="background:#25d366">W</div>
+        <div><h2>Redes y contacto</h2><p>Canales que enlaza la web</p></div>
+      </header>
+      <ul>
+        <li><a href="https://wa.me/34653973209" target="_blank" rel="noopener"><span><span class="t">WhatsApp</span><span class="d">+34 653 97 32 09 · WHATSAPP_NUMBER</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://www.instagram.com/moto_kass/" target="_blank" rel="noopener"><span><span class="t">Instagram</span><span class="d">@moto_kass</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://www.facebook.com/p/MOTO-KASS-100063585579672/?locale=es_ES" target="_blank" rel="noopener"><span><span class="t">Facebook</span><span class="d">MOTO KASS</span></span><span class="ext">↗</span></a></li>
+      </ul>
+    </section>
+
+    <!-- FABRICANTES -->
+    <section class="group">
+      <header>
+        <div class="logo" style="background:#1f3f7a">RS</div>
+        <div><h2>Fabricantes</h2><p>Fuentes del catálogo de motos (JSON)</p></div>
+      </header>
+      <ul>
+        <li><a href="https://rieju.com/es" target="_blank" rel="noopener"><span><span class="t">Rieju</span><span class="d">Modelos, fichas y PVP · RiejuCatalogo.json</span></span><span class="ext">↗</span></a></li>
+        <li><a href="https://www.sherco.com/es/motos-es" target="_blank" rel="noopener"><span><span class="t">Sherco</span><span class="d">Modelos y fichas (sin PVP publicado) · ShercoCatalogo.json</span></span><span class="ext">↗</span></a></li>
+      </ul>
+    </section>
+
+  </div>
+
+  <p class="empty" id="empty">No hay herramientas que coincidan con la búsqueda.</p>
+
+  <div class="cmds">
+    <h2>Comandos habituales (en la carpeta del proyecto)</h2>
+    <table>
+      <tr><td><code>npm run dev</code></td><td>Web en local en http://localhost:4321 (con productos DEMO)</td></tr>
+      <tr><td><code>npm test</code></td><td>Ejecuta los tests (Vitest)</td></tr>
+      <tr><td><code>npm run build</code></td><td>Compila como en Vercel para comprobar que no hay errores</td></tr>
+      <tr><td><code>npx astro check</code></td><td>Comprobación de tipos</td></tr>
+      <tr><td><code>git switch develop</code> · <code>git pull</code></td><td>Actualizar la rama de integración</td></tr>
+      <tr><td><code>git push</code></td><td>Sube la rama; Vercel despliega automáticamente su preview (main → producción)</td></tr>
+    </table>
+  </div>
+</main>
+
+<footer class="wrap">MOTOKASS · Herramientas del proyecto · septiembre 2026</footer>
+
+<script>
+  (function () {
+    var q = document.getElementById("q");
+    var groups = [].slice.call(document.querySelectorAll("#groups .group"));
+    var empty = document.getElementById("empty");
+    function norm(s) { return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); }
+    q.addEventListener("input", function () {
+      var term = norm(q.value.trim());
+      var anyVisible = false;
+      groups.forEach(function (g) {
+        var groupMatch = norm(g.querySelector("header").textContent).indexOf(term) !== -1;
+        var visibleItems = 0;
+        g.querySelectorAll("li").forEach(function (li) {
+          var show = !term || groupMatch || norm(li.textContent).indexOf(term) !== -1;
+          li.classList.toggle("hidden", !show);
+          if (show) visibleItems++;
+        });
+        var showGroup = visibleItems > 0;
+        g.classList.toggle("hidden", !showGroup);
+        if (showGroup) anyVisible = true;
+      });
+      empty.style.display = anyVisible ? "none" : "block";
+    });
+
+    var btn = document.getElementById("themeBtn");
+    var root = document.documentElement;
+    try { var saved = localStorage.getItem("mk_docs_theme"); if (saved) root.setAttribute("data-theme", saved); } catch (e) {}
+    btn.addEventListener("click", function () {
+      var current = root.getAttribute("data-theme") || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      var next = current === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("mk_docs_theme", next); } catch (e) {}
+    });
+  })();
+</script>
+</body>
+</html>

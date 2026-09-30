@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Guía: subir un producto</title>
+<meta name="description" content="Guía paso a paso para dar de alta un producto de equipamiento en la tienda de MOTOKASS y venderlo." />
+<style>
+  :root {
+    --bg: #ffffff; --bg-2: #f4f4f2; --card: #ffffff; --ink: #15171b; --ink-2: #5f6570;
+    --line: #e3e3e0; --brand: #1f3f7a; --brand-soft: #e8eef8; --accent: #d7261e; --accent-soft: #fbe9e8;
+    --ok: #1e8e4e; --ok-soft: #e6f4ec; --warn: #b7791f; --warn-soft: #fbf1e1; --code: #f1f1ee;
+    --radius: 6px;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e0f12; --bg-2: #17191e; --card: #1b1e24; --ink: #ecedef; --ink-2: #a7acb6;
+      --line: #2c3038; --brand: #7aa2e8; --brand-soft: #1c2a44; --accent: #ff6b63; --accent-soft: #3a1d1c;
+      --ok: #4cc488; --ok-soft: #173326; --warn: #e2b05a; --warn-soft: #3a2e17; --code: #23262d;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e0f12; --bg-2: #17191e; --card: #1b1e24; --ink: #ecedef; --ink-2: #a7acb6;
+    --line: #2c3038; --brand: #7aa2e8; --brand-soft: #1c2a44; --accent: #ff6b63; --accent-soft: #3a1d1c;
+    --ok: #4cc488; --ok-soft: #173326; --warn: #e2b05a; --warn-soft: #3a2e17; --code: #23262d;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.65 var(--sans); }
+  a { color: var(--brand); }
+  code { font-family: var(--mono); font-size: .85em; background: var(--code); padding: .1em .35em; border-radius: 3px; }
+  h1, h2, h3 { line-height: 1.2; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 16px; }
+
+  header.top { background: #0e0f12; color: #f5f5f3; padding: 44px 0 36px; }
+  .eyebrow { color: #ff6b63; font-size: 12px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+  header.top h1 { font-size: clamp(30px, 5vw, 46px); font-weight: 800; margin: 8px 0 10px; }
+  header.top p { color: #a7acb6; max-width: 70ch; margin: 0; }
+  header.top a { color: #9dbcf0; }
+  .summary { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  .summary span { border: 1px solid #2c3038; border-radius: 999px; padding: 4px 12px; font-size: 13px; color: #d6d8dc; }
+
+  .bar { position: sticky; top: 0; z-index: 10; background: var(--bg); border-bottom: 1px solid var(--line); }
+  .bar .wrap { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; padding-top: 8px; padding-bottom: 8px; align-items: center; }
+  .bar a { white-space: nowrap; text-decoration: none; color: var(--ink-2); font-size: 13px; font-weight: 600; padding: 6px 10px; border-radius: 999px; }
+  .bar a:hover { background: var(--bg-2); color: var(--ink); }
+  .theme-btn { margin-left: auto; border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 4px 12px; font-size: 13px; cursor: pointer; white-space: nowrap; }
+
+  main { padding: 32px 0 56px; }
+
+  /* Avisos */
+  .callout { border-radius: var(--radius); padding: 14px 16px 14px 48px; position: relative; margin: 16px 0; font-size: 14.5px; }
+  .callout::before { position: absolute; left: 16px; top: 13px; font-size: 18px; }
+  .callout p { margin: 0; }
+  .callout p + p { margin-top: 6px; }
+  .c-warn { background: var(--warn-soft); border: 1px solid color-mix(in srgb, var(--warn) 35%, transparent); }
+  .c-warn::before { content: "⚠️"; }
+  .c-info { background: var(--brand-soft); border: 1px solid color-mix(in srgb, var(--brand) 30%, transparent); }
+  .c-info::before { content: "ℹ️"; }
+  .c-ok { background: var(--ok-soft); border: 1px solid color-mix(in srgb, var(--ok) 35%, transparent); }
+  .c-ok::before { content: "✅"; }
+  .c-stop { background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); }
+  .c-stop::before { content: "⛔"; }
+
+  /* Mapa del proceso */
+  .map { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 8px 0 32px; counter-reset: m; }
+  .map a { display: block; text-decoration: none; color: var(--ink); background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; font-size: 13.5px; position: relative; }
+  .map a:hover { border-color: var(--ink); }
+  .map a b { display: block; font-size: 14px; }
+  .map a span { color: var(--ink-2); font-size: 12.5px; }
+  .map .n { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--ink); color: var(--bg); font-size: 12px; font-weight: 800; margin-bottom: 6px; }
+  .map .once .n { background: var(--warn); color: #fff; }
+  @media (max-width: 760px) { .map { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+  /* Pasos */
+  .step { display: grid; grid-template-columns: 52px 1fr; gap: 16px; padding: 28px 0; border-top: 1px solid var(--line); }
+  .step-num { width: 44px; height: 44px; border-radius: 50%; background: var(--ink); color: var(--bg); display: grid; place-items: center; font-weight: 800; font-size: 18px; position: sticky; top: 64px; }
+  .step.once .step-num { background: var(--warn); color: #fff; }
+  .step h2 { font-size: 24px; margin: 6px 0 4px; }
+  .step .lead { color: var(--ink-2); margin: 0 0 12px; }
+  .step ol, .step ul { padding-left: 20px; margin: 8px 0; }
+  .step li { margin: 4px 0; }
+  .tag { display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; padding: 2px 8px; border-radius: 3px; vertical-align: 2px; }
+  .t-once { background: var(--warn-soft); color: var(--warn); }
+  .t-each { background: var(--brand-soft); color: var(--brand); }
+  @media (max-width: 600px) { .step { grid-template-columns: 1fr; gap: 6px; } .step-num { position: static; } }
+
+  /* Tablas */
+  .table-wrap { overflow-x: auto; margin: 12px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; background: var(--card); border: 1px solid var(--line); }
+  th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: var(--bg-2); font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); }
+  td:first-child { white-space: nowrap; }
+  .req { color: var(--accent); font-weight: 800; }
+  .opt { color: var(--ink-2); font-size: 12px; }
+
+  /* Código */
+  .code { position: relative; margin: 12px 0; }
+  .code pre { margin: 0; background: #0e0f12; color: #e6e6e3; border-radius: var(--radius); padding: 16px; overflow-x: auto; font: 12.5px/1.6 var(--mono); }
+  .code .cm { color: #8b93a1; }
+  .code .st { color: #a5d6a7; }
+  .copy { position: absolute; top: 8px; right: 8px; border: 1px solid #2c3038; background: #1b1e24; color: #e6e6e3; border-radius: 4px; padding: 4px 10px; font-size: 12px; cursor: pointer; }
+  .copy.done { background: #1e8e4e; border-color: #1e8e4e; }
+
+  /* Tarjetas */
+  .grid { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; font-size: 14px; }
+  .card h3 { margin: 0 0 6px; font-size: 15px; }
+  .card p { margin: 0; color: var(--ink-2); }
+  .cats { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+  .cats .card b { display: block; font-family: var(--mono); font-size: 13px; }
+  .cats .card span { font-size: 12px; color: var(--ink-2); }
+
+  /* Checklist interactiva */
+  .check { list-style: none; padding: 0 !important; }
+  .check li { margin: 6px 0; }
+  .check label { display: flex; gap: 10px; align-items: flex-start; background: var(--card); border: 1px solid var(--line); border-radius: 4px; padding: 10px 12px; cursor: pointer; font-size: 14px; }
+  .check input { margin-top: 4px; width: 16px; height: 16px; accent-color: var(--ok); flex-shrink: 0; }
+  .check input:checked + span { color: var(--ink-2); text-decoration: line-through; }
+
+  /* Flujo de venta */
+  .flow { display: flex; gap: 0; align-items: stretch; overflow-x: auto; margin: 12px 0; }
+  .flow .f { flex: 1 1 120px; min-width: 0; background: var(--card); border: 1px solid var(--line); border-top: 4px solid var(--brand); border-radius: 4px; padding: 10px 12px; font-size: 13px; }
+  .flow .f b { display: block; font-size: 13.5px; margin-bottom: 2px; }
+  .flow .f span { color: var(--ink-2); }
+  .flow .f.you { border-top-color: var(--accent); }
+  .flow .a { flex: 0 0 28px; display: grid; place-items: center; color: var(--ink-2); }
+  @media (max-width: 700px) { .flow { flex-direction: column; } .flow .f { flex: none; } .flow .a { transform: rotate(90deg); height: 24px; flex: none; } }
+  .legend { font-size: 12px; color: var(--ink-2); display: flex; gap: 14px; flex-wrap: wrap; }
+  .legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+  .lg-you::before { background: var(--accent); } .lg-web::before { background: var(--brand); }
+
+  details.faq { background: var(--card); border: 1px solid var(--line); border-radius: 4px; margin: 8px 0; }
+  details.faq summary { cursor: pointer; padding: 12px 14px; font-weight: 600; font-size: 14.5px; }
+  details.faq div { padding: 0 14px 14px; color: var(--ink-2); font-size: 14px; }
+  footer { color: var(--ink-2); font-size: 13px; padding: 0 0 40px; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <span class="eyebrow">Guía paso a paso</span>
+    <h1>Cómo subir un producto a la tienda y venderlo</h1>
+    <p>Todo lo necesario para dar de alta un casco, guantes, chaqueta, camiseta o botas en la tienda online de MOTOKASS, con sus fotos, colores, tallas y stock, y qué hacer cuando un cliente lo compra. Relacionado: <a href="herramientas.html">herramientas.html</a> · <a href="arquitectura.html">arquitectura.html</a>.</p>
+    <div class="summary">
+      <span>⏱ 10–15 min por producto</span><span>🛠 Supabase (panel web)</span><span>💻 Sin tocar código</span>
+    </div>
+  </div>
+</header>
+
+<nav class="bar" aria-label="Pasos">
+  <div class="wrap">
+    <a href="#antes">Antes de empezar</a>
+    <a href="#p0">0 · Preparación</a>
+    <a href="#p1">1 · Datos</a>
+    <a href="#p2">2 · Fotos</a>
+    <a href="#p3">3 · Producto</a>
+    <a href="#p4">4 · Variantes</a>
+    <a href="#p5">5 · Comprobar</a>
+    <a href="#p6">6 · Destacar / oferta</a>
+    <a href="#p7">7 · Vender</a>
+    <a href="#p8">8 · Mantener</a>
+    <a href="#problemas">Problemas</a>
+    <button class="theme-btn" type="button" id="themeBtn">◐ Tema</button>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <section id="antes">
+    <div class="callout c-warn">
+      <p><b>Un solo Supabase para todo.</b> La preview de <code>develop</code> y la web en producción leen la misma base de datos. Cualquier producto que marques como activo aparecerá en todas las versiones de la web que tengan la tienda.</p>
+      <p>Hoy la tienda solo existe en <code>develop</code> (rediseño V2). En <code>www.motokass.com</code> no se verá nada hasta que el rediseño pase a <code>main</code>.</p>
+    </div>
+    <div class="callout c-info">
+      <p><b>Los productos DEMO desaparecen solos.</b> En las previews se muestran productos <code>[DEMO]</code> mientras la tabla esté vacía. En cuanto subas el primer producto real, los DEMO dejan de mostrarse.</p>
+    </div>
+
+    <div class="map">
+      <a href="#p0" class="once"><span class="n">0</span><b>Preparación</b><span>Una sola vez</span></a>
+      <a href="#p1"><span class="n">1</span><b>Reunir datos</b><span>Precio, tallas, stock…</span></a>
+      <a href="#p2"><span class="n">2</span><b>Subir fotos</b><span>Supabase Storage</span></a>
+      <a href="#p3"><span class="n">3</span><b>Crear producto</b><span>equipment_products</span></a>
+      <a href="#p4"><span class="n">4</span><b>Crear variantes</b><span>color × talla + stock</span></a>
+      <a href="#p5"><span class="n">5</span><b>Comprobar</b><span>en la web</span></a>
+      <a href="#p6"><span class="n">6</span><b>Destacar / oferta</b><span>opcional</span></a>
+      <a href="#p7"><span class="n">7</span><b>Vender</b><span>pedido por WhatsApp</span></a>
+    </div>
+  </section>
+
+  <!-- PASO 0 -->
+  <article class="step once" id="p0">
+    <div class="step-num">0</div>
+    <div>
+      <span class="tag t-once">Solo la primera vez</span>
+      <h2>Preparar Supabase</h2>
+      <p class="lead">Crear las tablas de la tienda y un espacio para las fotos. Si ya está hecho, salta al paso 1.</p>
+      <div class="callout c-ok"><p><b>Ya hecho el 28/09/2026.</b> Tablas <code>equipment_products</code> y <code>equipment_variants</code> creadas (con RLS) y bucket público <code>productos</code> creado (solo imágenes JPG/PNG/WebP/AVIF, máx. 5 MB). Puedes ir directamente al paso 1. Estas instrucciones quedan como referencia.</p></div>
+
+      <h3>0.1 · Crear las tablas</h3>
+      <ol>
+        <li>Abre el <a href="https://supabase.com/dashboard/project/qjddrchpwljecavsryrg/sql/new" target="_blank" rel="noopener">SQL Editor de Supabase</a>.</li>
+        <li>Copia todo el contenido del archivo <code>supabase/migrations/20260928_equipment.sql</code> del proyecto.</li>
+        <li>Pégalo en el editor y pulsa <b>Run</b>.</li>
+        <li>En el <a href="https://supabase.com/dashboard/project/qjddrchpwljecavsryrg/editor" target="_blank" rel="noopener">Table Editor</a> deben aparecer <code>equipment_products</code> y <code>equipment_variants</code>.</li>
+      </ol>
+
+      <h3>0.2 · Crear el espacio para fotos</h3>
+      <ol>
+        <li>En Supabase, menú lateral → <b>Storage</b> → <b>New bucket</b>.</li>
+        <li>Nombre: <code>productos</code>. Activa <b>Public bucket</b> (las fotos tienen que verse en la web).</li>
+        <li>Pulsa <b>Save</b>.</li>
+      </ol>
+      <div class="callout c-info"><p>En el bucket <code>productos</code> guarda solo fotos de producto: al ser público, cualquiera con el enlace puede verlas.</p></div>
+    </div>
+  </article>
+
+  <!-- PASO 1 -->
+  <article class="step" id="p1">
+    <div class="step-num">1</div>
+    <div>
+      <span class="tag t-each">Cada producto</span>
+      <h2>Reunir los datos del producto</h2>
+      <p class="lead">Ten a mano esta información antes de empezar. Todo debe ser real: nada de precios, reseñas o características inventadas.</p>
+
+      <ul class="check" data-check="p1">
+        <li><label><input type="checkbox" /><span>Marca y nombre comercial exacto (p. ej. marca del fabricante + modelo).</span></label></li>
+        <li><label><input type="checkbox" /><span>Categoría y tipo (ver tabla de abajo).</span></label></li>
+        <li><label><input type="checkbox" /><span>Precio de venta al público <b>con IVA</b>.</span></label></li>
+        <li><label><input type="checkbox" /><span>Precio anterior, solo si es una rebaja real.</span></label></li>
+        <li><label><input type="checkbox" /><span>Colores disponibles y código de color aproximado (para la bolita del selector).</span></label></li>
+        <li><label><input type="checkbox" /><span>Tallas disponibles y unidades en stock de cada combinación color + talla.</span></label></li>
+        <li><label><input type="checkbox" /><span>Referencia (SKU) de cada variante y, si lo tienes, código de barras (EAN).</span></label></li>
+        <li><label><input type="checkbox" /><span>Descripción corta y características, materiales y tecnología (del fabricante).</span></label></li>
+        <li><label><input type="checkbox" /><span>Fotos del producto (ver paso 2).</span></label></li>
+      </ul>
+
+      <h3>Categorías y tipos válidos</h3>
+      <p>Escribe los valores <b>exactamente</b> así (minúsculas, sin tildes). Si no coinciden, el producto no aparece o no se puede filtrar.</p>
+      <div class="cats">
+        <div class="card"><b>cascos</b><span>integral · modular · jet · off-road · trial · adventure</span></div>
+        <div class="card"><b>guantes</b><span>verano · invierno · off-road · urbano · impermeable</span></div>
+        <div class="card"><b>chaquetas</b><span>textil · cuero · verano · invierno · adventure · urbana</span></div>
+        <div class="card"><b>camisetas</b><span>manga-corta · manga-larga · tecnica</span></div>
+        <div class="card"><b>botas</b><span>touring · racing · off-road · adventure</span></div>
+      </div>
+      <div class="callout c-info"><p>Tallas recomendadas: ropa y cascos <code>XS S M L XL XXL 3XL</code>; botas <code>38</code> a <code>47</code>. Se ordenan solas en la web si usas estos valores.</p></div>
+    </div>
+  </article>
+
+  <!-- PASO 2 -->
+  <article class="step" id="p2">
+    <div class="step-num">2</div>
+    <div>
+      <span class="tag t-each">Cada producto</span>
+      <h2>Preparar y subir las fotos</h2>
+      <p class="lead">Las fotos son lo más importante para vender. La primera es la principal y la segunda aparece al pasar el ratón por la tarjeta.</p>
+
+      <div class="grid">
+        <div class="card"><h3>✔ Formato recomendado</h3><p>Cuadradas (1:1), mínimo 1200×1200 px, fondo blanco o transparente, JPG/WebP de menos de 300 KB.</p></div>
+        <div class="card"><h3>✔ Qué fotos</h3><p>1ª: producto de frente. 2ª: lateral o detalle. Opcional: una foto por color.</p></div>
+        <div class="card"><h3>✔ Nombres de archivo</h3><p>Sin espacios ni tildes: <code>casco-marca-modelo-negro-1.jpg</code></p></div>
+        <div class="card"><h3>✘ Evitar</h3><p>Fotos con marca de agua de otras tiendas, capturas de pantalla o fotos con derechos de terceros.</p></div>
+      </div>
+
+      <ol>
+        <li>Supabase → <b>Storage</b> → bucket <code>productos</code>.</li>
+        <li>Crea una carpeta por categoría (p. ej. <code>cascos</code>) y sube las fotos.</li>
+        <li>Haz clic en cada foto → <b>Get URL</b> / <b>Copy URL</b>. Tendrá esta forma:</li>
+      </ol>
+      <div class="code"><button class="copy" type="button">Copiar</button><pre>https://qjddrchpwljecavsryrg.supabase.co/storage/v1/object/public/productos/cascos/casco-marca-modelo-negro-1.jpg</pre></div>
+      <p>Guarda las URLs: las pegarás en el paso siguiente.</p>
+    </div>
+  </article>
+
+  <!-- PASO 3 -->
+  <article class="step" id="p3">
+    <div class="step-num">3</div>
+    <div>
+      <span class="tag t-each">Cada producto</span>
+      <h2>Crear el producto</h2>
+      <p class="lead">Supabase → <a href="https://supabase.com/dashboard/project/qjddrchpwljecavsryrg/editor" target="_blank" rel="noopener">Table Editor</a> → tabla <code>equipment_products</code> → <b>Insert</b> → <b>Insert row</b>. Rellena estos campos:</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Campo</th><th></th><th>Qué poner</th><th>Ejemplo</th></tr></thead>
+          <tbody>
+            <tr><td><code>slug</code></td><td class="req">obligatorio</td><td>Nombre para la URL: minúsculas, guiones, sin tildes. Único.</td><td><code>casco-marca-modelo</code></td></tr>
+            <tr><td><code>brand</code></td><td class="req">obligatorio</td><td>Marca</td><td>Marca</td></tr>
+            <tr><td><code>name</code></td><td class="req">obligatorio</td><td>Nombre visible del producto</td><td>Casco integral Modelo X</td></tr>
+            <tr><td><code>category</code></td><td class="req">obligatorio</td><td>Una de las 5 categorías del paso 1</td><td><code>cascos</code></td></tr>
+            <tr><td><code>type</code></td><td class="opt">recomendado</td><td>Tipo de la lista de su categoría (permite filtrar)</td><td><code>integral</code></td></tr>
+            <tr><td><code>price</code></td><td class="req">obligatorio</td><td>PVP con IVA, con punto decimal</td><td><code>129.90</code></td></tr>
+            <tr><td><code>compare_at_price</code></td><td class="opt">opcional</td><td>Precio anterior <b>solo si hay rebaja real</b>. Vacío si no.</td><td><code>159.90</code></td></tr>
+            <tr><td><code>description</code></td><td class="opt">recomendado</td><td>2–4 frases. También se usa en Google.</td><td>—</td></tr>
+            <tr><td><code>images</code></td><td class="req">obligatorio</td><td>Lista de URLs del paso 2, la principal primero</td><td><code>{url1,url2}</code></td></tr>
+            <tr><td><code>colors</code></td><td class="opt">recomendado</td><td>Lista JSON de colores (ver abajo)</td><td>ver abajo</td></tr>
+            <tr><td><code>sizes</code></td><td class="opt">opcional</td><td>Déjalo vacío: se calcula desde las variantes</td><td><code>{}</code></td></tr>
+            <tr><td><code>sku</code></td><td class="opt">opcional</td><td>Referencia general del modelo</td><td>MOD-X</td></tr>
+            <tr><td><code>features</code></td><td class="opt">opcional</td><td>Características (lista)</td><td><code>{"Homologado ECE 22.06","Pinlock"}</code></td></tr>
+            <tr><td><code>materials</code></td><td class="opt">opcional</td><td>Materiales (lista)</td><td><code>{"Fibra de vidrio"}</code></td></tr>
+            <tr><td><code>technology</code></td><td class="opt">opcional</td><td>Tecnologías (lista)</td><td><code>{"Doble D"}</code></td></tr>
+            <tr><td><code>gender</code></td><td class="opt">opcional</td><td><code>hombre</code> · <code>mujer</code> · <code>unisex</code> · <code>infantil</code></td><td><code>unisex</code></td></tr>
+            <tr><td><code>season</code></td><td class="opt">opcional</td><td><code>verano</code> · <code>invierno</code> · <code>entretiempo</code> · <code>todo-el-ano</code></td><td>—</td></tr>
+            <tr><td><code>tags</code></td><td class="opt">opcional</td><td>Palabras extra para el buscador</td><td><code>{"negro","carretera"}</code></td></tr>
+            <tr><td><code>badges</code></td><td class="opt">opcional</td><td><code>new</code> (Nuevo) · <code>bestseller</code> (Más vendido). "Oferta" se pone sola si hay rebaja.</td><td><code>{"new"}</code></td></tr>
+            <tr><td><code>faq</code></td><td class="opt">opcional</td><td>Preguntas frecuentes en JSON</td><td><code>[{"q":"…","a":"…"}]</code></td></tr>
+            <tr><td><code>rating</code> · <code>review_count</code></td><td class="opt">dejar vacío</td><td><b>Solo con reseñas reales.</b> Si no hay, deja <code>rating</code> vacío y <code>review_count</code> en 0.</td><td>—</td></tr>
+            <tr><td><code>featured</code></td><td class="opt">opcional</td><td><code>true</code> para salir en "Equipamiento destacado" de la home</td><td><code>false</code></td></tr>
+            <tr><td><code>active</code></td><td class="req">obligatorio</td><td><code>true</code> = visible en la web · <code>false</code> = oculto</td><td><code>true</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Formato del campo <code>colors</code></h3>
+      <p>Un JSON con un objeto por color. El <code>name</code> tiene que ser <b>idéntico</b> al que pongas luego en las variantes. <code>images</code> es opcional: fotos específicas de ese color.</p>
+      <div class="code"><button class="copy" type="button">Copiar</button><pre>[
+  { <span class="st">"name"</span>: <span class="st">"Negro mate"</span>, <span class="st">"hex"</span>: <span class="st">"#1a1a1a"</span> },
+  { <span class="st">"name"</span>: <span class="st">"Blanco"</span>, <span class="st">"hex"</span>: <span class="st">"#f2f2f2"</span>, <span class="st">"images"</span>: [<span class="st">"https://…/casco-blanco-1.jpg"</span>] }
+]</pre></div>
+
+      <div class="callout c-ok"><p>Al guardar, copia el valor de la columna <code>id</code> del producto (un código largo tipo <code>3f2c…</code>). Lo necesitas en el paso 4.</p></div>
+
+      <details class="faq">
+        <summary>Alternativa: crear el producto con SQL (más rápido si tienes práctica)</summary>
+        <div>
+          <p>En el SQL Editor, sustituye los valores de ejemplo y ejecuta. Devuelve el <code>id</code> del producto creado.</p>
+          <div class="code"><button class="copy" type="button">Copiar</button><pre><span class="cm">-- Sustituye TODOS los valores de ejemplo por los reales</span>
+insert into equipment_products
+  (slug, brand, name, category, type, price, compare_at_price, description,
+   images, colors, features, materials, tags, badges, featured, active)
+values
+  (<span class="st">'casco-marca-modelo'</span>, <span class="st">'Marca'</span>, <span class="st">'Casco integral Modelo X'</span>, <span class="st">'cascos'</span>, <span class="st">'integral'</span>,
+   129.90, null,
+   <span class="st">'Descripción real del producto.'</span>,
+   array[<span class="st">'https://…/foto-1.jpg'</span>, <span class="st">'https://…/foto-2.jpg'</span>],
+   <span class="st">'[{"name":"Negro mate","hex":"#1a1a1a"},{"name":"Blanco","hex":"#f2f2f2"}]'</span>::jsonb,
+   array[<span class="st">'Característica real 1'</span>], array[<span class="st">'Material real'</span>], array[<span class="st">'negro'</span>,<span class="st">'blanco'</span>],
+   array[<span class="st">'new'</span>], false, true)
+returning id;</pre></div>
+        </div>
+      </details>
+    </div>
+  </article>
+
+  <!-- PASO 4 -->
+  <article class="step" id="p4">
+    <div class="step-num">4</div>
+    <div>
+      <span class="tag t-each">Cada producto</span>
+      <h2>Crear las variantes (color × talla) con su stock</h2>
+      <p class="lead">Cada combinación que vendes es una fila en <code>equipment_variants</code>. Ejemplo: 2 colores × 4 tallas = 8 filas.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Campo</th><th></th><th>Qué poner</th><th>Ejemplo</th></tr></thead>
+          <tbody>
+            <tr><td><code>product_id</code></td><td class="req">obligatorio</td><td>El <code>id</code> copiado en el paso 3</td><td><code>3f2c…</code></td></tr>
+            <tr><td><code>sku</code></td><td class="req">obligatorio</td><td>Referencia única de la variante (aparece en el pedido)</td><td><code>MODX-NEG-M</code></td></tr>
+            <tr><td><code>color</code></td><td class="opt">si hay colores</td><td>Igual que el <code>name</code> de <code>colors</code></td><td>Negro mate</td></tr>
+            <tr><td><code>size</code></td><td class="opt">si hay tallas</td><td>Talla</td><td><code>M</code></td></tr>
+            <tr><td><code>stock</code></td><td class="req">obligatorio</td><td>Unidades disponibles de esa combinación</td><td><code>3</code></td></tr>
+            <tr><td><code>ean</code></td><td class="opt">opcional</td><td>Código de barras</td><td>—</td></tr>
+            <tr><td><code>price</code></td><td class="opt">opcional</td><td>Solo si esta talla cuesta distinto. Vacío = precio del producto.</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>Con SQL es mucho más rápido cuando hay muchas tallas:</p>
+      <div class="code"><button class="copy" type="button">Copiar</button><pre><span class="cm">-- Sustituye el id del producto, los SKU, colores, tallas y stock reales</span>
+insert into equipment_variants (product_id, sku, color, size, stock) values
+  (<span class="st">'ID-DEL-PRODUCTO'</span>, <span class="st">'MODX-NEG-S'</span>,  <span class="st">'Negro mate'</span>, <span class="st">'S'</span>,  2),
+  (<span class="st">'ID-DEL-PRODUCTO'</span>, <span class="st">'MODX-NEG-M'</span>,  <span class="st">'Negro mate'</span>, <span class="st">'M'</span>,  3),
+  (<span class="st">'ID-DEL-PRODUCTO'</span>, <span class="st">'MODX-NEG-L'</span>,  <span class="st">'Negro mate'</span>, <span class="st">'L'</span>,  1),
+  (<span class="st">'ID-DEL-PRODUCTO'</span>, <span class="st">'MODX-BLA-M'</span>,  <span class="st">'Blanco'</span>,     <span class="st">'M'</span>,  0);</pre></div>
+
+      <div class="grid">
+        <div class="card"><h3>Cómo se muestra el stock</h3><p><b style="color:var(--ok)">En stock</b>: 4 o más en total · <b style="color:var(--warn)">Últimas unidades</b>: 1–3 · <b>Sin stock</b>: 0. Las tallas con 0 aparecen tachadas.</p></div>
+        <div class="card"><h3>Producto sin tallas ni colores</h3><p>(Una camiseta de talla única, un accesorio…) No crees variantes: rellena el campo <code>stock</code> del propio producto.</p></div>
+      </div>
+    </div>
+  </article>
+
+  <!-- PASO 5 -->
+  <article class="step" id="p5">
+    <div class="step-num">5</div>
+    <div>
+      <span class="tag t-each">Cada producto</span>
+      <h2>Comprobar el producto en la web</h2>
+      <p class="lead">La web refresca los datos cada minuto. Espera 1 minuto y abre la ficha.</p>
+      <div class="code"><button class="copy" type="button">Copiar</button><pre>https://develop.motokass.com/equipamiento/<span class="st">CATEGORIA</span>/<span class="st">SLUG</span>
+<span class="cm"># Ejemplo:  https://develop.motokass.com/equipamiento/cascos/casco-marca-modelo</span></pre></div>
+      <ul class="check" data-check="p5">
+        <li><label><input type="checkbox" /><span>La ficha carga con las fotos correctas y en el orden correcto.</span></label></li>
+        <li><label><input type="checkbox" /><span>El precio (y el tachado + % de descuento si hay rebaja) es correcto.</span></label></li>
+        <li><label><input type="checkbox" /><span>Al cambiar de color cambian las fotos (si pusiste fotos por color).</span></label></li>
+        <li><label><input type="checkbox" /><span>Las tallas agotadas salen tachadas y el mensaje de stock es correcto.</span></label></li>
+        <li><label><input type="checkbox" /><span>Aparece en su categoría (<code>/equipamiento/cascos</code>) y los filtros de tipo, talla y color lo encuentran.</span></label></li>
+        <li><label><input type="checkbox" /><span>El buscador lo encuentra por marca, nombre y color.</span></label></li>
+        <li><label><input type="checkbox" /><span>Se ve bien en el móvil.</span></label></li>
+        <li><label><input type="checkbox" /><span>"Añadir al carrito" funciona y el carrito muestra color, talla y precio correctos.</span></label></li>
+      </ul>
+      <div class="callout c-info"><p>No hay que tocar nada más: el producto se añade solo al buscador, al sitemap de Google, a "Productos relacionados" y, si tiene rebaja, a la sección de Ofertas.</p></div>
+    </div>
+  </article>
+
+  <!-- PASO 6 -->
+  <article class="step" id="p6">
+    <div class="step-num">6</div>
+    <div>
+      <span class="tag t-each">Opcional</span>
+      <h2>Destacarlo o ponerlo en oferta</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Quiero…</th><th>Cambia en <code>equipment_products</code></th><th>Resultado</th></tr></thead>
+          <tbody>
+            <tr><td>Que salga en la home</td><td><code>featured</code> = <code>true</code></td><td>Aparece en "Equipamiento destacado"</td></tr>
+            <tr><td>Ponerlo en oferta</td><td><code>compare_at_price</code> = precio anterior real · <code>price</code> = precio nuevo</td><td>Etiqueta -X %, precio tachado, pestaña Equipamiento de /Ofertas</td></tr>
+            <tr><td>Quitar la oferta</td><td><code>price</code> = precio normal · <code>compare_at_price</code> vacío</td><td>Vuelve a precio normal</td></tr>
+            <tr><td>Marcarlo como novedad</td><td><code>badges</code> = <code>{new}</code></td><td>Etiqueta "Nuevo"</td></tr>
+            <tr><td>Marcarlo como más vendido</td><td><code>badges</code> = <code>{bestseller}</code></td><td>Etiqueta "Más vendido" y sube en "Recomendados"</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout c-stop"><p><b>Precio anterior siempre real.</b> Por ley (y por confianza), el precio tachado debe ser el que el producto tenía realmente antes de la rebaja.</p></div>
+    </div>
+  </article>
+
+  <!-- PASO 7 -->
+  <article class="step" id="p7">
+    <div class="step-num">7</div>
+    <div>
+      <span class="tag t-each">Cada pedido</span>
+      <h2>Vender: qué pasa cuando un cliente compra</h2>
+      <p class="lead">Hoy la web <b>no cobra online</b>. El cliente prepara su carrito y lo envía por WhatsApp; la venta se cierra con él directamente.</p>
+
+      <div class="flow">
+        <div class="f"><b>1. Cliente</b><span>elige color, talla y cantidad → "Añadir al carrito"</span></div>
+        <div class="a">→</div>
+        <div class="f"><b>2. Carrito</b><span>pulsa "Continuar con la compra"</span></div>
+        <div class="a">→</div>
+        <div class="f"><b>3. WhatsApp</b><span>llega un mensaje al <b>653 97 32 09</b> con productos, variantes, SKU y subtotal</span></div>
+        <div class="a">→</div>
+        <div class="f you"><b>4. Tú</b><span>confirmas disponibilidad en tienda</span></div>
+        <div class="a">→</div>
+        <div class="f you"><b>5. Tú</b><span>acuerdas pago y entrega con el cliente</span></div>
+        <div class="a">→</div>
+        <div class="f you"><b>6. Tú</b><span>actualizas el stock en Supabase</span></div>
+      </div>
+      <div class="legend"><span class="lg-web">Lo hace la web</span><span class="lg-you">Lo haces tú</span></div>
+
+      <h3>Ejemplo de mensaje que recibirás</h3>
+      <div class="code"><pre>Hola MOTOKASS, quiero hacer este pedido:
+
+• 1 × Marca Casco integral Modelo X (Negro mate, talla M) [MODX-NEG-M] — 129,90 €
+
+Subtotal: 129,90 €
+¿Me confirmáis disponibilidad y cómo completar la compra?</pre></div>
+
+      <h3>Después de cada venta: descontar el stock</h3>
+      <ol>
+        <li>Supabase → Table Editor → <code>equipment_variants</code>.</li>
+        <li>Busca la fila por el <b>SKU</b> que viene en el mensaje (p. ej. <code>MODX-NEG-M</code>).</li>
+        <li>Resta las unidades vendidas en <code>stock</code> y guarda. En 1 minuto la web lo refleja.</li>
+      </ol>
+      <div class="code"><button class="copy" type="button">Copiar</button><pre><span class="cm">-- Alternativa SQL: restar 1 unidad a un SKU</span>
+update equipment_variants set stock = stock - 1 where sku = <span class="st">'MODX-NEG-M'</span> and stock > 0;</pre></div>
+
+      <div class="callout c-warn">
+        <p><b>Si vendes en la tienda física</b> una unidad que también está online, descuéntala igual. Si no, la web seguirá ofreciéndola.</p>
+        <p><b>Precios del carrito:</b> antes de cobrar, comprueba que el precio del mensaje coincide con el actual. El carrito guarda el precio del momento en que el cliente añadió el producto.</p>
+      </div>
+
+      <details class="faq">
+        <summary>¿Cuándo se podrá cobrar online con tarjeta?</summary>
+        <div>Cuando se integre una pasarela de pago (Stripe, Redsys…). Antes hay que definir y publicar: condiciones de venta, derecho de desistimiento (14 días), política de envíos y devoluciones, y los métodos de pago. Hasta entonces la web no muestra "pago seguro", "envío gratis" ni "devoluciones", porque no están configurados.</div>
+      </details>
+    </div>
+  </article>
+
+  <!-- PASO 8 -->
+  <article class="step" id="p8">
+    <div class="step-num">8</div>
+    <div>
+      <span class="tag t-each">Mantenimiento</span>
+      <h2>Editar, reponer u ocultar un producto</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Quiero…</th><th>Dónde</th><th>Qué hacer</th></tr></thead>
+          <tbody>
+            <tr><td>Reponer stock</td><td><code>equipment_variants</code></td><td>Sube el <code>stock</code> de la variante</td></tr>
+            <tr><td>Añadir una talla o color nuevo</td><td><code>equipment_variants</code> (+ <code>colors</code> si es color nuevo)</td><td>Inserta una fila nueva con su SKU</td></tr>
+            <tr><td>Cambiar precio</td><td><code>equipment_products</code></td><td>Edita <code>price</code></td></tr>
+            <tr><td>Ocultarlo temporalmente</td><td><code>equipment_products</code></td><td><code>active</code> = <code>false</code> (no se borra nada)</td></tr>
+            <tr><td>Dejarlo visible pero agotado</td><td><code>equipment_variants</code></td><td>Todas sus variantes con <code>stock</code> = 0</td></tr>
+            <tr><td>Borrarlo para siempre</td><td><code>equipment_products</code></td><td>Elimina la fila (sus variantes se borran solas). Mejor ocultar.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout c-info"><p>No cambies el <code>slug</code> ni la <code>category</code> de un producto ya publicado: cambiaría su URL y los enlaces de Google o de clientes dejarían de funcionar.</p></div>
+    </div>
+  </article>
+
+  <!-- PROBLEMAS -->
+  <section id="problemas" style="border-top:1px solid var(--line);padding-top:28px">
+    <h2 style="font-size:24px;margin:0 0 12px">Solución de problemas</h2>
+    <details class="faq"><summary>El producto no aparece en la web</summary><div>
+      <ul>
+        <li>Espera 1 minuto: la web refresca los datos cada 60 segundos.</li>
+        <li>Comprueba que <code>active</code> = <code>true</code>.</li>
+        <li>Comprueba que <code>category</code> es exactamente <code>cascos</code>, <code>guantes</code>, <code>chaquetas</code>, <code>camisetas</code> o <code>botas</code>.</li>
+        <li>Recuerda: hoy la tienda solo está en <code>develop</code>, no en www.motokass.com.</li>
+      </ul></div></details>
+    <details class="faq"><summary>La ficha da error 404</summary><div>La URL tiene que ser <code>/equipamiento/&lt;category&gt;/&lt;slug&gt;</code> con los valores exactos del producto. Revisa mayúsculas, tildes o espacios en el <code>slug</code>.</div></details>
+    <details class="faq"><summary>Sale "Sin stock" aunque tengo unidades</summary><div>El stock se suma desde <code>equipment_variants</code>. Revisa que las variantes tengan el <code>product_id</code> correcto y <code>stock</code> mayor que 0. Si el producto no tiene variantes, usa el campo <code>stock</code> del producto.</div></details>
+    <details class="faq"><summary>Al elegir un color todas las tallas salen agotadas</summary><div>El <code>color</code> de las variantes no coincide exactamente con el <code>name</code> del campo <code>colors</code> (mayúsculas, espacios, tildes). Deben ser idénticos.</div></details>
+    <details class="faq"><summary>No se ven las fotos</summary><div>El bucket <code>productos</code> tiene que ser público y la URL debe contener <code>/object/public/</code>. Abre la URL en el navegador para comprobarla.</div></details>
+    <details class="faq"><summary>Error "duplicate key" al guardar</summary><div>Ya existe un producto con ese <code>slug</code> o una variante con ese <code>sku</code>. Ambos deben ser únicos.</div></details>
+    <details class="faq"><summary>Siguen saliendo productos [DEMO]</summary><div>Solo salen en las previews cuando no hay ningún producto real activo. En cuanto haya uno, desaparecen. En producción nunca se muestran.</div></details>
+  </section>
+
+</main>
+
+<footer class="wrap">MOTOKASS · Guía para subir productos a la tienda · septiembre 2026</footer>
+
+<script>
+  (function () {
+    // Copiar bloques de código
+    document.querySelectorAll(".copy").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var text = btn.parentElement.querySelector("pre").innerText;
+        (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(function () {
+          btn.textContent = "Copiado"; btn.classList.add("done");
+          setTimeout(function () { btn.textContent = "Copiar"; btn.classList.remove("done"); }, 1500);
+        }).catch(function () { btn.textContent = "Selecciona y copia"; });
+      });
+    });
+
+    // Recordar las casillas marcadas (por navegador)
+    document.querySelectorAll("[data-check]").forEach(function (list) {
+      var key = "mk_guide_" + list.getAttribute("data-check");
+      var boxes = list.querySelectorAll("input");
+      var saved = [];
+      try { saved = JSON.parse(localStorage.getItem(key) || "[]"); } catch (e) {}
+      boxes.forEach(function (b, i) {
+        b.checked = !!saved[i];
+        b.addEventListener("change", function () {
+          var state = [].map.call(boxes, function (x) { return x.checked; });
+          try { localStorage.setItem(key, JSON.stringify(state)); } catch (e) {}
+        });
+      });
+    });
+
+    // Tema
+    var btn = document.getElementById("themeBtn");
+    var root = document.documentElement;
+    try { var t = localStorage.getItem("mk_docs_theme"); if (t) root.setAttribute("data-theme", t); } catch (e) {}
+    btn.addEventListener("click", function () {
+      var cur = root.getAttribute("data-theme") || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      var next = cur === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("mk_docs_theme", next); } catch (e) {}
+    });
+  })();
+</script>
+</body>
+</html>
