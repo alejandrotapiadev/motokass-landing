@@ -185,7 +185,7 @@ export default function EquipmentListing({ products, categories, categorySlug, c
     </div>
   );
 
-  const nav = <CategoryNav categories={categories} active={categorySlug} />;
+  const nav = <CategoryNav categories={categories} active={categorySlug} sort={sort} />;
 
   if (products.length === 0) {
     return (
