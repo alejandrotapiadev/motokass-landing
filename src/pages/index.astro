@@ -21,8 +21,10 @@ import Icon from "../components/ui/Icon.astro";
   title="MOTOKASS | Motos Rieju y Sherco, equipamiento y taller en Ávila"
   description="Concesionario oficial Rieju y Sherco en Ávila: más de 60 motos, financiación, prueba de moto, equipamiento para motoristas y taller propio."
 >
-  <Hero />
-  <TrustBar />
+  <div class="home-fold">
+    <Hero />
+    <TrustBar />
+  </div>
   <EquipmentCategories />
   <FeaturedEquipment />
   <FeaturedMotorcycles />
@@ -49,3 +51,17 @@ import Icon from "../components/ui/Icon.astro";
   <BlogTeaser />
   <FinalCta />
 </MainLayout>
+
+<style>
+/* Escritorio: hero + barra de confianza llenan justo la primera pantalla, con
+   section.trust apoyada en el borde inferior del viewport. El hero absorbe el
+   espacio sobrante; si el contenido no cabe, la página crece (sin recortes). */
+@media (min-width: 901px) {
+  .home-fold { display: flex; flex-direction: column; min-height: calc(100svh - var(--header-h)); }
+  .home-fold :global(.hero) { flex: 1 0 auto; min-height: 0; }
+}
+/* Portátiles bajos: menos aire en el hero para que la barra siga entrando */
+@media (min-width: 901px) and (max-height: 760px) {
+  .home-fold :global(.hero__copy) { padding: 1.5rem 0; }
+}
+</style>
