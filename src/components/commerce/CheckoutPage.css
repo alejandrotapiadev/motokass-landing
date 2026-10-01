@@ -1,0 +1,87 @@
+/* Checkout: reutiliza .cart / .cart__summary de CartPage.css */
+.checkout__main { display: grid; gap: 2rem; }
+
+.co-section { border: 0; margin: 0; padding: 0; display: grid; gap: 1rem; min-width: 0; }
+.co-section legend {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0 0 .75rem;
+}
+.co-section[disabled] { opacity: .7; }
+
+.co-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem 1rem; }
+.co-field { display: grid; gap: .35rem; font-size: .85rem; font-weight: 600; }
+.co-field--full { grid-column: 1 / -1; }
+.co-field input,
+.co-field select,
+.co-field textarea {
+  font: inherit;
+  font-weight: 400;
+  font-size: .95rem;
+  width: 100%;
+  min-height: 46px;
+  padding: .65rem .8rem;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  color: var(--text);
+}
+.co-field textarea { min-height: 90px; resize: vertical; }
+.co-field input:focus,
+.co-field select:focus,
+.co-field textarea:focus { outline: 2px solid var(--brand); outline-offset: 1px; border-color: var(--brand); }
+.co-field [aria-invalid="true"] { border-color: var(--accent); }
+.co-field__error { color: var(--accent); font-size: .8rem; font-weight: 500; }
+
+.co-options { display: grid; gap: .6rem; }
+.co-option {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: .85rem;
+  align-items: center;
+  padding: .9rem 1rem;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+}
+.co-option.is-active { border-color: var(--ink); background: var(--paper-2); }
+.co-option input { accent-color: var(--ink); width: 18px; height: 18px; }
+.co-option__body { display: grid; gap: .15rem; }
+.co-option__body small, .co-option__price small { color: var(--text-2); font-size: .78rem; font-weight: 400; }
+.co-option__price { display: grid; text-align: right; font-weight: 700; }
+
+.co-lines { list-style: none; margin: 0; padding: 0; display: grid; gap: .6rem; font-size: .88rem; }
+.co-lines li { display: flex; justify-content: space-between; gap: 1rem; }
+.co-lines small { display: block; color: var(--text-2); font-size: .78rem; }
+
+.co-issues { background: #fef2f2; border: 1px solid #fecaca; border-radius: var(--radius); padding: .75rem .9rem; font-size: .85rem; display: grid; gap: .4rem; }
+.co-issues p { margin: 0; }
+.co-issues button { background: none; border: 0; padding: 0; text-decoration: underline; font: inherit; font-weight: 700; cursor: pointer; color: var(--text); }
+
+.co-terms { display: flex; gap: .6rem; align-items: flex-start; font-size: .82rem; line-height: 1.5; }
+.co-terms input { margin-top: .2rem; accent-color: var(--ink); width: 16px; height: 16px; flex: none; }
+.co-terms a { text-decoration: underline; }
+
+@media (max-width: 640px) {
+  .co-grid { grid-template-columns: 1fr; }
+}
+
+/* Estado de pedido (success / cancel) */
+.order-status { max-width: 760px; display: grid; gap: 1.5rem; }
+.order-status__head { display: flex; gap: 1rem; align-items: center; }
+.order-status__icon { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--paper-2); }
+.order-status__icon--ok { background: #e8f6ee; color: var(--ok); }
+.order-status__icon--ko { background: #fef2f2; color: var(--accent); }
+.order-status__head h2 { font-size: clamp(1.8rem, 4vw, 2.4rem); text-transform: uppercase; margin: 0; }
+.order-status__head p { margin: .25rem 0 0; color: var(--text-2); }
+.order-status__card { background: var(--paper-2); border-radius: var(--radius-lg); padding: 1.5rem; display: grid; gap: 1rem; }
+.order-status__card h3 { margin: 0; font-size: 1rem; text-transform: uppercase; letter-spacing: .06em; }
+.order-status__card dl { margin: 0; display: grid; gap: .5rem; }
+.order-status__card dl div { display: flex; justify-content: space-between; gap: 1rem; }
+.order-status__card dd { margin: 0; font-weight: 600; }
+.order-status__ctas { display: flex; gap: .75rem; flex-wrap: wrap; }
+.order-status__spinner { width: 28px; height: 28px; border: 3px solid var(--line); border-top-color: var(--ink); border-radius: 50%; animation: co-spin 1s linear infinite; }
+@keyframes co-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .order-status__spinner { animation: none; } }

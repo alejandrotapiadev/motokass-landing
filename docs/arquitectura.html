@@ -1,0 +1,756 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Arquitectura MOTOKASS</title>
+<meta name="description" content="Documentación gráfica de la arquitectura de la web de MOTOKASS (V2): stack, capas, rutas, datos, e-commerce, buscador y entornos." />
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-2: #f4f4f2;
+    --card: #ffffff;
+    --ink: #15171b;
+    --ink-2: #5f6570;
+    --line: #e3e3e0;
+    --brand: #1f3f7a;
+    --brand-soft: #e8eef8;
+    --accent: #d7261e;
+    --accent-soft: #fbe9e8;
+    --ok: #1e8e4e;
+    --ok-soft: #e6f4ec;
+    --warn: #b7791f;
+    --warn-soft: #fbf1e1;
+    --violet: #6b46c1;
+    --violet-soft: #efeafb;
+    --code: #f1f1ee;
+    --radius: 6px;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e0f12; --bg-2: #17191e; --card: #1b1e24; --ink: #ecedef; --ink-2: #a7acb6;
+      --line: #2c3038; --brand: #7aa2e8; --brand-soft: #1c2a44; --accent: #ff6b63; --accent-soft: #3a1d1c;
+      --ok: #4cc488; --ok-soft: #173326; --warn: #e2b05a; --warn-soft: #3a2e17;
+      --violet: #b19cf0; --violet-soft: #2a2342; --code: #23262d;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e0f12; --bg-2: #17191e; --card: #1b1e24; --ink: #ecedef; --ink-2: #a7acb6;
+    --line: #2c3038; --brand: #7aa2e8; --brand-soft: #1c2a44; --accent: #ff6b63; --accent-soft: #3a1d1c;
+    --ok: #4cc488; --ok-soft: #173326; --warn: #e2b05a; --warn-soft: #3a2e17;
+    --violet: #b19cf0; --violet-soft: #2a2342; --code: #23262d;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.6 var(--sans); }
+  a { color: var(--brand); }
+  code { font-family: var(--mono); font-size: .85em; background: var(--code); padding: .1em .35em; border-radius: 3px; }
+  h1, h2, h3 { line-height: 1.15; margin: 0; }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
+  header.top { background: #0e0f12; color: #f5f5f3; padding: 48px 0 40px; }
+  header.top .eyebrow { color: #ff6b63; font-size: 12px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+  header.top h1 { font-size: clamp(30px, 5vw, 52px); font-weight: 800; letter-spacing: -.01em; margin: 8px 0 12px; }
+  header.top p { color: #a7acb6; max-width: 70ch; margin: 0; }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+  .meta span { border: 1px solid #2c3038; border-radius: 999px; padding: 4px 12px; font-size: 13px; color: #d6d8dc; }
+
+  nav.toc { position: sticky; top: 0; z-index: 10; background: var(--bg); border-bottom: 1px solid var(--line); }
+  nav.toc .wrap { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; padding-top: 8px; padding-bottom: 8px; }
+  nav.toc a { white-space: nowrap; text-decoration: none; color: var(--ink-2); font-size: 13px; font-weight: 600; padding: 6px 10px; border-radius: 999px; }
+  nav.toc a:hover { background: var(--bg-2); color: var(--ink); }
+  .theme-btn { margin-left: auto; border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 4px 12px; font-size: 13px; cursor: pointer; white-space: nowrap; }
+
+  section { padding: 48px 0; border-bottom: 1px solid var(--line); }
+  section:nth-of-type(even) { background: var(--bg-2); }
+  .sec-head { margin-bottom: 24px; }
+  .sec-head .num { color: var(--accent); font-weight: 800; font-size: 13px; letter-spacing: .12em; }
+  .sec-head h2 { font-size: clamp(24px, 3.4vw, 34px); font-weight: 800; margin-top: 4px; }
+  .sec-head p { color: var(--ink-2); margin: 8px 0 0; max-width: 75ch; }
+
+  /* Tarjetas / cajas genéricas */
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
+  .grid { display: grid; gap: 12px; }
+  .g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .g4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  @media (max-width: 860px) { .g3, .g4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 560px) { .g2, .g3, .g4 { grid-template-columns: 1fr; } }
+
+  .tag { display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; padding: 2px 8px; border-radius: 3px; }
+  .t-brand { background: var(--brand-soft); color: var(--brand); }
+  .t-accent { background: var(--accent-soft); color: var(--accent); }
+  .t-ok { background: var(--ok-soft); color: var(--ok); }
+  .t-warn { background: var(--warn-soft); color: var(--warn); }
+  .t-violet { background: var(--violet-soft); color: var(--violet); }
+
+  /* Stack */
+  .stack .card h3 { font-size: 16px; margin: 8px 0 4px; }
+  .stack .card p { margin: 0; color: var(--ink-2); font-size: 14px; }
+
+  /* Diagrama de capas */
+  .layers { display: grid; gap: 0; }
+  .layer { display: grid; grid-template-columns: 170px 1fr; gap: 16px; align-items: stretch; }
+  .layer-label { display: flex; flex-direction: column; justify-content: center; padding: 16px; border-radius: var(--radius); color: #fff; font-weight: 800; }
+  .layer-label small { font-weight: 500; opacity: .85; font-size: 12px; }
+  .l1 .layer-label { background: #2e5aa6; }
+  .l2 .layer-label { background: #0e0f12; }
+  .l3 .layer-label { background: #1e8e4e; }
+  .l4 .layer-label { background: #6b46c1; }
+  .layer-body { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px; border: 1px dashed var(--line); border-radius: var(--radius); background: var(--card); }
+  .box { border: 1px solid var(--line); background: var(--bg); border-radius: 4px; padding: 8px 10px; font-size: 13px; line-height: 1.35; }
+  .box b { display: block; font-size: 13px; }
+  .box span { color: var(--ink-2); font-size: 12px; }
+  .connector { display: grid; grid-template-columns: 170px 1fr; gap: 16px; }
+  .connector div:last-child { display: flex; align-items: center; gap: 10px; padding: 6px 0 6px 24px; color: var(--ink-2); font-size: 12px; font-weight: 600; }
+  .connector div:last-child::before { content: ""; width: 2px; height: 26px; background: var(--ink-2); position: relative; }
+  .connector div:last-child::after { content: "▼"; font-size: 10px; margin-left: -16px; margin-top: 26px; position: absolute; }
+  @media (max-width: 700px) {
+    .layer, .connector { grid-template-columns: 1fr; gap: 6px; }
+    .connector div:first-child { display: none; }
+  }
+
+  /* Árbol de rutas */
+  .routes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  @media (max-width: 900px) { .routes { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 560px) { .routes { grid-template-columns: 1fr; } }
+  .route-group h3 { font-size: 14px; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .tree { list-style: none; margin: 0; padding: 0; font-family: var(--mono); font-size: 12.5px; }
+  .tree li { position: relative; padding: 3px 0 3px 18px; }
+  .tree li::before { content: ""; position: absolute; left: 4px; top: 0; bottom: 0; border-left: 1px solid var(--line); }
+  .tree li::after { content: ""; position: absolute; left: 4px; top: 13px; width: 10px; border-top: 1px solid var(--line); }
+  .tree li:last-child::before { bottom: calc(100% - 13px); }
+  .tree .new { color: var(--accent); font-weight: 700; }
+  .tree .note { font-family: var(--sans); color: var(--ink-2); font-size: 11.5px; }
+
+  /* Modelo de dominio */
+  .uml { display: grid; grid-template-columns: 1fr 1fr; gap: 24px 40px; position: relative; align-items: start; }
+  .rel { font-size: 12px; font-weight: 700; color: var(--ink-2); text-align: center; margin: -12px 0 6px; }
+  .uml .base { grid-column: 1 / -1; justify-self: center; width: min(420px, 100%); }
+  .cls { border: 2px solid var(--ink); border-radius: 4px; background: var(--card); overflow: hidden; }
+  .cls header { background: var(--ink); color: var(--bg); padding: 6px 10px; font-weight: 800; font-size: 14px; display: flex; justify-content: space-between; }
+  .cls header small { font-weight: 500; opacity: .8; }
+  .cls ul { list-style: none; margin: 0; padding: 8px 10px; font-family: var(--mono); font-size: 12px; columns: 2; column-gap: 16px; }
+  .cls li { padding: 1px 0; break-inside: avoid; }
+  .cls.moto { border-color: #2e5aa6; } .cls.moto header { background: #2e5aa6; color: #fff; }
+  .cls.equip { border-color: var(--accent); } .cls.equip header { background: #d7261e; color: #fff; }
+  .cls.variant { border-color: #b7791f; } .cls.variant header { background: #b7791f; color: #fff; }
+  .inherit { grid-column: 1 / -1; text-align: center; color: var(--ink-2); font-size: 12px; font-weight: 700; letter-spacing: .06em; }
+  .inherit::before { content: "△ hereda de Product"; }
+  @media (max-width: 760px) { .uml { grid-template-columns: 1fr; } .cls ul { columns: 1; } }
+
+  /* Flujos horizontales */
+  .flow { display: flex; align-items: stretch; gap: 0; overflow-x: auto; padding-bottom: 8px; }
+  .step { flex: 1 0 170px; background: var(--card); border: 1px solid var(--line); border-top: 4px solid var(--brand); border-radius: 4px; padding: 12px; font-size: 13px; }
+  .step b { display: block; margin-bottom: 4px; font-size: 14px; }
+  .step span { color: var(--ink-2); }
+  .step code { font-size: 11px; }
+  .arrow { flex: 0 0 34px; display: flex; align-items: center; justify-content: center; color: var(--ink-2); font-size: 20px; }
+  .step.accent { border-top-color: var(--accent); }
+  .step.ok { border-top-color: var(--ok); }
+  .step.warn { border-top-color: var(--warn); }
+  .step.violet { border-top-color: var(--violet); }
+  @media (max-width: 760px) {
+    .flow { flex-direction: column; }
+    .step { flex: none; }
+    .arrow { transform: rotate(90deg); height: 28px; flex: none; }
+  }
+
+  /* Decisión (fuente de equipamiento) */
+  .decision { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+  .decision .card { border-left: 4px solid var(--line); }
+  .decision .d1 { border-left-color: var(--ok); }
+  .decision .d2 { border-left-color: var(--warn); }
+  .decision .d3 { border-left-color: var(--ink-2); }
+  .decision h3 { font-size: 15px; margin-bottom: 6px; }
+  .decision p { margin: 0; font-size: 13.5px; color: var(--ink-2); }
+  @media (max-width: 760px) { .decision { grid-template-columns: 1fr; } }
+
+  /* Carpetas */
+  .folders { font-family: var(--mono); font-size: 13px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 20px; overflow-x: auto; }
+  .folders pre { margin: 0; line-height: 1.55; }
+  .folders .c { color: var(--ink-2); }
+  .folders .n { color: var(--accent); font-weight: 700; }
+
+  /* Ramas / entornos */
+  .envs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; align-items: stretch; }
+  .env { background: var(--card); border: 1px solid var(--line); padding: 16px; position: relative; }
+  .env + .env { border-left: 0; }
+  .env:first-child { border-radius: var(--radius) 0 0 var(--radius); }
+  .env:last-child { border-radius: 0 var(--radius) var(--radius) 0; }
+  .env h3 { font-family: var(--mono); font-size: 15px; margin: 8px 0; }
+  .env ul { margin: 8px 0 0; padding-left: 18px; font-size: 13px; color: var(--ink-2); }
+  .env .url { font-size: 12px; word-break: break-all; }
+  .env:not(:last-child)::after { content: "➜"; position: absolute; right: -14px; top: 50%; transform: translateY(-50%); z-index: 2; background: var(--bg); border: 1px solid var(--line); border-radius: 50%; width: 28px; height: 28px; display: grid; place-items: center; font-size: 13px; color: var(--accent); }
+  @media (max-width: 760px) {
+    .envs { grid-template-columns: 1fr; }
+    .env + .env { border-left: 1px solid var(--line); border-top: 0; }
+    .env:first-child { border-radius: var(--radius) var(--radius) 0 0; }
+    .env:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+    .env:not(:last-child)::after { content: "⬇"; right: 50%; top: auto; bottom: -14px; transform: translateX(50%); }
+  }
+
+  /* Tablas */
+  table { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: var(--bg-2); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); }
+  tr:last-child td { border-bottom: 0; }
+  .table-wrap { overflow-x: auto; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; font-size: 12px; color: var(--ink-2); }
+  .legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+  .legend .lg-new::before { background: var(--accent); }
+  .legend .lg-old::before { background: var(--ink-2); }
+
+  .checklist { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  .checklist li { background: var(--card); border: 1px solid var(--line); border-radius: 4px; padding: 10px 12px 10px 38px; position: relative; font-size: 14px; }
+  .checklist li::before { content: "☐"; position: absolute; left: 12px; top: 9px; color: var(--warn); font-size: 16px; }
+  footer.bottom { padding: 32px 0 48px; color: var(--ink-2); font-size: 13px; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <span class="eyebrow">Documentación técnica · V2</span>
+    <h1>Arquitectura de la web MOTOKASS</h1>
+    <p>Concesionario oficial Rieju &amp; Sherco, tienda de equipamiento para motoristas y taller en Ávila. Este documento explica de forma gráfica cómo está construido el proyecto: tecnologías, capas, rutas, modelo de datos, e-commerce, buscador y entornos de despliegue. Accesos a paneles y servicios: <a href="herramientas.html" style="color:#9dbcf0">herramientas.html</a> · Subir productos: <a href="guia-subir-producto.html" style="color:#9dbcf0">guia-subir-producto.html</a>.</p>
+    <div class="meta">
+      <span>Astro 5 · SSR</span><span>React 19 (islas)</span><span>Supabase</span><span>Vercel</span><span>TypeScript</span><span>CSS propio (sin framework)</span>
+    </div>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Índice">
+  <div class="wrap">
+    <a href="#stack">1 · Stack</a>
+    <a href="#capas">2 · Capas</a>
+    <a href="#rutas">3 · Rutas</a>
+    <a href="#dominio">4 · Modelo de datos</a>
+    <a href="#equipamiento">5 · Datos de equipamiento</a>
+    <a href="#compra">6 · Flujo de compra</a>
+    <a href="#buscador">7 · Buscador</a>
+    <a href="#carpetas">8 · Carpetas</a>
+    <a href="#entornos">9 · Ramas y entornos</a>
+    <a href="#extender">10 · Cómo ampliar</a>
+    <a href="#pendientes">11 · Pendientes</a>
+    <button class="theme-btn" type="button" id="themeBtn" aria-label="Cambiar tema claro/oscuro">◐ Tema</button>
+  </div>
+</nav>
+
+<main>
+
+<!-- 1. STACK -->
+<section id="stack">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="num">01</span>
+      <h2>Stack tecnológico</h2>
+      <p>Una web renderizada en servidor (SSR) con Astro. El HTML se genera en Vercel Functions y solo las partes interactivas se hidratan con React ("islas"), así la mayoría de páginas envía muy poco JavaScript.</p>
+    </div>
+    <div class="grid g4 stack">
+      <div class="card"><span class="tag t-brand">Framework</span><h3>Astro 5</h3><p><code>output: "server"</code> con adaptador <code>@astrojs/vercel</code>. Páginas <code>.astro</code> y rutas API.</p></div>
+      <div class="card"><span class="tag t-brand">UI interactiva</span><h3>React 19</h3><p>Islas: carrito, filtros, buscador, ficha de producto, comparador, calendario, chatbot.</p></div>
+      <div class="card"><span class="tag t-ok">Base de datos</span><h3>Supabase</h3><p>PostgreSQL: citas, suscriptores, posts del blog y (nuevo) productos de equipamiento.</p></div>
+      <div class="card"><span class="tag t-violet">Hosting</span><h3>Vercel</h3><p>Functions (Node), CDN, Cron semanal del blog, Analytics y Speed Insights.</p></div>
+      <div class="card"><span class="tag t-accent">Emails</span><h3>Resend</h3><p>Confirmaciones de cita, contacto y doble opt-in de la newsletter.</p></div>
+      <div class="card"><span class="tag t-accent">IA</span><h3>Groq · AI SDK</h3><p>Chatbot flotante y generación automática del artículo semanal del blog.</p></div>
+      <div class="card"><span class="tag t-warn">Contenido</span><h3>JSON + Markdown</h3><p>Catálogo de motos en JSON de fabricante; blog en Content Collections + Supabase.</p></div>
+      <div class="card"><span class="tag t-warn">Calidad</span><h3>Vitest</h3><p>116 tests: carrito, filtros, buscador, catálogo, validaciones y componentes.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. CAPAS -->
+<section id="capas">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="num">02</span>
+      <h2>Diagrama de capas</h2>
+      <p>De arriba abajo: lo que ve el usuario, lo que se ejecuta en Vercel, de dónde salen los datos y qué servicios externos se usan.</p>
+    </div>
+
+    <div class="layers">
+      <div class="layer l1">
+        <div class="layer-label">Navegador<small>HTML + islas React</small></div>
+        <div class="layer-body">
+          <div class="box"><b>Páginas Astro</b><span>Home, catálogo, fichas, taller, blog…</span></div>
+          <div class="box"><b>Header + mega menú</b><span>BottomNav en móvil</span></div>
+          <div class="box"><b>GlobalSearch</b><span>overlay de búsqueda</span></div>
+          <div class="box"><b>ProductCard / ProductDetail</b><span>tienda</span></div>
+          <div class="box"><b>EquipmentListing</b><span>filtros + orden</span></div>
+          <div class="box"><b>CartPage · CartCount · CartToast</b><span>carrito</span></div>
+          <div class="box"><b>FilteredMotoList · Comparador</b><span>motos</span></div>
+          <div class="box"><b>Store del carrito</b><span>localStorage</span></div>
+          <div class="box"><b>analytics.ts</b><span>eventos desacoplados</span></div>
+        </div>
+      </div>
+      <div class="connector"><div></div><div>peticiones HTTP · fetch /api/*</div></div>
+
+      <div class="layer l2">
+        <div class="layer-label">Vercel<small>Functions (SSR)</small></div>
+        <div class="layer-body">
+          <div class="box"><b>Render SSR de páginas</b><span>Astro + MainLayout</span></div>
+          <div class="box"><b>/api/search</b><span>buscador global</span></div>
+          <div class="box"><b>/api/agendar-cita</b><span>cita / prueba de moto</span></div>
+          <div class="box"><b>/api/contacto · /api/subscribe</b><span>formularios</span></div>
+          <div class="box"><b>/api/chat</b><span>chatbot IA</span></div>
+          <div class="box"><b>/api/cron/generar-post</b><span>lunes 10:00 UTC</span></div>
+          <div class="box"><b>/sitemap.xml</b><span>dinámico</span></div>
+          <div class="box"><b>/admin</b><span>citas y suscriptores</span></div>
+        </div>
+      </div>
+      <div class="connector"><div></div><div>capa de datos · src/lib/catalog · src/lib/commerce</div></div>
+
+      <div class="layer l3">
+        <div class="layer-label">Datos<small>fuentes reales</small></div>
+        <div class="layer-body">
+          <div class="box"><b>RiejuCatalogo.json</b><span>35 motos</span></div>
+          <div class="box"><b>ShercoCatalogo.json</b><span>32 motos</span></div>
+          <div class="box"><b>Content Collections</b><span>blog en Markdown</span></div>
+          <div class="box"><b>Supabase · citas</b><span></span></div>
+          <div class="box"><b>Supabase · subscribers</b><span></span></div>
+          <div class="box"><b>Supabase · blog_posts</b><span>posts IA</span></div>
+          <div class="box"><b>Supabase · equipment_products</b><span>+ equipment_variants (nuevo)</span></div>
+          <div class="box"><b>Supabase Storage · productos</b><span>fotos de producto</span></div>
+          <div class="box"><b>src/data</b><span>reseñas y ofertas de taller</span></div>
+          <div class="box"><b>store-config.ts</b><span>políticas de la tienda</span></div>
+        </div>
+      </div>
+      <div class="connector"><div></div><div>integraciones</div></div>
+
+      <div class="layer l4">
+        <div class="layer-label">Externos<small>servicios</small></div>
+        <div class="layer-body">
+          <div class="box"><b>Resend</b><span>emails</span></div>
+          <div class="box"><b>Groq</b><span>LLM</span></div>
+          <div class="box"><b>WhatsApp (wa.me)</b><span>contacto y pedidos</span></div>
+          <div class="box"><b>Google Maps</b><span>mapa y ruta</span></div>
+          <div class="box"><b>CDN Rieju / Sherco</b><span>fotos de motos</span></div>
+          <div class="box"><b>Vercel Analytics</b><span>con consentimiento</span></div>
+          <div class="box"><b>RSS motociclismo</b><span>fuentes del blog</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. RUTAS -->
+<section id="rutas">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="num">03</span>
+      <h2>Mapa de rutas</h2>
+      <p>Todas las URLs anteriores se mantienen. En rojo, las rutas nuevas del rediseño V2.</p>
+    </div>
+    <div class="routes">
+      <div class="card route-group">
+        <h3><span class="tag t-brand">Motos</span></h3>
+        <ul class="tree">
+          <li>/ <span class="note">home</span></li>
+          <li>/catalogo <span class="note">?segmento=enduro ?marca=Rieju</span></li>
+          <li>/catalogo/[slug] <span class="note">ficha de moto</span></li>
+          <li>/comparar</li>
+          <li>/Ofertas <span class="note">motos · equipamiento · taller</span></li>
+        </ul>
+      </div>
+      <div class="card route-group">
+        <h3><span class="tag t-accent">Equipamiento</span></h3>
+        <ul class="tree">
+          <li class="new">/equipamiento</li>
+          <li class="new">/equipamiento/[categoria] <span class="note">?tipo= ?talla= ?orden=</span></li>
+          <li class="new">/equipamiento/[categoria]/[producto]</li>
+          <li class="new">/carrito</li>
+          <li class="new">/buscar?q=</li>
+          <li class="new">/ayuda/[tema] <span class="note">solo si está configurado</span></li>
+          <li class="new">/tienda/* <span class="note">301 → /equipamiento</span></li>
+        </ul>
+      </div>
+      <div class="card route-group">
+        <h3><span class="tag t-ok">Taller y contacto</span></h3>
+        <ul class="tree">
+          <li>/taller</li>
+          <li>/CitaPrevia <span class="note">?motivo=prueba&amp;moto=</span></li>
+          <li>/contacto <span class="note">?asunto=financiacion</span></li>
+          <li>/faq</li>
+        </ul>
+      </div>
+      <div class="card route-group">
+        <h3><span class="tag t-violet">Contenido</span></h3>
+        <ul class="tree">
+          <li>/blog</li>
+          <li>/blog/[slug]</li>
+          <li class="new">/sitemap.xml <span class="note">dinámico</span></li>
+        </ul>
+      </div>
+      <div class="card route-group">
+        <h3><span class="tag t-warn">API</span></h3>
+        <ul class="tree">
+          <li class="new">/api/search</li>
+          <li>/api/agendar-cita</li>
+          <li>/api/contacto</li>
+          <li>/api/subscribe · confirmar-suscripcion</li>
+          <li>/api/chat</li>
+          <li>/api/cron/generar-post</li>
+        </ul>
+      </div>
+      <div class="card route-group">
+        <h3><span class="tag t-brand">Legal y admin</span></h3>
+        <ul class="tree">
+          <li>/aviso-legal · /privacidad · /cookies</li>
+          <li>/admin · /admin/citas · /admin/suscriptores</li>
+          <li>/suscripcion-confirmada</li>
+          <li>/404</li>
+        </ul>
+      </div>
+    </div>
+    <div class="legend"><span class="lg-new">Nuevo en V2</span><span class="lg-old">Existente</span></div>
+  </div>
+</section>
+
+<!-- 4. DOMINIO -->
+<section id="dominio">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="num">04</span>
+      <h2>Modelo de datos</h2>
+      <p>Motos y equipamiento son tipos distintos, pero comparten una base común (<code>Product</code>) para que el buscador, las ofertas y analytics los traten igual. Definido en <code>src/lib/catalog/types.ts</code>.</p>
+    </div>
+    <div class="uml">
+      <div class="cls base">
+        <header>Product <small>BaseProduct</small></header>
+        <ul>
+          <li>kind</li><li>id</li><li>slug</li><li>url</li><li>brand</li><li>name</li>
+          <li>price</li><li>compareAtPrice</li><li>images[]</li><li>availability</li><li>tags[]</li>
+        </ul>
+      </div>
+      <div class="inherit"></div>
+      <div class="cls moto">
+        <header>MotorcycleProduct <small>JSON</small></header>
+        <ul>
+          <li>category</li><li>subcategory</li><li>segments[]</li><li>year</li><li>isNew</li>
+          <li>specs{…}</li><li>manufacturerUrl</li>
+        </ul>
+      </div>
+      <div class="cls equip">
+        <header>EquipmentProduct <small>Supabase</small></header>
+        <ul>
+          <li>sku · ean</li><li>category</li><li>subcategory</li><li>type</li><li>description</li>
+          <li>colors[]</li><li>sizes[]</li><li>variants[]</li><li>stock</li><li>rating</li>
+          <li>reviewCount</li><li>features[]</li><li>materials[]</li><li>technology[]</li>
+          <li>gender</li><li>season</li><li>badges[]</li><li>faq[]</li>
+        </ul>
+      </div>
+      <div></div>
+      <div>
+      <div class="rel">EquipmentProduct 1 ── * ProductVariant (una por color × talla)</div>
+      <div class="cls variant">
+        <header>ProductVariant <small>equipment_variants</small></header>
+        <ul>
+          <li>sku</li><li>ean</li><li>color</li><li>size</li><li>stock</li><li>price?</li>
+        </ul>
+      </div>
+      </div>
+    </div>
+
+    <div class="grid g2" style="margin-top:24px">
+      <div class="card">
+        <h3 style="font-size:15px;margin-bottom:8px">Segmentos de moto</h3>
+        <p style="margin:0;color:var(--ink-2);font-size:14px">Las categorías del fabricante se traducen a segmentos comerciales en <code>motorcycles.ts → getSegments()</code>. Una moto puede estar en varios segmentos.</p>
+        <p style="margin:10px 0 0;font-size:14px">
+          <span class="tag t-brand">Enduro</span> <span class="tag t-brand">Trail</span> <span class="tag t-brand">Carretera</span>
+          <span class="tag t-brand">Ciudad</span> <span class="tag t-brand">Trial</span> <span class="tag t-brand">Eléctricas</span>
+        </p>
+      </div>
+      <div class="card">
+        <h3 style="font-size:15px;margin-bottom:8px">Categorías de equipamiento</h3>
+        <p style="margin:0;color:var(--ink-2);font-size:14px">Declarativas en <code>equipment-categories.ts</code>: SEO, H1, intro, tipos filtrables y escala de tallas. Activas hoy:</p>
+        <p style="margin:10px 0 0;font-size:14px">
+          <span class="tag t-accent">Cascos</span> <span class="tag t-accent">Guantes</span> <span class="tag t-accent">Chaquetas</span>
+          <span class="tag t-accent">Camisetas</span> <span class="tag t-accent">Botas</span>
+          <span class="tag t-warn">Pantalones (inactiva)</span> <span class="tag t-warn">Protecciones (inactiva)</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. EQUIPAMIENTO -->
+<section id="equipamiento">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="num">05</span>
+      <h2>De dónde salen los productos de equipamiento</h2>
+      <p>El repositorio <code>src/lib/catalog/equipment.ts</code> consulta Supabase en el servidor con una caché de 60 segundos. Nunca se inventan productos en producción.</p>
+    </div>
+    <div class="flow">
+      <div class="step ok"><b>Página / API</b><span>pide productos</span></div>
+      <div class="arrow">→</div>
+      <div class="step"><b>equipment.ts</b><span>caché 60 s</span></div>
+      <div class="arrow">→</div>
+      <div class="step ok"><b>Supabase</b><span><code>equipment_products</code> + <code>equipment_variants</code></span></div>
+      <div class="arrow">→</div>
+      <div class="step"><b>equipment-mapper.ts</b><span>fila → <code>EquipmentProduct</code>, stock → disponibilidad</span></div>
+    </div>
+    <div class="decision">
+      <div class="card d1"><h3>✅ Hay productos</h3><p>Se muestran los datos reales de Supabase. Es el funcionamiento normal en producción.</p></div>
+      <div class="card d2"><h3>🟡 Vacío + DEV o EQUIPMENT_USE_MOCK</h3><p>Se cargan productos <code>[DEMO]</code> con franja amarilla y <code>noindex</code>. Solo en <code>astro dev</code> y en las previews de <code>develop</code> / <code>feature/redesign</code>.</p></div>
+      <div class="card d3"><h3>⬜ Vacío en producción</h3><p>Estados vacíos profesionales con botón a WhatsApp: "Nuestro catálogo online llega muy pronto".</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. COMPRA -->
+<section id="compra">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="num">06</span>
+      <h2>Flujo de compra</h2>
+      <p>El carrito es un store propio sin dependencias (<code>src/lib/commerce/cart.ts</code>), guardado en <code>localStorage</code> y sincronizado entre pestañas. El checkout está desacoplado: hoy envía el pedido por WhatsApp; mañana se enchufa una pasarela sin tocar la interfaz.</p>
+    </div>
+    <div class="flow">
+      <div class="step accent"><b>ProductCard / PDP</b><span>elige color, talla y cantidad</span></div>
+      <div class="arrow">→</div>
+      <div class="step accent"><b>addToCart()</b><span><code>actions.ts</code> · evento <code>add_to_cart</code></span></div>
+      <div class="arrow">→</div>
+      <div class="step"><b>Store del carrito</b><span>localStorage <code>mk_cart_v1</code> · contador y toast</span></div>
+      <div class="arrow">→</div>
+      <div class="step"><b>/carrito</b><span>cantidades, eliminar, totales</span></div>
+      <div class="arrow">→</div>
+      <div class="step violet"><b>CheckoutProvider</b><span><code>checkout.ts</code> · <code>begin_checkout</code></span></div>
+    </div>
+    <div class="grid g2" style="margin-top:16px">
+      <div class="card">
+        <span class="tag t-ok">Hoy</span>
+        <h3 style="font-size:15px;margin:8px 0 4px">whatsapp-order</h3>
+        <p style="margin:0;color:var(--ink-2);font-size:14px">"Continuar con la compra" abre WhatsApp con el pedido redactado (productos, variantes, subtotal). No afirma pago online ni condiciones de envío.</p>
+      </div>
+      <div class="card">
+        <span class="tag t-warn">Futuro</span>
+        <h3 style="font-size:15px;margin:8px 0 4px">Stripe / Redsys / Shopify…</h3>
+        <p style="margin:0;color:var(--ink-2);font-size:14px">Implementar <code>CheckoutProvider</code> + endpoint <code>/api/checkout</code> que revalide precio y stock contra Supabase, y activar <code>onlinePaymentEnabled</code> en <code>store-config.ts</code>.</p>
+      </div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <h3 style="font-size:15px;margin-bottom:8px">Políticas de la tienda (<code>store-config.ts</code>)</h3>
+      <p style="margin:0 0 10px;color:var(--ink-2);font-size:14px">Todo lo no confirmado está en <code>null / false</code> y la interfaz no lo muestra. Al rellenarlo aparecen solos los mensajes de confianza, las páginas <code>/ayuda/*</code> y el cálculo de envío del carrito.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Campo</th><th>Estado</th><th>Efecto al activarlo</th></tr></thead>
+          <tbody>
+            <tr><td><code>onlinePaymentEnabled</code></td><td><span class="tag t-warn">false</span></td><td>"Pago seguro" + proveedor de pago en el checkout</td></tr>
+            <tr><td><code>shipping</code></td><td><span class="tag t-warn">null</span></td><td>Coste de envío, umbral de envío gratis y <code>/ayuda/envios</code></td></tr>
+            <tr><td><code>returns</code></td><td><span class="tag t-warn">null</span></td><td>"Devoluciones" + <code>/ayuda/devoluciones</code></td></tr>
+            <tr><td><code>pickupInStore</code></td><td><span class="tag t-warn">false</span></td><td>"Recogida en tienda"</td></tr>
+            <tr><td><code>promoCodesEnabled</code></td><td><span class="tag t-warn">false</span></td><td>Campo de código promocional en el carrito</td></tr>
+            <tr><td><code>sizeGuideAvailable</code></td><td><span class="tag t-warn">false</span></td><td>"Guía de tallas" + <code>/ayuda/tallas</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7. BUSCADOR -->
+<section id="buscador">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="num">07</span>
+      <h2>Buscador global</h2>
+      <p>Un único índice con motos, equipamiento y blog. Entiende color y talla: "casco negro", "Rieju" o "guantes talla L".</p>
+    </div>
+    <div class="flow">
+      <div class="step"><b>Fuentes</b><span>motos (JSON) · equipamiento (Supabase) · blog (MD + Supabase)</span></div>
+      <div class="arrow">→</div>
+      <div class="step"><b>search-index.ts</b><span>construye <code>SearchDoc[]</code> · caché 60 s</span></div>
+      <div class="arrow">→</div>
+      <div class="step violet"><b>search.ts</b><span><code>parseQuery</code>: términos + colores + tallas</span></div>
+      <div class="arrow">→</div>
+      <div class="step ok"><b>/api/search</b><span>JSON agrupado</span></div>
+      <div class="arrow">→</div>
+      <div class="step accent"><b>GlobalSearch · /buscar</b><span>Motos · Equipamiento · Blog</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. CARPETAS -->
+<section id="carpetas">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="num">08</span>
+      <h2>Estructura de carpetas</h2>
+      <p>En rojo, lo que se ha añadido en V2.</p>
+    </div>
+    <div class="folders"><pre>motokass-landing/
+├── <span class="n">docs/</span>                         <span class="c"># esta documentación</span>
+├── public/                       <span class="c"># favicon, robots.txt, fachada</span>
+├── src/
+│   ├── assets/img/               <span class="c"># fotos reales (tienda, taller) + <span class="n">brand/</span> + <span class="n">equipamiento/</span></span>
+│   ├── components/
+│   │   ├── Header.astro · Footer.astro · <span class="n">BottomNav.astro</span>
+│   │   ├── MotoCard.jsx · FilteredMotoList.jsx · ComparadorMotos.jsx
+│   │   ├── ChatBot.tsx · CalendarioCitas.tsx · WhatsApp.astro · CookieBanner.astro
+│   │   ├── <span class="n">home/</span>                     <span class="c"># Hero, TrustBar, EquipmentCategories, MotoSegments…</span>
+│   │   ├── <span class="n">commerce/</span>                 <span class="c"># ProductCard, ProductDetail, EquipmentListing, CartPage…</span>
+│   │   ├── <span class="n">offers/</span>                   <span class="c"># OffersTabs</span>
+│   │   ├── <span class="n">search/</span>                   <span class="c"># GlobalSearch</span>
+│   │   └── <span class="n">ui/</span>                       <span class="c"># Icon, Breadcrumbs, icons.ts</span>
+│   ├── content/blog/             <span class="c"># artículos Markdown</span>
+│   ├── <span class="n">data/</span>                         <span class="c"># reviews.ts, workshop-offers.ts (datos reales)</span>
+│   ├── layouts/MainLayout.astro
+│   ├── lib/
+│   │   ├── <span class="n">catalog/</span>                  <span class="c"># types, motorcycles, equipment*, search*</span>
+│   │   ├── <span class="n">commerce/</span>                 <span class="c"># cart, useCart, actions, checkout, store-config, help-topics</span>
+│   │   ├── <span class="n">analytics.ts</span> · <span class="n">site.ts</span>
+│   │   └── supabase · resend · filtros · slug · validacion · rateLimit · sanitize…
+│   ├── pages/                    <span class="c"># rutas (ver sección 3)</span>
+│   ├── resources/                <span class="c"># RiejuCatalogo.json, ShercoCatalogo.json</span>
+│   └── styles/global.css         <span class="c"># tokens de diseño V2</span>
+├── supabase/migrations/          <span class="c"># blog_posts + <span class="n">equipment (aplicada)</span></span>
+├── tests/                        <span class="c"># unit/ + components/ (Vitest)</span>
+├── astro.config.mjs · vercel.json · vitest.config.ts
+└── package.json</pre></div>
+  </div>
+</section>
+
+<!-- 9. ENTORNOS -->
+<section id="entornos">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="num">09</span>
+      <h2>Ramas y entornos</h2>
+      <p>Cada push a GitHub despliega automáticamente en Vercel. Las previews están protegidas con Vercel Authentication.</p>
+    </div>
+    <div class="envs">
+      <div class="env">
+        <span class="tag t-accent">Feature</span>
+        <h3>feature/redesign</h3>
+        <div class="url">motokass-landing-git-feature-40a68a-…vercel.app</div>
+        <ul>
+          <li>Desarrollo del rediseño V2</li>
+          <li>Productos DEMO activados</li>
+        </ul>
+      </div>
+      <div class="env">
+        <span class="tag t-warn">Integración · Preview</span>
+        <h3>develop</h3>
+        <div class="url">develop.motokass.com · motokass-landing-git-develop-…vercel.app</div>
+        <ul>
+          <li>Revisión antes de producción</li>
+          <li>Productos DEMO activados</li>
+        </ul>
+      </div>
+      <div class="env">
+        <span class="tag t-ok">Producción</span>
+        <h3>main</h3>
+        <div class="url">www.motokass.com</div>
+        <ul>
+          <li>Web pública</li>
+          <li>Sin datos DEMO (nunca)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="table-wrap" style="margin-top:20px">
+      <table>
+        <thead><tr><th>Variable</th><th>Uso</th><th>Entornos</th></tr></thead>
+        <tbody>
+          <tr><td><code>SUPABASE_URL</code> · <code>SUPABASE_SERVICE_ROLE_KEY</code></td><td>Base de datos (solo servidor)</td><td>Todos</td></tr>
+          <tr><td><code>RESEND_API_KEY</code> · <code>RESEND_FROM</code> · <code>TALLER_EMAIL</code></td><td>Emails</td><td>Todos</td></tr>
+          <tr><td><code>WHATSAPP_NUMBER</code></td><td>Botones y pedidos por WhatsApp</td><td>Production · Preview (develop, feature/redesign)</td></tr>
+          <tr><td><code>GROQ_API_KEY</code></td><td>Chatbot y blog IA</td><td>Production · Preview</td></tr>
+          <tr><td><code>CRON_SECRET</code></td><td>Protege el cron del blog</td><td>Production</td></tr>
+          <tr><td><code>ADMIN_PASSWORD</code></td><td>Panel /admin</td><td>Todos</td></tr>
+          <tr><td><code>EQUIPMENT_USE_MOCK</code></td><td>Productos DEMO en previews</td><td>Preview (develop, feature/redesign) · <b>nunca en Production</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 10. EXTENDER -->
+<section id="extender">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="num">10</span>
+      <h2>Cómo ampliar el proyecto</h2>
+      <p>Puntos de extensión pensados para crecer sin tocar la arquitectura.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Quiero…</th><th>Dónde</th><th>Qué pasa automáticamente</th></tr></thead>
+        <tbody>
+          <tr><td>Añadir una categoría (pantalones, mochilas…)</td><td><code>lib/catalog/equipment-categories.ts</code> → <code>active: true</code></td><td>Ruta, mega menú, footer, filtros, SEO, sitemap</td></tr>
+          <tr><td>Cargar productos reales</td><td>Tablas <code>equipment_products</code> / <code>equipment_variants</code></td><td>Tienda, home, buscador, ofertas, sitemap, schema Product</td></tr>
+          <tr><td>Publicar envíos / devoluciones</td><td><code>lib/commerce/store-config.ts</code></td><td>Mensajes de confianza, <code>/ayuda/*</code>, envío en el carrito</td></tr>
+          <tr><td>Conectar pasarela de pago</td><td><code>lib/commerce/checkout.ts</code> → <code>CheckoutProvider</code></td><td>Botón del carrito usa el nuevo proveedor</td></tr>
+          <tr><td>Mostrar reseñas reales</td><td><code>src/data/reviews.ts</code></td><td>Sección de opiniones de la home</td></tr>
+          <tr><td>Publicar ofertas de taller</td><td><code>src/data/workshop-offers.ts</code></td><td>Pestaña Taller en home y /Ofertas (caducan solas)</td></tr>
+          <tr><td>Conectar GA4 / GTM u otra herramienta</td><td><code>registerAnalyticsAdapter()</code> en <code>lib/analytics.ts</code></td><td>Reciben los 12 eventos (respeta el consentimiento de cookies)</td></tr>
+          <tr><td>Nuevo segmento de moto</td><td><code>lib/catalog/motorcycles.ts</code> → <code>MOTO_SEGMENTS</code> + <code>getSegments()</code></td><td>Home, filtro del catálogo, menú móvil</td></tr>
+          <tr><td>Datos del negocio (teléfono, horario…)</td><td><code>lib/site.ts</code></td><td>Header, footer, localización, schema</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h3 style="font-size:15px;margin-bottom:8px">Eventos de analytics preparados</h3>
+      <p style="margin:0;font-size:14px;line-height:2">
+        <code>view_product</code> <code>view_motorcycle</code> <code>add_to_cart</code> <code>remove_from_cart</code>
+        <code>begin_checkout</code> <code>purchase</code> <code>search</code> <code>filter_category</code>
+        <code>click_whatsapp</code> <code>click_call</code> <code>book_test_ride</code> <code>book_workshop</code>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- 11. PENDIENTES -->
+<section id="pendientes">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="num">11</span>
+      <h2>Pendientes antes de producción</h2>
+      <p>Requieren datos o decisiones del negocio. Regla del proyecto: no se inventa información.</p>
+    </div>
+    <ul class="checklist">
+      <li>Cargar el catálogo real con fotos (la migración de equipamiento y el bucket <code>productos</code> ya están creados).</li>
+      <li>Confirmar políticas de envío, devoluciones, métodos de pago y recogida en tienda (<code>store-config.ts</code>).</li>
+      <li>Condiciones de venta y derecho de desistimiento antes de cobrar online.</li>
+      <li>Elegir e integrar pasarela de pago (Stripe, Redsys…).</li>
+      <li>Revisar si la tabla <code>citas</code> tiene un CHECK sobre <code>motivo</code> y añadir el valor <code>prueba</code>.</li>
+      <li>Fotos propias para las categorías de equipamiento (hoy solo Cascos tiene foto real).</li>
+      <li>Reseñas reales de clientes y ofertas reales de taller.</li>
+      <li>Crear CNAME <code>develop</code> → <code>cname.vercel-dns.com</code> en el DNS y enlazar el dominio a la rama <code>develop</code> en Vercel.</li>
+      <li>Corregir <code>maxTokens</code> → <code>maxOutputTokens</code> en <code>api/chat.ts</code> (AI SDK v6).</li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<footer class="bottom">
+  <div class="wrap">MOTOKASS · Documentación de arquitectura V2 · septiembre 2026</div>
+</footer>
+
+<script>
+  (function () {
+    var btn = document.getElementById("themeBtn");
+    var root = document.documentElement;
+    try {
+      var saved = localStorage.getItem("mk_docs_theme");
+      if (saved) root.setAttribute("data-theme", saved);
+    } catch (e) {}
+    btn.addEventListener("click", function () {
+      var current = root.getAttribute("data-theme") ||
+        (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      var next = current === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("mk_docs_theme", next); } catch (e) {}
+    });
+  })();
+</script>
+</body>
+</html>

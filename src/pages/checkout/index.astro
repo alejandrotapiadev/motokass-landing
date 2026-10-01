@@ -1,0 +1,31 @@
+---
+import MainLayout from "../../layouts/MainLayout.astro";
+import Breadcrumbs from "../../components/ui/Breadcrumbs.astro";
+import CheckoutPage from "../../components/commerce/CheckoutPage";
+import { STORE_CONFIG, getDeliveryOptions } from "../../lib/commerce/store-config";
+import { isOnlineCheckoutReady } from "../../lib/commerce/server";
+
+// Sin pago online listo, el pedido se hace desde el carrito (WhatsApp).
+if (!isOnlineCheckoutReady()) return Astro.redirect("/carrito");
+---
+
+<MainLayout title="Finalizar compra | MOTOKASS" description="Datos de envío y pago de tu pedido en MOTOKASS." noindex>
+  <section class="section checkout-page">
+    <div class="container">
+      <Breadcrumbs items={[{ label: "Inicio", href: "/" }, { label: "Carrito", href: "/carrito" }, { label: "Finalizar compra" }]} />
+      <h1 class="display">Finalizar compra</h1>
+      <CheckoutPage
+        client:load
+        deliveryOptions={getDeliveryOptions(STORE_CONFIG)}
+        termsUrl="/condiciones-venta"
+        privacyUrl="/privacidad"
+        pricesIncludeTax={STORE_CONFIG.tax.pricesIncludeTax}
+      />
+    </div>
+  </section>
+</MainLayout>
+
+<style>
+.checkout-page { padding-top: 1.5rem; }
+.checkout-page h1 { font-size: clamp(2.6rem, 6vw, 4.5rem); margin: 1.25rem 0 2rem; }
+</style>

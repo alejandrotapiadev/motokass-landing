@@ -5,7 +5,7 @@
  * tabla equipment_products de Supabase está vacía. NO son productos, marcas,
  * precios ni stock reales. Nunca se sirven en producción (ver equipment.ts).
  */
-import type { EquipmentProduct } from "./types";
+import type { EquipmentProduct, ProductReview } from "./types";
 import { rowToEquipment, type EquipmentRow } from "./equipment-mapper";
 
 const base = {
@@ -214,6 +214,61 @@ const ROWS: EquipmentRow[] = [
     tags: ["blanco", "enduro"],
     equipment_variants: variants("DEMO-BO", ["Blanco"], ["41", "42", "43", "44"], () => 5),
   },
+  {
+    ...base,
+    id: "mock-12",
+    slug: "demo-pantalon-textil",
+    brand: "Marca Demo",
+    name: "[DEMO] Pantalón textil",
+    category: "pantalones",
+    type: "textil",
+    description: "Producto de ejemplo para desarrollo.",
+    price: 149,
+    colors: [{ name: "Negro", hex: "#16171a" }],
+    tags: ["negro", "textil"],
+    equipment_variants: variants("DEMO-PT", ["Negro"], ["S", "M", "L", "XL"], (i) => (i === 0 ? 0 : 5)),
+  },
+  {
+    ...base,
+    id: "mock-13",
+    slug: "demo-pantalon-vaquero",
+    brand: "Otra Marca Demo",
+    name: "[DEMO] Pantalón vaquero",
+    category: "pantalones",
+    type: "vaquero",
+    description: "Producto de ejemplo para desarrollo.",
+    price: 119,
+    compare_at_price: 139,
+    colors: [{ name: "Azul", hex: "#1F3F7A" }],
+    tags: ["azul"],
+    equipment_variants: variants("DEMO-PV", ["Azul"], ["M", "L", "XL"], () => 4),
+  },
+  {
+    ...base,
+    id: "mock-14",
+    slug: "demo-accesorio",
+    brand: "Marca Demo",
+    name: "[DEMO] Accesorio sin tallas",
+    category: "accesorios",
+    type: null,
+    description: "Producto de ejemplo para desarrollo.",
+    price: 29.9,
+    stock: 6,
+    tags: ["accesorio"],
+  },
+  {
+    ...base,
+    id: "mock-15",
+    slug: "demo-accesorio-agotado",
+    brand: "Otra Marca Demo",
+    name: "[DEMO] Accesorio agotado",
+    category: "accesorios",
+    type: null,
+    description: "Producto de ejemplo para desarrollo.",
+    price: 49.9,
+    stock: 0,
+    tags: ["accesorio"],
+  },
 ];
 
 export const MOCK_EQUIPMENT: EquipmentProduct[] = ROWS.map((r, i) => ({
@@ -222,3 +277,11 @@ export const MOCK_EQUIPMENT: EquipmentProduct[] = ROWS.map((r, i) => ({
 }));
 
 export const MOCK_FEATURED_IDS = new Set(ROWS.filter((_, i) => i % 2 === 0).map((r) => r.id));
+
+/** Reseñas ficticias para maquetar la ficha (solo productos mock, nunca en producción). */
+export const MOCK_REVIEWS: Record<string, ProductReview[]> = {
+  "mock-1": [
+    { id: "mock-r1", author: "Cliente Demo", rating: 5, title: "[DEMO] Título de ejemplo", body: "Comentario de ejemplo para desarrollo. No es una reseña real.", date: "2026-09-12" },
+    { id: "mock-r2", author: "Otro Cliente Demo", rating: 4, body: "[DEMO] Segundo comentario de ejemplo, sin título.", date: "2026-08-30" },
+  ],
+};

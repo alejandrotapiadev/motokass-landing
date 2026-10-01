@@ -1,19 +1,17 @@
 /**
- * Punto de conexión del checkout.
+ * Proveedores de checkout que ofrece el carrito.
  *
- * No hay pasarela de pago integrada. Para conectar Stripe, Redsys, Shopify,
- * WooCommerce… implementar CheckoutProvider (idealmente vía un endpoint
- * /api/checkout que revalide precios y stock en servidor contra Supabase)
- * y devolverlo desde getCheckoutProvider() cuando esté configurado.
- *
- * Mientras tanto se usa "whatsapp-order": el cliente envía su pedido por
- * WhatsApp a la tienda. No implica pago online ni condiciones de envío.
+ *  - "online": pago con Stripe. Lleva a /checkout (datos + resumen), que
+ *    llama a /api/checkout; el servidor revalida precios y stock.
+ *  - "whatsapp-order": el cliente envía su pedido por WhatsApp a la tienda
+ *    (checkout manual, sin pago online). Es el único canal mientras el pago
+ *    online no esté listo, y una alternativa si manualOrderEnabled.
  */
 import type { CartState, CartTotals } from "./cart";
-import { STORE_CONFIG } from "./store-config";
+import { STORE_CONFIG, type StoreConfig } from "./store-config";
 
 export type CheckoutResult =
-  | { kind: "redirect"; url: string }
+  | { kind: "redirect"; url: string; newTab?: boolean }
   | { kind: "error"; message: string };
 
 export interface CheckoutProvider {
@@ -49,15 +47,37 @@ export function whatsappOrderProvider(whatsappNumber: string): CheckoutProvider 
     note: "Te llevamos a WhatsApp con tu pedido para confirmar disponibilidad y forma de pago con la tienda.",
     async begin(cart, totals) {
       const text = encodeURIComponent(buildOrderMessage(cart, totals));
-      return { kind: "redirect", url: `https://wa.me/${whatsappNumber}?text=${text}` };
+      return { kind: "redirect", url: `https://wa.me/${whatsappNumber}?text=${text}`, newTab: true };
     },
   };
 }
 
-export function getCheckoutProvider(whatsappNumber: string): CheckoutProvider {
-  if (STORE_CONFIG.onlinePaymentEnabled) {
-    // TODO: devolver aquí el proveedor de pago real cuando exista.
-    // return stripeCheckoutProvider();
-  }
-  return whatsappOrderProvider(whatsappNumber);
+export function onlineCheckoutProvider(): CheckoutProvider {
+  return {
+    id: "online",
+    ctaLabel: "Tramitar pedido",
+    note: "Revisarás tus datos y el total antes de pagar de forma segura con Stripe.",
+    async begin() {
+      return { kind: "redirect", url: "/checkout" };
+    },
+  };
+}
+
+export interface CheckoutOptions {
+  primary: CheckoutProvider;
+  alternative: CheckoutProvider | null;
+}
+
+/**
+ * onlineReady lo calcula el servidor (configuración comercial + claves de
+ * Stripe): ver isOnlineCheckoutReady() en server.ts.
+ */
+export function getCheckoutOptions(opts: { whatsappNumber: string; onlineReady: boolean; config?: StoreConfig }): CheckoutOptions {
+  const config = opts.config ?? STORE_CONFIG;
+  const whatsapp = whatsappOrderProvider(opts.whatsappNumber);
+  if (!opts.onlineReady) return { primary: whatsapp, alternative: null };
+  return {
+    primary: onlineCheckoutProvider(),
+    alternative: config.manualOrderEnabled ? { ...whatsapp, ctaLabel: "Prefiero pedir por WhatsApp" } : null,
+  };
 }

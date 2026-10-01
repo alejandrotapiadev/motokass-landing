@@ -1,7 +1,6 @@
 ---
 import { Image } from "astro:assets";
 import Icon from "../ui/Icon.astro";
-import cascosImg from "../../assets/img/equipamiento/cascos-tienda.png";
 import { getActiveCategories, categoryUrl } from "../../lib/catalog/equipment-categories";
 
 interface Props {
@@ -16,8 +15,12 @@ const {
 } = Astro.props;
 const Heading = headingLevel;
 
-// Portadas reales disponibles. Añadir aquí nuevas fotos por categoría.
-const COVERS = { cascos: cascosImg } as const;
+// Portadas: una foto por categoría en src/assets/img/equipamiento/<slug>.(png|jpg|jpeg|webp|avif).
+// Basta con dejar el archivo (p. ej. guantes.jpg); sin foto, la categoría usa el tile gráfico con icono.
+const coverFiles = import.meta.glob<{ default: ImageMetadata }>("../../assets/img/equipamiento/*.{png,jpg,jpeg,webp,avif}", { eager: true });
+const COVERS: Record<string, ImageMetadata> = Object.fromEntries(
+  Object.entries(coverFiles).map(([path, mod]) => [path.split("/").pop()!.replace(/\.\w+$/, ""), mod.default]),
+);
 
 const categories = getActiveCategories();
 ---
@@ -35,7 +38,7 @@ const categories = getActiveCategories();
 
     <ul class="eq-grid">
       {categories.map((c, i) => {
-        const cover = c.cover ? COVERS[c.cover] : null;
+        const cover = COVERS[c.slug] ?? null;
         return (
           <li class:list={["eq-tile", { "eq-tile--photo": cover, "eq-tile--lead": i === 0 }]}>
             <a href={categoryUrl(c.slug)} aria-label={`Ver ${c.name.toLowerCase()}`}>
@@ -69,7 +72,7 @@ const categories = getActiveCategories();
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: 1.3fr 1fr 1fr;
+  grid-template-columns: 1.3fr 1fr 1fr 1fr;
   grid-template-rows: repeat(2, minmax(220px, 1fr));
   gap: 1rem;
 }

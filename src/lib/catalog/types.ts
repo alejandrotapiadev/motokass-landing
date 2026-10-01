@@ -111,6 +111,19 @@ export interface EquipmentProduct extends BaseProduct {
   isMock?: boolean;
 }
 
+/** Reseña de un cliente sobre un producto (ver equipment-reviews.ts). */
+export interface ProductReview {
+  id: string;
+  /** Nombre público del autor. */
+  author: string;
+  /** Puntuación de 1 a 5. */
+  rating: number;
+  title?: string | null;
+  body: string;
+  /** Fecha ISO (YYYY-MM-DD). */
+  date: string;
+}
+
 export type Product = MotorcycleProduct | EquipmentProduct;
 
 /* ─────────────────────── Utilidades ─────────────────────── */

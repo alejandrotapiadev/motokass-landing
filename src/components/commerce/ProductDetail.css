@@ -1,8 +1,13 @@
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition { navigation: auto; }
+}
+
 .pd { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 4rem); align-items: start; }
 
 .pd__gallery { position: sticky; top: calc(var(--header-h) + 1rem); display: grid; gap: .75rem; }
 .pd__main { position: relative; aspect-ratio: 1 / 1; background: var(--paper-2); border-radius: var(--radius); overflow: hidden; }
-.pd__main img { width: 100%; height: 100%; object-fit: contain; padding: 5%; mix-blend-mode: multiply; }
+.pd__main img { width: 100%; height: 100%; object-fit: contain; padding: 5%; mix-blend-mode: multiply; animation: pd-img .25s var(--ease); }
+@keyframes pd-img { from { opacity: 0; } }
 .pd__placeholder { position: absolute; inset: 0; display: grid; place-items: center; color: #B7B9BD; }
 .pd__discount { position: absolute; top: 1rem; left: 1rem; font-size: .8rem; }
 .pd__nav {
@@ -18,10 +23,14 @@
   background: rgba(255,255,255,.9);
   box-shadow: var(--shadow-1);
   cursor: pointer;
+  transition: background .2s var(--ease), transform .2s var(--ease);
 }
+.pd__nav:hover { background: #fff; transform: translateY(-50%) scale(1.06); }
 .pd__nav--prev { left: .75rem; }
 .pd__nav--next { right: .75rem; }
 .pd__thumbs { display: flex; gap: .5rem; overflow-x: auto; }
+.pd__thumb { transition: border-color .2s var(--ease); }
+.pd__thumb:hover { border-color: var(--ink); }
 .pd__thumb { width: 80px; height: 80px; flex-shrink: 0; padding: 0; border: 1px solid var(--line); border-radius: 2px; background: var(--paper-2); cursor: pointer; }
 .pd__thumb[aria-selected="true"] { border: 2px solid var(--ink); }
 .pd__thumb img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; }
@@ -42,6 +51,10 @@
 .pd__colors { display: flex; gap: .6rem; }
 .pd__swatch { width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(0,0,0,.2); cursor: pointer; padding: 0; }
 .pd__swatch[aria-pressed="true"] { outline: 2px solid var(--ink); outline-offset: 3px; }
+.pd__swatch { position: relative; transition: outline-offset .15s var(--ease), transform .15s var(--ease); }
+.pd__swatch:hover { transform: scale(1.08); }
+.pd__swatch--out { opacity: .45; }
+.pd__swatch--out::after { content: ""; position: absolute; inset: 50% -2px auto; border-top: 1.5px solid var(--text-2); transform: rotate(-45deg); }
 .pd__sizes { display: flex; flex-wrap: wrap; gap: .5rem; }
 .pd__size {
   min-width: 56px;
@@ -52,11 +65,14 @@
   background: #fff;
   font-weight: 700;
   cursor: pointer;
+  transition: background .15s var(--ease), color .15s var(--ease), border-color .15s var(--ease);
 }
 .pd__size:hover:not(:disabled) { border-color: var(--ink); }
 .pd__size[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
-.pd__size:disabled { color: #B7B9BD; background: repeating-linear-gradient(135deg, #fff, #fff 6px, #f3f3f1 6px, #f3f3f1 7px); cursor: not-allowed; }
+.pd__size:disabled { color: #B7B9BD; background: repeating-linear-gradient(135deg, #fff, #fff 6px, #f3f3f1 6px, #f3f3f1 7px); text-decoration: line-through; cursor: not-allowed; }
+.pd__size-note { font-size: .78rem; color: var(--text-2); margin: .5rem 0 0; }
 .pd__opt--error .pd__size:not(:disabled) { border-color: var(--accent); }
+.pd__error { animation: pd-img .2s var(--ease); }
 .pd__error { color: var(--accent); font-size: .85rem; font-weight: 600; margin: .5rem 0 0; }
 .pd__size-help { margin-top: .6rem; }
 .pd__size-help a { font-size: .85rem; text-decoration: underline; color: var(--text-2); }
@@ -70,6 +86,8 @@
 
 .pd__actions { display: grid; grid-template-columns: auto 1fr; gap: .5rem; }
 .pd__qty { display: inline-flex; align-items: center; border: 1.5px solid var(--line); border-radius: var(--radius); }
+.pd__qty button { transition: background .15s var(--ease); }
+.pd__qty button:hover:not(:disabled) { background: var(--paper-2); }
 .pd__qty button { width: 44px; height: 46px; border: 0; background: none; cursor: pointer; display: grid; place-items: center; }
 .pd__qty button:disabled { opacity: .3; cursor: not-allowed; }
 .pd__qty span { min-width: 28px; text-align: center; font-weight: 700; }

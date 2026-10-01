@@ -1,0 +1,17 @@
+---
+import MainLayout from "../../layouts/MainLayout.astro";
+import CheckoutSuccess from "../../components/commerce/CheckoutSuccess";
+
+// La URL lleva el token de acceso al pedido: sin caché ni Referer.
+Astro.response.headers.set("Cache-Control", "no-store");
+Astro.response.headers.set("Referrer-Policy", "no-referrer");
+---
+
+<MainLayout title="Estado del pedido | MOTOKASS" description="Estado de tu pedido en MOTOKASS." noindex>
+  <meta slot="head" name="referrer" content="no-referrer" />
+  <section class="section">
+    <div class="container">
+      <CheckoutSuccess client:only="react" />
+    </div>
+  </section>
+</MainLayout>

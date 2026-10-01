@@ -1,0 +1,77 @@
+---
+/**
+ * Valoración y comentarios de un producto. Solo muestra datos existentes:
+ * media y nº de valoraciones del producto, y las reseñas que devuelva
+ * getProductReviews() (ver equipment-reviews.ts).
+ */
+import { Stars } from "./ProductCard";
+import type { EquipmentProduct, ProductReview } from "../../lib/catalog/types";
+
+interface Props {
+  product: EquipmentProduct;
+  reviews: ProductReview[];
+}
+const { product, reviews } = Astro.props;
+
+const hasRating = product.rating != null && product.reviewCount > 0;
+const dateFmt = new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "long", year: "numeric" });
+---
+
+<section class="rv" id="opiniones" aria-labelledby="rv-title">
+  <h2 id="rv-title">Valoraciones y comentarios</h2>
+
+  {hasRating ? (
+    <div class="rv__summary">
+      <strong class="rv__avg">{product.rating!.toLocaleString("es-ES", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</strong>
+      <div>
+        <Stars rating={product.rating!} />
+        <p>{product.reviewCount} {product.reviewCount === 1 ? "valoración" : "valoraciones"}</p>
+      </div>
+    </div>
+  ) : (
+    <p class="rv__empty">
+      <span aria-hidden="true"><Stars rating={0} /></span>
+      <span>Este producto todavía no tiene valoraciones.</span>
+    </p>
+  )}
+
+  {reviews.length > 0 && (
+    <ul class="rv__list">
+      {reviews.map((r) => (
+        <li class="rv__item">
+          <div class="rv__head">
+            <Stars rating={r.rating} />
+            <strong>{r.author}</strong>
+            <time datetime={r.date}>{dateFmt.format(new Date(r.date))}</time>
+          </div>
+          {r.title && <p class="rv__title">{r.title}</p>}
+          <p class="rv__body">{r.body}</p>
+        </li>
+      ))}
+    </ul>
+  )}
+  {hasRating && reviews.length === 0 && <p class="rv__none">Todavía no hay comentarios escritos.</p>}
+</section>
+
+<style>
+.rv { max-width: 860px; margin: 2.5rem 0 2rem; scroll-margin-top: calc(var(--header-h) + 1rem); }
+.rv h2 { font-size: 1.5rem; text-transform: uppercase; margin: 0 0 1.25rem; }
+.rv__summary { display: flex; align-items: center; gap: 1rem; padding: 1.25rem 1.5rem; background: var(--paper-2); border-radius: var(--radius); }
+.rv__avg { font-family: var(--font-display); font-size: 3.25rem; font-weight: 800; line-height: 1; }
+.rv__summary :global(.pc-stars) { font-size: 1.25rem; }
+.rv__summary p { margin: .3rem 0 0; font-size: .88rem; color: var(--text-2); }
+.rv__empty { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; margin: 0; padding: 1.25rem 1.5rem; border: 1px dashed var(--line); border-radius: var(--radius); color: var(--text-2); }
+.rv__empty :global(.pc-stars) { font-size: 1.1rem; }
+.rv__none { color: var(--text-2); margin: 1.25rem 0 0; }
+.rv__list { list-style: none; margin: .5rem 0 0; padding: 0; }
+.rv__item { padding: 1.25rem 0; border-bottom: 1px solid var(--line); }
+.rv__head { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .75rem; font-size: .9rem; }
+.rv__head time { color: var(--text-2); font-size: .82rem; }
+.rv__title { font-weight: 700; margin: .6rem 0 0; }
+.rv__body { color: var(--text-2); line-height: 1.7; margin: .35rem 0 0; }
+
+@media (max-width: 640px) {
+  .rv__summary, .rv__empty { padding: 1rem; }
+  .rv__avg { font-size: 2.6rem; }
+}
+</style>

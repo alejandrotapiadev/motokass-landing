@@ -1,0 +1,16 @@
+---
+import MainLayout from "../../layouts/MainLayout.astro";
+import CheckoutCancel from "../../components/commerce/CheckoutCancel";
+
+Astro.response.headers.set("Cache-Control", "no-store");
+Astro.response.headers.set("Referrer-Policy", "no-referrer");
+---
+
+<MainLayout title="Pago cancelado | MOTOKASS" description="Has salido del pago sin completarlo." noindex>
+  <meta slot="head" name="referrer" content="no-referrer" />
+  <section class="section">
+    <div class="container">
+      <CheckoutCancel client:only="react" />
+    </div>
+  </section>
+</MainLayout>

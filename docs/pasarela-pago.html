@@ -1,0 +1,802 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pasarela de pago MOTOKASS</title>
+<meta name="description" content="Documentación del checkout online de MOTOKASS con Stripe: flujo, pedidos, reserva de stock, webhook, seguridad, configuración, pruebas y paso a producción." />
+<style>
+  :root {
+    --bg: #ffffff; --bg-2: #f4f4f2; --card: #ffffff; --ink: #15171b; --ink-2: #5f6570; --line: #e3e3e0;
+    --brand: #1f3f7a; --brand-soft: #e8eef8; --accent: #d7261e; --accent-soft: #fbe9e8;
+    --ok: #1e8e4e; --ok-soft: #e6f4ec; --warn: #b7791f; --warn-soft: #fbf1e1;
+    --violet: #6b46c1; --violet-soft: #efeafb; --stripe: #635bff; --stripe-soft: #eeedff;
+    --code: #f1f1ee; --radius: 6px;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e0f12; --bg-2: #17191e; --card: #1b1e24; --ink: #ecedef; --ink-2: #a7acb6;
+      --line: #2c3038; --brand: #7aa2e8; --brand-soft: #1c2a44; --accent: #ff6b63; --accent-soft: #3a1d1c;
+      --ok: #4cc488; --ok-soft: #173326; --warn: #e2b05a; --warn-soft: #3a2e17;
+      --violet: #b19cf0; --violet-soft: #2a2342; --stripe: #a29dff; --stripe-soft: #25234a; --code: #23262d;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e0f12; --bg-2: #17191e; --card: #1b1e24; --ink: #ecedef; --ink-2: #a7acb6;
+    --line: #2c3038; --brand: #7aa2e8; --brand-soft: #1c2a44; --accent: #ff6b63; --accent-soft: #3a1d1c;
+    --ok: #4cc488; --ok-soft: #173326; --warn: #e2b05a; --warn-soft: #3a2e17;
+    --violet: #b19cf0; --violet-soft: #2a2342; --stripe: #a29dff; --stripe-soft: #25234a; --code: #23262d;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.6 var(--sans); }
+  a { color: var(--brand); }
+  code { font-family: var(--mono); font-size: .85em; background: var(--code); padding: .1em .35em; border-radius: 3px; word-break: break-word; }
+  h1, h2, h3 { line-height: 1.15; margin: 0; }
+  p { margin: 0 0 10px; }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
+  header.top { background: #0e0f12; color: #f5f5f3; padding: 48px 0 40px; }
+  header.top .eyebrow { color: #ff6b63; font-size: 12px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+  header.top h1 { font-size: clamp(30px, 5vw, 52px); font-weight: 800; letter-spacing: -.01em; margin: 8px 0 12px; }
+  header.top p { color: #a7acb6; max-width: 72ch; margin: 0; }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+  .meta span { border: 1px solid #2c3038; border-radius: 999px; padding: 4px 12px; font-size: 13px; color: #d6d8dc; }
+
+  nav.toc { position: sticky; top: 0; z-index: 10; background: var(--bg); border-bottom: 1px solid var(--line); }
+  nav.toc .wrap { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; padding-top: 8px; padding-bottom: 8px; }
+  nav.toc a { white-space: nowrap; text-decoration: none; color: var(--ink-2); font-size: 13px; font-weight: 600; padding: 6px 10px; border-radius: 999px; }
+  nav.toc a:hover { background: var(--bg-2); color: var(--ink); }
+  .theme-btn { margin-left: auto; border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 4px 12px; font-size: 13px; cursor: pointer; white-space: nowrap; }
+
+  section { padding: 48px 0; border-bottom: 1px solid var(--line); }
+  section:nth-of-type(even) { background: var(--bg-2); }
+  .sec-head { margin-bottom: 24px; }
+  .sec-head .num { color: var(--accent); font-weight: 800; font-size: 13px; letter-spacing: .12em; }
+  .sec-head h2 { font-size: clamp(24px, 3.4vw, 34px); font-weight: 800; margin-top: 4px; }
+  .sec-head p { color: var(--ink-2); margin: 8px 0 0; max-width: 78ch; }
+  h3.sub { font-size: 17px; margin: 28px 0 12px; }
+
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
+  .card h3 { font-size: 15px; margin: 8px 0 6px; }
+  .card p, .card li { color: var(--ink-2); font-size: 14px; }
+  .card ul { margin: 0; padding-left: 18px; }
+  .grid { display: grid; gap: 12px; }
+  .g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .g4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  @media (max-width: 860px) { .g3, .g4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 560px) { .g2, .g3, .g4 { grid-template-columns: 1fr; } }
+
+  .tag { display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; padding: 2px 8px; border-radius: 3px; }
+  .t-brand { background: var(--brand-soft); color: var(--brand); }
+  .t-accent { background: var(--accent-soft); color: var(--accent); }
+  .t-ok { background: var(--ok-soft); color: var(--ok); }
+  .t-warn { background: var(--warn-soft); color: var(--warn); }
+  .t-violet { background: var(--violet-soft); color: var(--violet); }
+  .t-stripe { background: var(--stripe-soft); color: var(--stripe); }
+
+  /* Aviso de estado */
+  .status { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: start; background: var(--warn-soft); border: 1px solid var(--warn); border-radius: var(--radius); padding: 18px 20px; }
+  .status .dot { width: 14px; height: 14px; border-radius: 50%; background: var(--warn); margin-top: 5px; box-shadow: 0 0 0 5px color-mix(in srgb, var(--warn) 25%, transparent); }
+  .status h3 { font-size: 17px; margin-bottom: 6px; }
+  .status p { margin: 0; color: var(--ink); }
+
+  /* Flujos horizontales */
+  .flow { display: flex; align-items: stretch; gap: 0; overflow-x: auto; padding-bottom: 8px; }
+  .step { flex: 1 0 160px; background: var(--card); border: 1px solid var(--line); border-top: 4px solid var(--brand); border-radius: 4px; padding: 12px; font-size: 13px; }
+  .step b { display: block; margin-bottom: 4px; font-size: 14px; }
+  .step span { color: var(--ink-2); }
+  .step code { font-size: 11px; }
+  .arrow { flex: 0 0 30px; display: flex; align-items: center; justify-content: center; color: var(--ink-2); font-size: 20px; }
+  .step.accent { border-top-color: var(--accent); }
+  .step.ok { border-top-color: var(--ok); }
+  .step.warn { border-top-color: var(--warn); }
+  .step.stripe { border-top-color: var(--stripe); }
+  .step.violet { border-top-color: var(--violet); }
+  @media (max-width: 760px) {
+    .flow { flex-direction: column; }
+    .step { flex: none; }
+    .arrow { transform: rotate(90deg); height: 28px; flex: none; }
+  }
+
+  /* Diagrama de secuencia */
+  .seq { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; overflow-x: auto; }
+  .seq svg { display: block; min-width: 820px; width: 100%; height: auto; }
+  .seq text { font-family: var(--sans); fill: var(--ink); }
+  .seq .muted { fill: var(--ink-2); }
+  .seq .life { stroke: var(--line); stroke-dasharray: 4 4; }
+  .seq .msg { stroke: var(--ink-2); stroke-width: 1.5; fill: none; }
+  .seq .msg.ret { stroke-dasharray: 5 4; }
+  .seq .actor rect { stroke-width: 1.5; }
+
+  /* Ramas de resultado */
+  .outcomes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+  .outcomes .card { border-left: 4px solid var(--line); }
+  .outcomes .o-ok { border-left-color: var(--ok); }
+  .outcomes .o-ko { border-left-color: var(--accent); }
+  .outcomes .o-wait { border-left-color: var(--warn); }
+  @media (max-width: 760px) { .outcomes { grid-template-columns: 1fr; } }
+
+  /* Máquinas de estado */
+  .states { display: grid; gap: 14px; }
+  .sm { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
+  .sm h3 { font-size: 14px; font-family: var(--mono); margin-bottom: 10px; }
+  .sm .row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 4px 0; font-size: 13px; }
+  .pill { font-family: var(--mono); font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; border: 1.5px solid currentColor; }
+  .p-pending { color: var(--warn); } .p-ok { color: var(--ok); } .p-ko { color: var(--accent); } .p-info { color: var(--brand); } .p-violet { color: var(--violet); }
+  .sm .to { color: var(--ink-2); font-weight: 700; }
+  .sm .why { color: var(--ink-2); font-size: 12px; margin-left: 4px; }
+
+  /* Tablas de BD */
+  .cls { border: 2px solid var(--ink); border-radius: 4px; background: var(--card); overflow: hidden; }
+  .cls header { background: var(--ink); color: var(--bg); padding: 6px 10px; font-weight: 800; font-size: 14px; display: flex; justify-content: space-between; gap: 8px; }
+  .cls header small { font-weight: 500; opacity: .8; }
+  .cls ul { list-style: none; margin: 0; padding: 8px 10px; font-family: var(--mono); font-size: 12px; }
+  .cls li { padding: 1px 0; }
+  .cls li i { font-style: normal; color: var(--ink-2); font-family: var(--sans); font-size: 11.5px; }
+  .cls.orders { border-color: var(--brand); } .cls.orders header { background: #1f3f7a; color: #fff; }
+  .cls.items { border-color: var(--accent); } .cls.items header { background: #d7261e; color: #fff; }
+  .cls.events { border-color: var(--violet); } .cls.events header { background: #6b46c1; color: #fff; }
+  .cls.wh { border-color: var(--stripe); } .cls.wh header { background: #635bff; color: #fff; }
+  .cls ul.cols { columns: 2; column-gap: 16px; }
+  .cls ul.cols li { break-inside: avoid; }
+  @media (max-width: 760px) { .cls ul.cols { columns: 1; } }
+
+  /* Timeline de stock */
+  .timeline { position: relative; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .timeline::before { content: ""; position: absolute; left: 0; right: 0; top: 22px; height: 3px; background: linear-gradient(90deg, var(--warn), var(--stripe), var(--ok)); border-radius: 3px; }
+  .tl { position: relative; padding-top: 44px; }
+  .tl::before { content: attr(data-n); position: absolute; top: 8px; left: 0; width: 32px; height: 32px; border-radius: 50%; background: var(--card); border: 3px solid var(--ink); display: grid; place-items: center; font-weight: 800; font-size: 13px; }
+  .tl b { display: block; font-size: 14px; }
+  .tl span { color: var(--ink-2); font-size: 13px; }
+  @media (max-width: 760px) {
+    .timeline { grid-template-columns: 1fr; }
+    .timeline::before { left: 15px; right: auto; top: 0; bottom: 0; width: 3px; height: auto; }
+    .tl { padding: 0 0 0 48px; min-height: 40px; }
+  }
+
+  /* Concurrencia */
+  .race { display: grid; grid-template-columns: 1fr 120px 1fr; gap: 12px; align-items: center; }
+  .race .db { text-align: center; background: var(--ink); color: var(--bg); border-radius: var(--radius); padding: 14px 8px; font-weight: 800; font-size: 13px; }
+  .race .db small { display: block; font-weight: 500; opacity: .8; }
+  @media (max-width: 760px) { .race { grid-template-columns: 1fr; } }
+
+  /* Tablas */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: var(--bg-2); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); }
+  tr:last-child td { border-bottom: 0; }
+  td.mono { font-family: var(--mono); font-size: 12.5px; white-space: nowrap; }
+
+  .folders { font-family: var(--mono); font-size: 13px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 20px; overflow-x: auto; }
+  .folders pre { margin: 0; line-height: 1.55; }
+  .folders .c { color: var(--ink-2); }
+  .folders .n { color: var(--accent); font-weight: 700; }
+
+  .terminal { background: #0e0f12; color: #e6e6e6; border-radius: var(--radius); padding: 14px 16px; font-family: var(--mono); font-size: 13px; overflow-x: auto; }
+  .terminal pre { margin: 0; line-height: 1.6; }
+  .terminal .c { color: #7d8590; }
+  .terminal .p { color: #4cc488; }
+
+  .numbered { counter-reset: n; list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+  .numbered > li { counter-increment: n; background: var(--card); border: 1px solid var(--line); border-radius: 4px; padding: 12px 14px 12px 50px; position: relative; font-size: 14px; }
+  .numbered > li::before { content: counter(n); position: absolute; left: 12px; top: 11px; width: 26px; height: 26px; border-radius: 50%; background: var(--ink); color: var(--bg); display: grid; place-items: center; font-weight: 800; font-size: 13px; }
+  .numbered > li p { margin: 6px 0 0; color: var(--ink-2); }
+
+  .checklist { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  .checklist li { background: var(--card); border: 1px solid var(--line); border-radius: 4px; padding: 10px 12px 10px 38px; position: relative; font-size: 14px; }
+  .checklist li::before { content: "☐"; position: absolute; left: 12px; top: 9px; color: var(--warn); font-size: 16px; }
+  .checklist.done li::before { content: "✓"; color: var(--ok); font-weight: 800; }
+
+  .note { border-left: 4px solid var(--brand); background: var(--brand-soft); padding: 12px 14px; border-radius: 0 4px 4px 0; font-size: 14px; margin-top: 16px; }
+  .note.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+  .note.ko { border-left-color: var(--accent); background: var(--accent-soft); }
+
+  footer.bottom { padding: 32px 0 48px; color: var(--ink-2); font-size: 13px; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <span class="eyebrow">Documentación técnica · Tienda online</span>
+    <h1>Pasarela de pago y pedidos</h1>
+    <p>Cómo funciona el checkout online de MOTOKASS con Stripe: desde el carrito hasta el pedido confirmado, la reserva de stock, el webhook, los emails y la seguridad. Incluye qué datos faltan del negocio, cómo probarlo en modo test y qué hacer antes de producción. Relacionado: <a href="arquitectura.html" style="color:#9dbcf0">arquitectura.html</a> · <a href="herramientas.html" style="color:#9dbcf0">herramientas.html</a> · versión texto: <a href="checkout-pagos.md" style="color:#9dbcf0">checkout-pagos.md</a>.</p>
+    <div class="meta">
+      <span>Stripe Checkout (alojado)</span><span>Supabase · PostgreSQL</span><span>Webhook firmado</span><span>Reserva atómica de stock</span><span>Resend</span><span>Zod</span>
+    </div>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Índice">
+  <div class="wrap">
+    <a href="#estado">1 · Estado</a>
+    <a href="#flujo">2 · Flujo</a>
+    <a href="#secuencia">3 · Secuencia</a>
+    <a href="#stock">4 · Stock</a>
+    <a href="#datos">5 · Base de datos</a>
+    <a href="#estados">6 · Estados</a>
+    <a href="#webhook">7 · Webhook</a>
+    <a href="#seguridad">8 · Seguridad</a>
+    <a href="#archivos">9 · Archivos</a>
+    <a href="#config">10 · Configuración</a>
+    <a href="#pruebas">11 · Probar</a>
+    <a href="#produccion">12 · Producción</a>
+    <a href="#pendiente">13 · Pendiente</a>
+    <button class="theme-btn" type="button" id="themeBtn" aria-label="Cambiar tema claro/oscuro">◐ Tema</button>
+  </div>
+</nav>
+
+<main>
+
+<!-- 1. ESTADO -->
+<section id="estado">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="num">01</span>
+      <h2>Estado actual</h2>
+      <p>El código está implementado y probado, pero el pago online está <strong>apagado</strong> por configuración. Hasta que se active, la web se comporta exactamente como antes.</p>
+    </div>
+    <div class="status">
+      <div class="dot" aria-hidden="true"></div>
+      <div>
+        <h3>Pago online desactivado · pedidos por WhatsApp</h3>
+        <p>El botón del carrito sigue enviando el pedido por WhatsApp. <code>/checkout</code> redirige al carrito. El pago con Stripe solo se enciende cuando se cumplen <strong>las cuatro condiciones</strong> de abajo.</p>
+      </div>
+    </div>
+    <div class="grid g4" style="margin-top:16px">
+      <div class="card"><span class="tag t-warn">store-config.ts</span><h3><code>onlinePaymentEnabled</code></h3><p>Interruptor general de la venta online. Hoy <code>false</code>.</p></div>
+      <div class="card"><span class="tag t-warn">store-config.ts</span><h3><code>legalTermsReviewed</code></h3><p><code>true</code> solo cuando <code>/condiciones-venta</code> no tenga ningún «PENDIENTE». Hoy <code>false</code>.</p></div>
+      <div class="card"><span class="tag t-warn">store-config.ts</span><h3>Método de entrega</h3><p>Hace falta <code>shipping</code> configurado o <code>pickupInStore: true</code>. Hoy ninguno.</p></div>
+      <div class="card"><span class="tag t-brand">Entorno</span><h3>Claves y BD</h3><p><code>STRIPE_SECRET_KEY</code>, <code>STRIPE_WEBHOOK_SECRET</code> y Supabase configurados en el servidor.</p></div>
+    </div>
+    <p class="note">La comprobación completa está en <code>isOnlineCheckoutReady()</code> (<code>src/lib/commerce/server.ts</code>). Se evalúa en el servidor y se pasa al carrito como prop: el navegador nunca decide si se puede cobrar.</p>
+  </div>
+</section>
+
+<!-- 2. FLUJO -->
+<section id="flujo">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="num">02</span>
+      <h2>Flujo de compra</h2>
+      <p>Lo que vive el cliente, de izquierda a derecha. Los colores indican quién hace cada paso: <span class="tag t-brand">nuestra web</span> <span class="tag t-stripe">Stripe</span> <span class="tag t-ok">confirmación</span>.</p>
+    </div>
+    <div class="flow">
+      <div class="step"><b>Carrito</b><span><code>/carrito</code> · «Tramitar pedido». Si está activado, «Prefiero pedir por WhatsApp» como alternativa.</span></div>
+      <div class="arrow">→</div>
+      <div class="step"><b>Datos y entrega</b><span><code>/checkout</code> · nombre, email, teléfono, envío o recogida, dirección, notas y aceptar condiciones.</span></div>
+      <div class="arrow">→</div>
+      <div class="step"><b>Resumen real</b><span>Precios, stock, envío e IVA calculados por el servidor (<code>/api/checkout/quote</code>).</span></div>
+      <div class="arrow">→</div>
+      <div class="step accent"><b>Crear pedido</b><span><code>/api/checkout</code> crea el pedido <code>pending</code> y reserva el stock.</span></div>
+      <div class="arrow">→</div>
+      <div class="step stripe"><b>Pago en Stripe</b><span>Página de Stripe. La tarjeta nunca pasa por nuestro servidor.</span></div>
+      <div class="arrow">→</div>
+      <div class="step ok"><b>Confirmación</b><span>El webhook marca el pedido como pagado y envía los emails. <code>/checkout/success</code> lo muestra.</span></div>
+    </div>
+
+    <div class="outcomes">
+      <div class="card o-ok"><span class="tag t-ok">Paga</span><h3>Pedido confirmado</h3><p>Stripe vuelve a <code>/checkout/success</code>. La página consulta el estado real y espera como máximo unos 40 s a que llegue el webhook («Estamos confirmando tu pago…»). Al confirmarse: se vacía el carrito, se registra <code>purchase</code> una sola vez y llegan los emails.</p></div>
+      <div class="card o-ko"><span class="tag t-accent">Cancela</span><h3>Vuelve sin pagar</h3><p>Stripe vuelve a <code>/checkout/cancel</code>. El servidor expira la sesión y <strong>devuelve el stock al momento</strong>. El carrito se conserva y el cliente puede volver al checkout.</p></div>
+      <div class="card o-wait"><span class="tag t-warn">Otros casos</span><h3>Rechazo, abandono, pago lento</h3><p>Tarjeta rechazada: el cliente puede reintentar en la misma página de Stripe. Si abandona, la sesión caduca a los 31 min y el stock vuelve. Los pagos asíncronos (p. ej. SEPA) mantienen la reserva hasta que Stripe confirma o rechaza.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. SECUENCIA -->
+<section id="secuencia">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="num">03</span>
+      <h2>Secuencia técnica</h2>
+      <p>Frontend → API → Stripe → Webhook → Pedido → Stock. La llegada a <code>/checkout/success</code> <strong>no</strong> confirma nada: la única fuente de verdad del pago es el webhook.</p>
+    </div>
+    <div class="seq">
+      <svg viewBox="0 0 1000 620" role="img" aria-label="Diagrama de secuencia del pago">
+        <!-- actores -->
+        <g class="actor"><rect x="20" y="10" width="150" height="44" rx="6" style="fill:var(--brand-soft);stroke:var(--brand)"/><text x="95" y="37" text-anchor="middle" font-weight="800" font-size="14">Navegador</text></g>
+        <g class="actor"><rect x="225" y="10" width="150" height="44" rx="6" style="fill:var(--brand-soft);stroke:var(--brand)"/><text x="300" y="30" text-anchor="middle" font-weight="800" font-size="14">API Astro</text><text x="300" y="46" text-anchor="middle" font-size="11" class="muted">Vercel Functions</text></g>
+        <g class="actor"><rect x="430" y="10" width="150" height="44" rx="6" style="fill:var(--ok-soft);stroke:var(--ok)"/><text x="505" y="30" text-anchor="middle" font-weight="800" font-size="14">Supabase</text><text x="505" y="46" text-anchor="middle" font-size="11" class="muted">funciones SQL</text></g>
+        <g class="actor"><rect x="635" y="10" width="150" height="44" rx="6" style="fill:var(--stripe-soft);stroke:var(--stripe)"/><text x="710" y="37" text-anchor="middle" font-weight="800" font-size="14">Stripe</text></g>
+        <g class="actor"><rect x="830" y="10" width="150" height="44" rx="6" style="fill:var(--accent-soft);stroke:var(--accent)"/><text x="905" y="37" text-anchor="middle" font-weight="800" font-size="14">Resend</text></g>
+        <!-- líneas de vida -->
+        <line class="life" x1="95" y1="54" x2="95" y2="610"/><line class="life" x1="300" y1="54" x2="300" y2="610"/>
+        <line class="life" x1="505" y1="54" x2="505" y2="610"/><line class="life" x1="710" y1="54" x2="710" y2="610"/>
+        <line class="life" x1="905" y1="54" x2="905" y2="610"/>
+        <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--ink-2)"/></marker></defs>
+
+        <!-- 1 -->
+        <line class="msg" x1="95" y1="90" x2="298" y2="90" marker-end="url(#ah)"/>
+        <text x="105" y="84" font-size="12">1 · POST /api/checkout  {items, cliente, entrega}</text>
+        <!-- 2 -->
+        <line class="msg" x1="300" y1="125" x2="503" y2="125" marker-end="url(#ah)"/>
+        <text x="310" y="119" font-size="12">2 · get_checkout_catalog()</text>
+        <text x="310" y="143" font-size="11" class="muted">precios y stock reales → validar líneas</text>
+        <!-- 3 -->
+        <line class="msg" x1="300" y1="175" x2="503" y2="175" marker-end="url(#ah)"/>
+        <text x="310" y="169" font-size="12">3 · create_checkout_order()</text>
+        <rect x="515" y="160" width="175" height="54" rx="4" style="fill:var(--warn-soft);stroke:var(--warn)"/>
+        <text x="524" y="178" font-size="11">bloquea filas · verifica precio</text>
+        <text x="524" y="193" font-size="11">stock -= n SI stock ≥ n</text>
+        <text x="524" y="208" font-size="11" font-weight="700">pedido «pending»</text>
+        <!-- 4 -->
+        <line class="msg" x1="300" y1="240" x2="708" y2="240" marker-end="url(#ah)"/>
+        <text x="310" y="234" font-size="12">4 · checkout.sessions.create()  (importes del servidor, metadata order_id)</text>
+        <line class="msg ret" x1="708" y1="265" x2="302" y2="265" marker-end="url(#ah)"/>
+        <text x="470" y="259" font-size="11" class="muted">id + url de la sesión</text>
+        <!-- 5 -->
+        <line class="msg ret" x1="300" y1="295" x2="97" y2="295" marker-end="url(#ah)"/>
+        <text x="110" y="289" font-size="12">5 · { url }  → redirige a Stripe</text>
+        <!-- 6 -->
+        <line class="msg" x1="95" y1="330" x2="708" y2="330" marker-end="url(#ah)"/>
+        <text x="300" y="324" font-size="12">6 · el cliente paga en la página de Stripe</text>
+        <!-- 7 webhook -->
+        <line class="msg" x1="710" y1="375" x2="302" y2="375" marker-end="url(#ah)"/>
+        <text x="420" y="369" font-size="12" font-weight="700">7 · webhook checkout.session.completed (firmado)</text>
+        <!-- 8 -->
+        <line class="msg" x1="300" y1="410" x2="503" y2="410" marker-end="url(#ah)"/>
+        <text x="310" y="404" font-size="12">8 · register_stripe_event()</text>
+        <text x="310" y="428" font-size="11" class="muted">¿ya procesado? → 200 duplicate</text>
+        <line class="msg" x1="300" y1="455" x2="503" y2="455" marker-end="url(#ah)"/>
+        <text x="310" y="449" font-size="12">9 · confirm_order_payment()</text>
+        <rect x="515" y="440" width="175" height="36" rx="4" style="fill:var(--ok-soft);stroke:var(--ok)"/>
+        <text x="524" y="462" font-size="11" font-weight="700">pedido «paid» (stock ya reservado)</text>
+        <!-- 10 emails -->
+        <line class="msg" x1="300" y1="500" x2="903" y2="500" marker-end="url(#ah)"/>
+        <text x="310" y="494" font-size="12">10 · claim_order_email() → email cliente + email tienda</text>
+        <line class="msg ret" x1="300" y1="530" x2="708" y2="530" marker-end="url(#ah)"/>
+        <text x="420" y="524" font-size="11" class="muted">200 OK (si algo falla: 500 → Stripe reintenta)</text>
+        <!-- 11 success -->
+        <line class="msg" x1="95" y1="570" x2="298" y2="570" marker-end="url(#ah)"/>
+        <text x="105" y="564" font-size="12">11 · /checkout/success consulta el estado</text>
+        <text x="105" y="590" font-size="11" class="muted">POST /api/orders/status con token · muestra «pagado»</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 4. STOCK -->
+<section id="stock">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="num">04</span>
+      <h2>Stock: reserva al iniciar el pago</h2>
+      <p>El stock se descuenta cuando el cliente <strong>empieza</strong> a pagar, no cuando termina. Así nunca se cobra a dos personas la misma última unidad. Si el pago no se completa, las unidades vuelven al stock una sola vez.</p>
+    </div>
+    <div class="timeline">
+      <div class="tl" data-n="1"><b>Reserva</b><span><code>create_checkout_order()</code> descuenta el stock con <code>UPDATE … WHERE stock ≥ n</code>, todo en una transacción. Si falta stock en cualquier línea, se revierte el pedido entero.</span></div>
+      <div class="tl" data-n="2"><b>Ventana de pago</b><span>La reserva dura 30 min (el mínimo de Stripe) y la sesión de Stripe caduca 1 min después.</span></div>
+      <div class="tl" data-n="3"><b>Pagado</b><span>El webhook confirma el pago. El stock ya estaba descontado y <strong>no se vuelve a tocar</strong>.</span></div>
+      <div class="tl" data-n="4"><b>O se libera</b><span>Si el cliente cancela, la sesión expira o el pago falla, el stock vuelve una sola vez (flag <code>stock_reserved</code>).</span></div>
+    </div>
+
+    <h3 class="sub">Concurrencia: dos clientes, una unidad</h3>
+    <div class="race">
+      <div class="card"><span class="tag t-ok">Cliente A</span><h3>Reserva la unidad</h3><p><code>UPDATE … SET stock = 0 WHERE stock ≥ 1</code> → 1 fila afectada. Continúa a Stripe.</p></div>
+      <div class="db">PostgreSQL<small>bloqueo de fila<br>stock = 1 → 0</small></div>
+      <div class="card"><span class="tag t-accent">Cliente B</span><h3>No llega a pagar</h3><p>La misma sentencia ya afecta a 0 filas → <code>out_of_stock</code>. Ve «La cantidad solicitada supera el stock disponible» <strong>antes</strong> de pagar.</p></div>
+    </div>
+
+    <h3 class="sub">Redes de seguridad</h3>
+    <div class="grid g3">
+      <div class="card"><span class="tag t-brand">Evento</span><h3><code>checkout.session.expired</code></h3><p>Stripe avisa de que la sesión caducó → se libera el stock.</p></div>
+      <div class="card"><span class="tag t-brand">Oportunista</span><h3>En cada checkout</h3><p><code>release_expired_reservations()</code> limpia las reservas vencidas antes de crear un pedido nuevo.</p></div>
+      <div class="card"><span class="tag t-brand">Cron diario</span><h3><code>/api/cron/liberar-reservas</code></h3><p>Cada día a las 04:00 UTC, con 10 min de margen, por si no llegó el webhook.</p></div>
+      <div class="card"><span class="tag t-brand">Botón «atrás»</span><h3>Reintento del cliente</h3><p>Si vuelve desde Stripe con el botón del navegador y reintenta, el pedido anterior se cancela primero (<code>sessionStorage</code>) para no bloquear su propio stock.</p></div>
+      <div class="card"><span class="tag t-warn">Cobro tardío</span><h3>Pago tras liberar</h3><p>Se intenta reservar de nuevo. Si ya no hay stock, el pedido queda <code>requires_attention</code> y la tienda recibe el email con «[REVISAR]».</p></div>
+      <div class="card"><span class="tag t-warn">Reembolsos</span><h3>No reponen stock</h3><p>Es intencionado: hay que revisar el producto devuelto antes de volver a venderlo.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. BASE DE DATOS -->
+<section id="datos">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="num">05</span>
+      <h2>Base de datos</h2>
+      <p>Migración <code>supabase/migrations/20260929_orders.sql</code>. Todas las reglas críticas viven en funciones SQL que se ejecutan de forma atómica dentro de PostgreSQL.</p>
+    </div>
+    <div class="grid g2">
+      <div class="cls orders">
+        <header>orders <small>cabecera del pedido</small></header>
+        <ul class="cols">
+          <li>id <i>uuid interno</i></li>
+          <li>order_number <i>MK-2026-000123</i></li>
+          <li>status</li><li>payment_status</li><li>fulfillment_status</li>
+          <li>idempotency_key <i>único</i></li>
+          <li>access_token_hash <i>SHA-256</i></li>
+          <li>customer_email / name / phone</li>
+          <li>delivery_method</li>
+          <li>shipping_address <i>jsonb</i></li>
+          <li>billing_address · notes</li>
+          <li>currency</li>
+          <li>subtotal · shipping_amount</li>
+          <li>discount_amount · tax_amount</li>
+          <li>prices_include_tax · total</li>
+          <li>amount_refunded</li>
+          <li>stripe_checkout_session_id</li>
+          <li>stripe_payment_intent_id</li>
+          <li>stock_reserved · reserved_until</li>
+          <li>requires_attention · attention_reason</li>
+          <li>customer/store_email_sent_at</li>
+          <li>paid_at · cancelled_at · created_at</li>
+        </ul>
+      </div>
+      <div class="grid">
+        <div class="cls items">
+          <header>order_items <small>foto fija del producto</small></header>
+          <ul class="cols">
+            <li>order_id → orders</li>
+            <li>product_id / variant_id <i>pueden quedar a NULL</i></li>
+            <li>sku</li>
+            <li>product_name_snapshot</li>
+            <li>brand_snapshot</li>
+            <li>variant_name_snapshot</li>
+            <li>color · size · image_url</li>
+            <li>quantity <i>1–100</i></li>
+            <li>unit_price · subtotal</li>
+            <li>stock_source <i>variant | product</i></li>
+          </ul>
+        </div>
+        <div class="cls events">
+          <header>order_events <small>historial</small></header>
+          <ul><li>order_id · type · data <i>(created, paid, cancelled, stock_released, payment_attempt_failed…)</i></li></ul>
+        </div>
+        <div class="cls wh">
+          <header>stripe_webhook_events <small>idempotencia</small></header>
+          <ul><li>id <i>evt_…</i> · type · livemode · attempts · last_error · processed_at <i>(sin payload: no guarda datos personales)</i></li></ul>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub">Funciones SQL</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Función</th><th>Quién la usa</th><th>Qué hace</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">get_checkout_catalog</td><td>quote · checkout</td><td>Productos y variantes con precio y stock reales.</td></tr>
+          <tr><td class="mono">create_checkout_order</td><td>/api/checkout</td><td>Valida, crea el pedido y las líneas, y reserva el stock en una transacción. Idempotente por clave.</td></tr>
+          <tr><td class="mono">attach_checkout_session</td><td>/api/checkout</td><td>Guarda el id y la URL de la sesión de Stripe (una sola vez).</td></tr>
+          <tr><td class="mono">confirm_order_payment</td><td>webhook</td><td>Marca como pagado si no lo estaba. Comprueba importe y moneda. Si el stock se había liberado, intenta reservarlo de nuevo.</td></tr>
+          <tr><td class="mono">mark_order_awaiting_payment</td><td>webhook</td><td>Pago asíncrono en curso: mantiene la reserva sin caducidad.</td></tr>
+          <tr><td class="mono">cancel_pending_order</td><td>webhook · cancelar · cron</td><td>Cancela un pedido pendiente y devuelve el stock una sola vez.</td></tr>
+          <tr><td class="mono">release_expired_reservations</td><td>checkout · cron</td><td>Cancela los pendientes cuya reserva venció (máx. 200 por llamada).</td></tr>
+          <tr><td class="mono">record_order_refund</td><td>webhook</td><td>Reembolso acumulado → <code>partially_refunded</code> o <code>refunded</code>.</td></tr>
+          <tr><td class="mono">claim_order_email / release_order_email_claim</td><td>emails</td><td>Solo quien «reclama» el email lo envía. Si el envío falla, se libera la marca para reintentarlo.</td></tr>
+          <tr><td class="mono">register_stripe_event / complete_stripe_event</td><td>webhook</td><td>Evita procesar dos veces el mismo evento.</td></tr>
+          <tr><td class="mono">get_order_details · log_order_event</td><td>estado · emails</td><td>Lectura del pedido completo y registro de eventos.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Los datos del pedido son una <strong>foto fija</strong>: si mañana cambia el nombre o el precio del producto, los pedidos antiguos no cambian. Además, un trigger impide modificar los importes y las líneas de un pedido ya creado, y se añadió <code>CHECK (stock ≥ 0)</code> a <code>equipment_products</code>, que no lo tenía.</p>
+  </div>
+</section>
+
+<!-- 6. ESTADOS -->
+<section id="estados">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="num">06</span>
+      <h2>Estados y transiciones</h2>
+      <p>Tres ejes independientes. El trigger <code>orders_guard</code> rechaza cualquier transición que no esté en esta lista, venga de donde venga (código, panel de Supabase o SQL manual).</p>
+    </div>
+    <div class="states">
+      <div class="sm">
+        <h3>status · ciclo del pedido</h3>
+        <div class="row"><span class="pill p-pending">pending</span><span class="to">→</span><span class="pill p-ok">paid</span><span class="why">el webhook confirma el pago</span></div>
+        <div class="row"><span class="pill p-pending">pending</span><span class="to">→</span><span class="pill p-ko">cancelled</span><span class="why">expira, falla o el cliente cancela</span></div>
+        <div class="row"><span class="pill p-ko">cancelled</span><span class="to">→</span><span class="pill p-ok">paid</span><span class="why">cobro tardío (queda en revisión)</span></div>
+        <div class="row"><span class="pill p-ok">paid</span><span class="to">→</span><span class="pill p-info">completed</span><span class="to">·</span><span class="pill p-violet">refunded</span></div>
+        <div class="row"><span class="pill p-info">completed</span><span class="to">→</span><span class="pill p-violet">refunded</span></div>
+      </div>
+      <div class="sm">
+        <h3>payment_status · dinero</h3>
+        <div class="row"><span class="pill p-pending">pending</span><span class="to">·</span><span class="pill p-ko">failed</span><span class="to">→</span><span class="pill p-ok">paid</span><span class="to">·</span><span class="pill p-ko">failed</span></div>
+        <div class="row"><span class="pill p-ok">paid</span><span class="to">→</span><span class="pill p-violet">partially_refunded</span><span class="to">→</span><span class="pill p-violet">refunded</span></div>
+        <div class="row"><span class="pill p-ok">paid</span><span class="to">→</span><span class="pill p-violet">refunded</span></div>
+      </div>
+      <div class="sm">
+        <h3>fulfillment_status · entrega (solo pedidos pagados)</h3>
+        <div class="row"><span class="pill p-pending">unfulfilled</span><span class="to">→</span><span class="pill p-info">preparing</span><span class="to">→</span><span class="pill p-info">shipped</span><span class="to">·</span><span class="pill p-info">ready_for_pickup</span><span class="to">→</span><span class="pill p-ok">delivered</span></div>
+        <div class="row"><span class="why">También se puede saltar de <code>unfulfilled</code> directamente a cualquiera de los siguientes.</span></div>
+      </div>
+    </div>
+    <h3 class="sub">Lo que ve el cliente en <code>/checkout/success</code></h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Estado público</th><th>Cuándo</th><th>Mensaje</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">pending</td><td>El webhook aún no ha llegado</td><td>«Estamos confirmando tu pago…» (consulta durante unos 40 s y luego ofrece «Comprobar de nuevo»)</td></tr>
+          <tr><td class="mono">processing</td><td>Pago asíncrono en curso</td><td>«Pago en proceso»</td></tr>
+          <tr><td class="mono">paid</td><td>Pagado / reembolso parcial</td><td>«¡Gracias por tu compra!» + resumen</td></tr>
+          <tr><td class="mono">failed</td><td>Pago asíncrono rechazado</td><td>«El pago no se ha completado» + reintentar</td></tr>
+          <tr><td class="mono">cancelled</td><td>Expirado o cancelado</td><td>«Pedido cancelado»</td></tr>
+          <tr><td class="mono">refunded</td><td>Reembolso total</td><td>«Pedido reembolsado»</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 7. WEBHOOK -->
+<section id="webhook">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="num">07</span>
+      <h2>Webhook de Stripe</h2>
+      <p><code>POST /api/webhooks/stripe</code> · lógica en <code>src/lib/commerce/stripe-webhook.ts</code>. Es la única fuente de verdad del estado de pago.</p>
+    </div>
+    <div class="flow">
+      <div class="step stripe"><b>1 · Firma</b><span>Se verifica con <code>STRIPE_WEBHOOK_SECRET</code> sobre el cuerpo sin procesar. Si no es válida → 400.</span></div>
+      <div class="arrow">→</div>
+      <div class="step violet"><b>2 · ¿Duplicado?</b><span>Si <code>stripe_webhook_events</code> ya lo tiene como procesado → 200 <code>duplicate</code>.</span></div>
+      <div class="arrow">→</div>
+      <div class="step accent"><b>3 · Aplicar</b><span>Función SQL idempotente con bloqueo de fila.</span></div>
+      <div class="arrow">→</div>
+      <div class="step ok"><b>4 · Emails</b><span>Se reclaman en la BD antes de enviarse: nunca se duplican.</span></div>
+      <div class="arrow">→</div>
+      <div class="step warn"><b>5 · Responder</b><span>200 si todo fue bien. 500 si algo falló, y Stripe reintenta con backoff hasta 3 días.</span></div>
+    </div>
+    <h3 class="sub">Eventos que hay que registrar en Stripe</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Evento</th><th>Efecto en el pedido</th><th>Stock</th><th>Emails</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">checkout.session.completed</td><td><code>paid</code> si <code>payment_status = paid</code>. Si es <code>unpaid</code> (asíncrono), se mantiene la reserva.</td><td>ya reservado</td><td>sí (si pagado)</td></tr>
+          <tr><td class="mono">checkout.session.async_payment_succeeded</td><td><code>paid</code></td><td>ya reservado</td><td>sí</td></tr>
+          <tr><td class="mono">checkout.session.async_payment_failed</td><td><code>cancelled</code> + <code>failed</code></td><td>se libera</td><td>no</td></tr>
+          <tr><td class="mono">checkout.session.expired</td><td><code>cancelled</code></td><td>se libera</td><td>no</td></tr>
+          <tr><td class="mono">payment_intent.payment_failed</td><td>Solo se registra: el cliente puede reintentar en la misma sesión</td><td>sigue reservado</td><td>no</td></tr>
+          <tr><td class="mono">charge.refunded</td><td><code>partially_refunded</code> / <code>refunded</code></td><td>no se repone</td><td>no</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Si llega un evento con un <code>order_id</code> que no existe en esta base de datos (p. ej. de otro entorno), se responde 200 con <code>unknown_order</code>: reintentarlo no lo arreglaría. Los eventos de otros productos de Stripe se ignoran con 200.</p>
+  </div>
+</section>
+
+<!-- 8. SEGURIDAD -->
+<section id="seguridad">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="num">08</span>
+      <h2>Seguridad</h2>
+      <p>Prioridad: seguridad &gt; integridad de pedidos &gt; integridad del stock &gt; consistencia de pagos &gt; UX.</p>
+    </div>
+    <div class="grid g3">
+      <div class="card"><span class="tag t-accent">Precios</span><h3>El navegador no fija importes</h3><p>Solo envía producto, variante y cantidad; cualquier otro campo se descarta. El servidor calcula precio, envío, IVA y total con Supabase. El precio se vuelve a verificar en la transacción (<code>price_changed</code>) y la sesión de Stripe se rechaza si su suma no coincide con el pedido.</p></div>
+      <div class="card"><span class="tag t-accent">Stock</span><h3>Atómico y sin negativos</h3><p>Descuento condicional con bloqueo de fila, orden fijo de bloqueos para evitar deadlocks, <code>CHECK stock ≥ 0</code> y liberación idempotente.</p></div>
+      <div class="card"><span class="tag t-stripe">Tarjetas</span><h3>Nunca en nuestro servidor</h3><p>Stripe Checkout alojado. No se guarda ni se registra en logs ningún dato de tarjeta.</p></div>
+      <div class="card"><span class="tag t-violet">Webhook</span><h3>Firma + idempotencia</h3><p>Firma verificada. Deduplicación en tres niveles: evento, transición de estado (bloqueo de fila) y email (reclamado en BD).</p></div>
+      <div class="card"><span class="tag t-ok">Base de datos</span><h3>RLS sin políticas</h3><p><code>anon</code>/<code>authenticated</code> no pueden leer ni escribir pedidos, modificar precios o stock, ni ejecutar las funciones. Todo pasa por <code>service_role</code> desde el servidor.</p></div>
+      <div class="card"><span class="tag t-brand">Entrada</span><h3>Validación con Zod</h3><p>Esquemas compartidos cliente/servidor, cantidades de 1 a 10 por línea, máximo 50 líneas y límite de tamaño de la petición. Código postal validado para ES/PT.</p></div>
+      <div class="card"><span class="tag t-brand">CSRF y abuso</span><h3>Origin + límite de peticiones</h3><p>Como el proyecto tiene <code>checkOrigin: false</code>, las rutas POST comprueban el <code>Origin</code>. Límite de peticiones por IP en cada endpoint.</p></div>
+      <div class="card"><span class="tag t-brand">Acceso al pedido</span><h3>Token de 256 bits</h3><p>Success/cancel usan un token aleatorio. Solo se guarda su SHA-256 y se compara en tiempo constante. Páginas con <code>no-store</code> y <code>no-referrer</code>; el estado se consulta por POST para que el token no quede en logs.</p></div>
+      <div class="card"><span class="tag t-warn">Privacidad</span><h3>XSS y logs</h3><p>Datos del cliente escapados en los emails. Los logs solo contienen tipo e id del evento o número de pedido, nunca datos personales.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 9. ARCHIVOS -->
+<section id="archivos">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="num">09</span>
+      <h2>Dónde está cada cosa</h2>
+      <p>En rojo, lo nuevo. La lógica crítica está separada de las rutas y recibe sus dependencias inyectadas, por eso se puede probar sin red.</p>
+    </div>
+    <div class="folders">
+<pre><span class="n">supabase/migrations/20260929_orders.sql</span>   <span class="c"># tablas, triggers, RLS y funciones</span>
+src/
+├─ lib/commerce/
+│  ├─ store-config.ts        <span class="c"># + tax, countries, manualOrderEnabled, legalTermsReviewed…</span>
+│  ├─ checkout.ts            <span class="c"># proveedores del carrito: online (Stripe) y WhatsApp</span>
+│  ├─ <span class="n">checkout-schema.ts</span>     <span class="c"># Zod: items, cliente, dirección, pedido</span>
+│  ├─ <span class="n">pricing.ts</span>             <span class="c"># valoración en céntimos, envío, IVA (puro)</span>
+│  ├─ <span class="n">orders-repo.ts</span>         <span class="c"># acceso a BD vía funciones SQL (RpcCaller)</span>
+│  ├─ <span class="n">checkout-service.ts</span>    <span class="c"># quote, startCheckout, cancelCheckout, getPublicOrder</span>
+│  ├─ <span class="n">stripe-checkout.ts</span>     <span class="c"># construcción de la sesión + adaptador del SDK</span>
+│  ├─ <span class="n">stripe-webhook.ts</span>      <span class="c"># procesamiento de eventos</span>
+│  ├─ <span class="n">order-emails.ts</span>        <span class="c"># plantillas + envío idempotente</span>
+│  ├─ <span class="n">pending-order.ts</span>       <span class="c"># último intento en sessionStorage</span>
+│  └─ <span class="n">server.ts</span>              <span class="c"># env, Stripe, Supabase, Resend, utilidades HTTP</span>
+├─ pages/
+│  ├─ api/<span class="n">checkout/</span>index.ts · quote.ts · cancel.ts
+│  ├─ api/<span class="n">orders/status.ts</span>
+│  ├─ api/<span class="n">webhooks/stripe.ts</span>
+│  ├─ api/cron/<span class="n">liberar-reservas.ts</span>
+│  ├─ <span class="n">checkout/</span>index.astro · success.astro · cancel.astro
+│  ├─ <span class="n">condiciones-venta.astro</span>
+│  └─ carrito.astro · privacidad.astro   <span class="c"># modificados</span>
+└─ components/commerce/
+   ├─ <span class="n">CheckoutPage.tsx</span> · <span class="n">CheckoutPage.css</span>
+   ├─ <span class="n">CheckoutSuccess.tsx</span> · <span class="n">CheckoutCancel.tsx</span> · <span class="n">OrderSummary.tsx</span>
+   └─ CartPage.tsx            <span class="c"># botón online + alternativa WhatsApp</span>
+tests/
+├─ <span class="n">db/</span>                        <span class="c"># PostgreSQL real en memoria (PGlite)</span>
+├─ unit/<span class="n">checkout.test.ts</span>
+└─ components/<span class="n">CheckoutPage.test.tsx</span></pre>
+    </div>
+  </div>
+</section>
+
+<!-- 10. CONFIG -->
+<section id="config">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="num">10</span>
+      <h2>Configuración</h2>
+      <p>Regla del proyecto: nada comercial se inventa. Lo que no esté confirmado por MOTOKASS queda en <code>null</code>/<code>false</code> y la web no lo muestra.</p>
+    </div>
+    <h3 class="sub">Datos que debe aportar el negocio · <code>src/lib/commerce/store-config.ts</code></h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Campo</th><th>Hoy</th><th>Qué hace falta</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">shipping</td><td><code>null</code></td><td>Coste fijo, envío gratis desde, plazo, zonas y países (<code>countries: ["ES"]</code>). O dejarlo en <code>null</code> si solo hay recogida.</td></tr>
+          <tr><td class="mono">pickupInStore</td><td><code>false</code></td><td>¿Se puede recoger en la tienda de Ávila?</td></tr>
+          <tr><td class="mono">tax.rate</td><td><code>null</code></td><td>Tipo de IVA a desglosar (p. ej. <code>0.21</code>). Hoy los precios se muestran «IVA incluido» sin desglose.</td></tr>
+          <tr><td class="mono">returns</td><td><code>null</code></td><td>Días, si son gratis y el detalle de la política de devoluciones.</td></tr>
+          <tr><td class="mono">paymentMethods</td><td><code>[]</code></td><td>Métodos activados en Stripe (solo texto informativo).</td></tr>
+          <tr><td class="mono">manualOrderEnabled</td><td><code>true</code></td><td>Mantener WhatsApp como alternativa al pago online.</td></tr>
+          <tr><td class="mono">legalTermsReviewed</td><td><code>false</code></td><td><code>true</code> cuando <code>/condiciones-venta</code> esté completa y revisada.</td></tr>
+          <tr><td class="mono">onlinePaymentEnabled</td><td><code>false</code></td><td><code>true</code> para activar la venta online.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="sub">Legal</h3>
+    <div class="grid g2">
+      <div class="card"><span class="tag t-warn">/condiciones-venta</span><h3>Bloques «PENDIENTE» (con asesor)</h3><ul><li>Datos registrales adicionales</li><li>Derecho de desistimiento: plazo, procedimiento, formulario, costes y excepciones</li><li>Garantía legal</li><li>Reclamaciones y resolución de conflictos</li><li>Legislación y fuero · fecha de publicación</li></ul></div>
+      <div class="card"><span class="tag t-warn">/privacidad</span><h3>Compras online</h3><ul><li>Las filas de compras online, Stripe y base jurídica aparecen solas al activar la venta.</li><li>Falta el <strong>plazo de conservación</strong> de los datos de pedidos.</li></ul></div>
+    </div>
+    <p class="note warn">Los textos preparados no son asesoramiento jurídico. Mientras <code>legalTermsReviewed</code> sea <code>false</code>, la página de condiciones se marca como «Documento en preparación» y no se indexa.</p>
+
+    <h3 class="sub">Variables de entorno (solo servidor)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Variable</th><th>Obligatoria</th><th>Para qué</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">STRIPE_SECRET_KEY</td><td>sí</td><td><code>sk_test_…</code> en pruebas, <code>sk_live_…</code> en producción.</td></tr>
+          <tr><td class="mono">STRIPE_WEBHOOK_SECRET</td><td>sí</td><td><code>whsec_…</code> del endpoint (Dashboard, o <code>stripe listen</code> en local).</td></tr>
+          <tr><td class="mono">SITE_URL</td><td>producción</td><td>URL de vuelta desde Stripe. Si está vacía, se usa el origen de la petición (útil en previews).</td></tr>
+          <tr><td class="mono">STORE_ORDERS_EMAIL</td><td>no</td><td>Buzón que recibe los pedidos nuevos (si no, <code>TALLER_EMAIL</code>).</td></tr>
+          <tr><td class="mono">CRON_SECRET</td><td>sí</td><td>Protege <code>/api/cron/*</code>.</td></tr>
+          <tr><td class="mono">SUPABASE_URL · SUPABASE_SERVICE_ROLE_KEY</td><td>sí</td><td>Ya existían.</td></tr>
+          <tr><td class="mono">RESEND_API_KEY · RESEND_FROM · TALLER_EMAIL</td><td>sí</td><td>Ya existían.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">No se usa clave publicable de Stripe: con Checkout alojado basta con redirigir a la URL de la sesión. Ninguna de estas variables lleva el prefijo <code>PUBLIC_</code>, y se comprobó que el bundle del navegador no contiene el SDK de Stripe, secretos ni <code>node:crypto</code>.</p>
+  </div>
+</section>
+
+<!-- 11. PRUEBAS -->
+<section id="pruebas">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="num">11</span>
+      <h2>Probar en Stripe TEST MODE</h2>
+      <p>Nunca con claves ni datos reales. Usa un proyecto de Supabase de pruebas.</p>
+    </div>
+    <ol class="numbered">
+      <li><b>Base de datos de pruebas</b><p>Aplica <code>20260928_equipment.sql</code> y <code>20260929_orders.sql</code> y crea un producto con stock (los productos de demostración de desarrollo no existen en la BD y no se pueden comprar).</p></li>
+      <li><b>Configuración local (sin hacer commit)</b><p>En <code>.env</code>, claves <code>sk_test_</code>. En <code>store-config.ts</code>: <code>onlinePaymentEnabled: true</code>, <code>legalTermsReviewed: true</code>, <code>pickupInStore: true</code> (o un <code>shipping</code> de prueba).</p></li>
+      <li><b>Arrancar y reenviar webhooks</b><p>Copia el <code>whsec_…</code> que imprime <code>stripe listen</code> en <code>STRIPE_WEBHOOK_SECRET</code> y reinicia el servidor.</p></li>
+    </ol>
+    <div class="terminal" style="margin-top:12px">
+<pre><span class="c">-- 1. producto de prueba (SQL Editor de Supabase)</span>
+INSERT INTO equipment_products (slug, sku, brand, name, category, price, stock)
+VALUES ('casco-test', 'TEST-1', 'Test', 'Casco de prueba', 'cascos', 25.00, 2);
+
+<span class="c"># 3. terminal 1</span>
+<span class="p">$</span> npm run dev
+<span class="c"># 3. terminal 2</span>
+<span class="p">$</span> stripe listen --forward-to localhost:4321/api/webhooks/stripe
+
+<span class="c"># tests automáticos (incluyen PostgreSQL real en memoria y firmas reales de Stripe)</span>
+<span class="p">$</span> npm test</pre>
+    </div>
+
+    <h3 class="sub">Casos a comprobar</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Caso</th><th>Cómo</th><th>Resultado esperado</th></tr></thead>
+        <tbody>
+          <tr><td>Pago correcto</td><td>Tarjeta <code>4242 4242 4242 4242</code>, fecha futura, cualquier CVC</td><td>Success pasa de «confirmando» a «¡Gracias!», llegan 2 emails, stock −1.</td></tr>
+          <tr><td>Pago rechazado</td><td><code>4000 0000 0000 0002</code></td><td>Stripe muestra el error. El pedido sigue <code>pending</code> y queda <code>payment_attempt_failed</code> en <code>order_events</code>.</td></tr>
+          <tr><td>3D Secure</td><td><code>4000 0025 0000 3155</code></td><td>Aparece la autenticación y, al aceptarla, el pago se confirma.</td></tr>
+          <tr><td>Cancelación</td><td>Botón «volver» en la página de Stripe</td><td><code>/checkout/cancel</code>, pedido <code>cancelled</code>, stock repuesto, carrito intacto.</td></tr>
+          <tr><td>Expiración</td><td><code>stripe checkout sessions expire cs_test_…</code></td><td><code>checkout.session.expired</code> libera el stock.</td></tr>
+          <tr><td>Webhook duplicado</td><td>Dashboard → Webhooks → reenviar evento</td><td>Responde <code>duplicate: true</code>. Sin segundo email ni segundo descuento.</td></tr>
+          <tr><td>Pago asíncrono</td><td>Activar SEPA. IBAN <code>AT611904300234573201</code> (éxito) / <code>AT861904300235473202</code> (fallo)</td><td>«Pago en proceso» y después pagado, o bien cancelado con stock liberado.</td></tr>
+          <tr><td>Reembolso</td><td>Dashboard → Pagos → Reembolsar, o <code>stripe refunds create --payment-intent pi_…</code></td><td><code>partially_refunded</code> o <code>refunded</code>.</td></tr>
+          <tr><td>Última unidad</td><td>Dos navegadores con stock 1 pulsan «Pagar»</td><td>Solo uno llega a Stripe. El otro ve el aviso de stock.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="sub">Tests automáticos (186 en verde)</h3>
+    <ul class="checklist done">
+      <li><b>Carrito:</b> producto válido, cantidad válida e inválida, líneas duplicadas.</li>
+      <li><b>Checkout:</b> precio manipulado, producto inexistente, desactivado o sin stock, cantidad superior al stock, país no admitido, Stripe caído (el stock vuelve), doble envío.</li>
+      <li><b>Pedidos:</b> creación, foto fija del producto, IVA, número legible, transiciones inválidas, importes inmutables.</li>
+      <li><b>Webhook:</b> firma válida, inválida y ausente, evento duplicado, pago completado, asíncrono fallido, expirado, reembolso, fallo de email con reintento, logs sin datos personales.</li>
+      <li><b>Stock:</b> descuento correcto, webhook duplicado, concurrencia sobre la última unidad, cobro tardío, liberación única.</li>
+      <li><b>Seguridad:</b> <code>anon</code> no puede marcar pedidos como pagados, modificar precios o stock, ni leer pedidos.</li>
+      <li><b>Interfaz:</b> errores de formulario, bloqueo del doble clic, redirección a Stripe, errores del servidor comprensibles.</li>
+    </ul>
+    <p class="note warn">En los tests la pasarela de Stripe está simulada (las firmas de los webhooks sí son reales). La integración con la API real de Stripe hay que comprobarla con los pasos de arriba.</p>
+  </div>
+</section>
+
+<!-- 12. PRODUCCIÓN -->
+<section id="produccion">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="num">12</span>
+      <h2>Paso a producción</h2>
+      <p>El sistema no está listo para producción hasta completar los datos del negocio. El código sí lo está.</p>
+    </div>
+    <ul class="checklist">
+      <li>Ejecutar <code>20260929_orders.sql</code> en el Supabase de producción.</li>
+      <li>Cuenta de Stripe verificada (datos fiscales y bancarios) y métodos de pago activados.</li>
+      <li>Variables en Vercel (Production): <code>STRIPE_SECRET_KEY</code> live, <code>SITE_URL=https://motokass.com</code>, <code>CRON_SECRET</code>, <code>STORE_ORDERS_EMAIL</code>.</li>
+      <li>Stripe (live) → Webhooks → endpoint <code>https://motokass.com/api/webhooks/stripe</code> con los 6 eventos de la sección 7 → copiar su <code>whsec_…</code> a <code>STRIPE_WEBHOOK_SECRET</code>.</li>
+      <li>Completar envíos, recogida, IVA y devoluciones en <code>store-config.ts</code>.</li>
+      <li>Completar los «PENDIENTE» de <code>/condiciones-venta</code> y el plazo de conservación en <code>/privacidad</code>, y marcar <code>legalTermsReviewed: true</code>.</li>
+      <li>Activar <code>onlinePaymentEnabled: true</code> y desplegar.</li>
+      <li>Hacer un pedido real de importe bajo, comprobar emails, stock y panel, y reembolsarlo.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 13. PENDIENTE -->
+<section id="pendiente">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="num">13</span>
+      <h2>Fuera de alcance y deuda técnica</h2>
+      <p>Lo que no se ha construido todavía y los problemas detectados durante la auditoría.</p>
+    </div>
+    <div class="grid g2">
+      <div class="card"><span class="tag t-brand">Siguiente fase</span><h3>Backoffice de pedidos</h3><p>Hoy los pedidos se gestionan con los emails y el Table Editor de Supabase. Faltaría:</p><ul><li><code>/admin/pedidos</code>: listado y detalle</li><li>Cambiar <code>fulfillment_status</code> (el trigger ya valida las transiciones)</li><li>Reembolsos desde el panel vía API de Stripe</li><li>Reposición manual de stock en devoluciones</li></ul></div>
+      <div class="card"><span class="tag t-brand">Siguiente fase</span><h3>Otras funciones</h3><ul><li>Códigos promocionales: <code>discount_amount</code> ya existe, falta validar los códigos en el servidor</li><li>Stripe Tax y facturas</li><li>Límite de peticiones global (hoy en memoria por instancia)</li></ul></div>
+      <div class="card"><span class="tag t-accent">Encontrado</span><h3>Cron del blog</h3><p><code>/api/cron/generar-post</code> solo acepta <code>POST</code>, pero Vercel Cron llama con <code>GET</code>: probablemente el post semanal no se está generando.</p></div>
+      <div class="card"><span class="tag t-accent">Encontrado</span><h3>Errores de tipos previos</h3><p><code>api/chat.ts</code> usa <code>maxTokens</code> (en AI SDK v6 es <code>maxOutputTokens</code>) y hay una comparación number/string en <code>tests/unit/filtros.test.ts</code>. Son los 2 errores que da <code>astro check</code>.</p></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="bottom">
+  <div class="wrap">MOTOKASS · Documentación de la pasarela de pago (Stripe) · septiembre 2026</div>
+</footer>
+
+<script>
+  (function () {
+    var btn = document.getElementById("themeBtn");
+    var root = document.documentElement;
+    try {
+      var saved = localStorage.getItem("mk_docs_theme");
+      if (saved) root.setAttribute("data-theme", saved);
+    } catch (e) {}
+    btn.addEventListener("click", function () {
+      var current = root.getAttribute("data-theme") ||
+        (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      var next = current === "dark" ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("mk_docs_theme", next); } catch (e) {}
+    });
+  })();
+</script>
+</body>
+</html>

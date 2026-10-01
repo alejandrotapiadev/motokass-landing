@@ -6,6 +6,8 @@
 
 export const SITE = {
   name: "MOTOKASS",
+  /** NIF del titular (publicado en /aviso-legal). */
+  taxId: "70811225K",
   url: "https://motokass.com",
   email: "info@motokass.com",
   phone: "+34920254044",

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { getAllMotorcycles, getSegments, getMotorcycleBySlug, getFeaturedMotorcycles, MOTO_SEGMENTS, getMotorcyclesBySegment } from '@/lib/catalog/motorcycles';
 import { rowToEquipment, availabilityFromStock, variantStock } from '@/lib/catalog/equipment-mapper';
-import { applyFilters, computeFacets, sortProducts, EMPTY_FILTERS, filtersFromParams, filtersToParams } from '@/lib/catalog/equipment-filters';
+import { applyFilters, computeFacets, sortProducts, paginate, EMPTY_FILTERS, filtersFromParams, filtersToParams } from '@/lib/catalog/equipment-filters';
 import { getActiveCategories, getCategory, getMegaMenu } from '@/lib/catalog/equipment-categories';
 import { discountPercent } from '@/lib/catalog/types';
 import { MOCK_EQUIPMENT } from '@/lib/catalog/equipment.mock';
@@ -120,20 +120,31 @@ describe('equipment filters', () => {
     const back = filtersFromParams(new URLSearchParams(p.toString()));
     expect(back.filters).toEqual(f);
     expect(back.sort).toBe('price-asc');
+    expect(back.page).toBe(1);
+  });
+
+  it('pagina y serializa la página solo a partir de la segunda', () => {
+    const items = Array.from({ length: 25 }, (_, i) => i);
+    expect(paginate(items, 3, 12)).toEqual({ items: [24], page: 3, totalPages: 3 });
+    expect(paginate(items, 99, 12).page).toBe(3);
+    expect(paginate([], 1).totalPages).toBe(1);
+    expect(filtersToParams(EMPTY_FILTERS, 'relevance', 1).toString()).toBe('');
+    expect(filtersFromParams(filtersToParams(EMPTY_FILTERS, 'name', 2)).page).toBe(2);
+    expect(filtersFromParams(new URLSearchParams('pagina=abc')).page).toBe(1);
   });
 });
 
 describe('equipment categories', () => {
-  it('activa las 5 categorías iniciales en orden', () => {
-    expect(getActiveCategories().map((c) => c.slug)).toEqual(['cascos', 'guantes', 'chaquetas', 'camisetas', 'botas']);
+  it('activa las categorías de la tienda en el orden de la navegación', () => {
+    expect(getActiveCategories().map((c) => c.slug)).toEqual(['cascos', 'chaquetas', 'camisetas', 'guantes', 'pantalones', 'botas', 'accesorios']);
   });
 
   it('las categorías inactivas no resuelven', () => {
-    expect(getCategory('pantalones')).toBeUndefined();
+    expect(getCategory('protecciones')).toBeUndefined();
   });
 
-  it('el mega menú tiene columnas Cascos, Ropa y Botas', () => {
-    expect(getMegaMenu().map((c) => c.title)).toEqual(['Cascos', 'Ropa', 'Botas']);
+  it('el mega menú tiene columnas Cascos, Ropa, Botas y Accesorios', () => {
+    expect(getMegaMenu().map((c) => c.title)).toEqual(['Cascos', 'Ropa', 'Botas', 'Accesorios']);
   });
 });
 

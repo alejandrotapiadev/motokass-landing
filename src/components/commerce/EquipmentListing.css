@@ -1,3 +1,13 @@
+/* Transición suave entre páginas de la tienda (categorías, ficha). Mejora progresiva. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition { navigation: auto; }
+}
+
+/* El grid se vuelve a montar al cambiar filtros, orden o página: entrada discreta */
+.el__grid { animation: el-in .28s var(--ease) both; }
+@keyframes el-in { from { opacity: 0; transform: translateY(8px); } }
+
+.el { scroll-margin-top: calc(var(--header-h) + 1rem); }
 .el__bar {
   display: flex;
   align-items: center;
@@ -25,7 +35,11 @@
   letter-spacing: .08em;
   text-transform: uppercase;
   cursor: pointer;
+  transition: background .2s var(--ease), color .2s var(--ease);
 }
+.el__filter-btn:hover { background: var(--ink); color: #fff; }
+.el__sort { transition: border-color .2s var(--ease); }
+.el__sort:hover, .el__sort:focus-within { border-color: var(--ink); }
 .el__count { margin: 0; font-size: .88rem; color: var(--text-2); }
 .el__sort {
   margin-left: auto;
@@ -59,13 +73,38 @@
   font-size: .8rem;
   font-weight: 600;
   cursor: pointer;
+  animation: el-chip .2s var(--ease) both;
+  transition: background .2s var(--ease);
 }
+.el__chip:hover { background: var(--graphite-2); }
+@keyframes el-chip { from { opacity: 0; transform: scale(.92); } }
 .el__clear { background: none; border: 0; text-decoration: underline; font-size: .82rem; cursor: pointer; color: var(--text-2); }
 
 .el__layout { display: grid; grid-template-columns: 240px 1fr; gap: 2.5rem; align-items: start; }
 .el__side { position: sticky; top: calc(var(--header-h) + 80px); max-height: calc(100vh - var(--header-h) - 100px); overflow-y: auto; padding-right: .25rem; }
 
 .product-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+/* Paginación */
+.pg { display: flex; align-items: center; justify-content: center; gap: .4rem; margin-top: 2.5rem; }
+.pg__pages { display: flex; align-items: center; gap: .4rem; list-style: none; margin: 0; padding: 0; }
+.pg__btn {
+  min-width: 42px;
+  height: 42px;
+  padding: 0 .5rem;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-size: .88rem;
+  font-weight: 700;
+  transition: background .2s var(--ease), color .2s var(--ease), border-color .2s var(--ease);
+}
+a.pg__btn:hover { border-color: var(--ink); }
+.pg__btn[aria-current="page"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+.pg__btn[aria-disabled="true"] { opacity: .35; }
+.pg__gap { color: var(--text-2); padding: 0 .15rem; }
+.pg__status { display: none; font-size: .88rem; font-weight: 600; color: var(--text-2); padding: 0 .5rem; }
 
 /* Panel de filtros */
 .fl { display: grid; gap: 0; }
@@ -94,7 +133,9 @@
   font-weight: 700;
   font-size: .82rem;
   cursor: pointer;
+  transition: background .15s var(--ease), color .15s var(--ease), border-color .15s var(--ease);
 }
+.fl__size:hover { border-color: var(--ink); }
 .fl__size[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
 .fl__price { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
 .fl__price label { display: grid; gap: .25rem; font-size: .75rem; color: var(--text-2); }
@@ -102,7 +143,8 @@
 
 /* Drawer */
 .el__drawer { position: fixed; inset: 0; z-index: 920; }
-.el__drawer-backdrop { position: absolute; inset: 0; background: rgba(14,15,18,.55); }
+.el__drawer-backdrop { position: absolute; inset: 0; background: rgba(14,15,18,.55); animation: el-backdrop .25s var(--ease); }
+@keyframes el-backdrop { from { opacity: 0; } }
 .el__drawer-panel {
   position: absolute;
   left: 0; right: 0; bottom: 0;
@@ -133,5 +175,8 @@
 @media (max-width: 760px) {
   .product-grid--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .el__count { display: none; }
+  /* En móvil, los números dejan paso a "Página X de Y" entre las flechas */
+  .pg__pages { display: none; }
+  .pg__status { display: block; }
   .el__sort select { max-width: 150px; }
 }

@@ -2,10 +2,13 @@
 import MainLayout from "../../../layouts/MainLayout.astro";
 import Breadcrumbs from "../../../components/ui/Breadcrumbs.astro";
 import ProductDetail from "../../../components/commerce/ProductDetail";
+import BackToListing from "../../../components/commerce/BackToListing";
 import ProductGrid from "../../../components/commerce/ProductGrid";
 import StoreTrust from "../../../components/commerce/StoreTrust.astro";
-import { getCategory, EQUIPMENT_CATEGORIES } from "../../../lib/catalog/equipment-categories";
+import ProductReviews from "../../../components/commerce/ProductReviews.astro";
+import { getCategory, categoryUrl, EQUIPMENT_CATEGORIES } from "../../../lib/catalog/equipment-categories";
 import { getEquipmentBySlug, getRelatedEquipment, getComplementaryEquipment } from "../../../lib/catalog/equipment";
+import { getProductReviews } from "../../../lib/catalog/equipment-reviews";
 import { AVAILABILITY_SCHEMA } from "../../../lib/catalog/types";
 import { getHelpTopics } from "../../../lib/commerce/help-topics";
 import { STORE_CONFIG } from "../../../lib/commerce/store-config";
@@ -16,7 +19,11 @@ if (!category) return Astro.rewrite("/404");
 const { product } = await getEquipmentBySlug(category.slug, Astro.params.producto ?? "");
 if (!product) return Astro.rewrite("/404");
 
-const [related, complementary] = await Promise.all([getRelatedEquipment(product, 4), getComplementaryEquipment(product, 4)]);
+const [related, complementary, reviews] = await Promise.all([
+  getRelatedEquipment(product, 4),
+  getComplementaryEquipment(product, 4),
+  getProductReviews(product),
+]);
 const icons = Object.fromEntries(EQUIPMENT_CATEGORIES.map((c) => [c.slug, c.icon]));
 const pageUrl = new URL(product.url, SITE.url).toString();
 const helpTopics = getHelpTopics();
@@ -69,14 +76,17 @@ const sizeHelpUrl = whatsappUrl(`Hola, tengo una duda sobre la talla de ${produc
 
   <div class="container pdp">
     {product.isMock && <p class="dev-mock-banner">Producto DEMO de desarrollo — no es un producto real</p>}
-    <Breadcrumbs
-      items={[
-        { label: "Inicio", href: "/" },
-        { label: "Equipamiento", href: "/equipamiento" },
-        { label: category.name, href: `/equipamiento/${category.slug}` },
-        { label: product.name },
-      ]}
-    />
+    <div class="pdp__top">
+      <BackToListing client:load fallbackHref={categoryUrl(category.slug)} fallbackLabel={`Volver a ${category.name.toLowerCase()}`} />
+      <Breadcrumbs
+        items={[
+          { label: "Inicio", href: "/" },
+          { label: "Equipamiento", href: "/equipamiento" },
+          { label: category.name, href: categoryUrl(category.slug) },
+          { label: product.name },
+        ]}
+      />
+    </div>
 
     <div class="pdp__main">
       <ProductDetail
@@ -141,6 +151,8 @@ const sizeHelpUrl = whatsappUrl(`Hola, tengo una duda sobre la talla de ${produc
         </details>
       )}
     </div>
+
+    <ProductReviews product={product} reviews={reviews} />
   </div>
 
   {related.length > 0 && (
@@ -164,6 +176,23 @@ const sizeHelpUrl = whatsappUrl(`Hola, tengo una duda sobre la talla de ${produc
 
 <style>
 .pdp { padding-top: 1.25rem; padding-bottom: 2rem; }
+.pdp__top { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1.25rem; }
+.pdp__top :global(.pd-back) {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  min-height: 40px;
+  padding: 0 .9rem 0 .7rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: .8rem;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: border-color .2s var(--ease);
+}
+.pdp__top :global(.pd-back:hover) { border-color: var(--ink); }
+.pdp__top :global(.pd-back svg) { transition: transform .2s var(--ease); }
+.pdp__top :global(.pd-back:hover svg) { transform: translateX(-3px); }
 .pdp__main { margin-top: 1.25rem; }
 .pdp__trust { margin: 2.5rem 0 0; border-top: 1px solid var(--line); }
 .pdp__info { max-width: 860px; margin: 2rem 0 2rem; }
@@ -179,6 +208,9 @@ const sizeHelpUrl = whatsappUrl(`Hola, tengo una duda sobre la talla de ${produc
 .acc summary::-webkit-details-marker { display: none; }
 .acc summary::after { content: "+"; font-size: 1.5rem; font-weight: 300; }
 .acc[open] summary::after { content: "–"; }
+.acc summary::after { transition: transform .2s var(--ease); }
+.acc summary:hover::after { transform: scale(1.2); }
+.acc[open] .acc__body { animation: fadeIn .25s var(--ease); }
 .acc h2 { font-size: 1.5rem; text-transform: uppercase; margin: 0; }
 .acc__body { padding: 0 0 1.5rem; color: var(--text-2); line-height: 1.7; }
 .acc__body p { margin: 0 0 .75rem; }
