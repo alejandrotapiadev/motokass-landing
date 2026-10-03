@@ -7,7 +7,7 @@ import CartCount from "./commerce/CartCount";
 import GlobalSearch from "./search/GlobalSearch";
 import { getMegaMenu, getActiveCategories, categoryUrl } from "../lib/catalog/equipment-categories";
 import { MOTO_SEGMENTS } from "../lib/catalog/motorcycles";
-import { SITE, whatsappUrl } from "../lib/site";
+import { SITE, whatsappUrl, BLOG_ENABLED } from "../lib/site";
 
 const path = Astro.url.pathname.toLowerCase();
 const isActive = (prefix: string) => (prefix === "/" ? path === "/" : path.startsWith(prefix.toLowerCase()));
@@ -22,7 +22,7 @@ const NAV = [
   { label: "Ofertas", href: "/Ofertas", match: "/ofertas" },
   { label: "Comparar", href: "/comparar", match: "/comparar" },
   { label: "Taller", href: "/taller", match: "/taller" },
-  { label: "Blog", href: "/blog", match: "/blog" },
+  ...(BLOG_ENABLED ? [{ label: "Blog", href: "/blog", match: "/blog" }] : []),
 ];
 ---
 
@@ -135,7 +135,7 @@ const NAV = [
           <li><a href="/CitaPrevia">Pedir cita</a></li>
         </ul>
       </details>
-      <a href="/blog" class="drawer__link">Blog</a>
+      {BLOG_ENABLED && <a href="/blog" class="drawer__link">Blog</a>}
       <a href="/contacto" class="drawer__link">Contacto</a>
       <a href="/faq" class="drawer__link">Preguntas frecuentes</a>
     </nav>

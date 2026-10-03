@@ -5,12 +5,14 @@ import { getCollection } from "astro:content";
 import { getAllMotorcycles } from "./motorcycles";
 import { getEquipment } from "./equipment";
 import { EQUIPMENT_CATEGORIES } from "./equipment-categories";
+import { BLOG_ENABLED } from "../site";
 import { blogToDoc, equipmentToDoc, motorcycleToDoc, search, type SearchDoc } from "./search";
 
 const TTL_MS = 60_000;
 let cached: { at: number; docs: SearchDoc[] } | null = null;
 
 async function getBlogDocs(): Promise<SearchDoc[]> {
+  if (!BLOG_ENABLED) return [];
   const statics = (await getCollection("blog")).map((p) =>
     blogToDoc({
       slug: p.id.replace(/\.md$/, ""),

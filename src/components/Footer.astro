@@ -4,7 +4,7 @@ import logo from "../assets/img/brand/logo-mk.png";
 import Icon from "./ui/Icon.astro";
 import { getActiveCategories, categoryUrl } from "../lib/catalog/equipment-categories";
 import { getHelpTopics } from "../lib/commerce/help-topics";
-import { SITE, whatsappUrl } from "../lib/site";
+import { SITE, whatsappUrl, BLOG_ENABLED } from "../lib/site";
 
 const categories = getActiveCategories();
 const helpTopics = getHelpTopics();
@@ -35,7 +35,7 @@ const columns = [
     links: [
       { label: "Contacto", href: "/contacto" },
       { label: "Preguntas frecuentes", href: "/faq" },
-      { label: "Blog", href: "/blog" },
+      ...(BLOG_ENABLED ? [{ label: "Blog", href: "/blog" }] : []),
     ],
   },
   {

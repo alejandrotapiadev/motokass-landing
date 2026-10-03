@@ -4,6 +4,7 @@ import { getCollection } from "astro:content";
 import { getAllMotorcycles } from "@/lib/catalog/motorcycles";
 import { getActiveCategories } from "@/lib/catalog/equipment-categories";
 import { getEquipment } from "@/lib/catalog/equipment";
+import { BLOG_ENABLED } from "@/lib/site";
 
 /**
  * Sitemap dinámico (sustituye al public/sitemap.xml mantenido a mano).
@@ -31,7 +32,6 @@ export const GET: APIRoute = async () => {
     { path: "/contacto", priority: 0.7, changefreq: "monthly" },
     { path: "/CitaPrevia", priority: 0.7, changefreq: "monthly" },
     { path: "/faq", priority: 0.6, changefreq: "monthly" },
-    { path: "/blog", priority: 0.7, changefreq: "weekly" },
   ];
 
   for (const m of getAllMotorcycles()) entries.push({ path: m.url, priority: 0.6, changefreq: "monthly" });
@@ -43,23 +43,26 @@ export const GET: APIRoute = async () => {
     for (const p of products) entries.push({ path: p.url, priority: 0.6, changefreq: "weekly" });
   }
 
-  for (const post of await getCollection("blog")) {
-    entries.push({
-      path: `/blog/${post.id.replace(/\.md$/, "")}`,
-      priority: 0.5,
-      changefreq: "monthly",
-      lastmod: post.data.date.toISOString().slice(0, 10),
-    });
-  }
-  try {
-    if (import.meta.env.SUPABASE_URL) {
-      const { getDynamicPosts } = await import("@/lib/supabaseBlog");
-      for (const p of await getDynamicPosts()) {
-        entries.push({ path: `/blog/${p.slug}`, priority: 0.5, changefreq: "monthly", lastmod: p.published_at.slice(0, 10) });
-      }
+  if (BLOG_ENABLED) {
+    entries.push({ path: "/blog", priority: 0.7, changefreq: "weekly" });
+    for (const post of await getCollection("blog")) {
+      entries.push({
+        path: `/blog/${post.id.replace(/\.md$/, "")}`,
+        priority: 0.5,
+        changefreq: "monthly",
+        lastmod: post.data.date.toISOString().slice(0, 10),
+      });
     }
-  } catch {
-    /* blog dinámico opcional */
+    try {
+      if (import.meta.env.SUPABASE_URL) {
+        const { getDynamicPosts } = await import("@/lib/supabaseBlog");
+        for (const p of await getDynamicPosts()) {
+          entries.push({ path: `/blog/${p.slug}`, priority: 0.5, changefreq: "monthly", lastmod: p.published_at.slice(0, 10) });
+        }
+      }
+    } catch {
+      /* blog dinámico opcional */
+    }
   }
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>

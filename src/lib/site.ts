@@ -34,6 +34,12 @@ export const SITE = {
   ],
 } as const;
 
+/**
+ * Blog oculto temporalmente: sin enlaces (menú, footer, home), fuera del
+ * buscador y del sitemap, y /blog responde 404. Poner a true para reactivarlo.
+ */
+export const BLOG_ENABLED = false;
+
 export const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${SITE.geo.lat},${SITE.geo.lng}`;
 
 /** Número WhatsApp (solo servidor: WHATSAPP_NUMBER no es PUBLIC_). */
