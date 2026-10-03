@@ -61,7 +61,7 @@ export const POST: APIRoute = async ({ request }) => {
       model: groq("llama-3.3-70b-versatile"),
       system: SYSTEM_PROMPT,
       messages: modelMessages,
-      maxTokens: 500,
+      maxOutputTokens: 500,
     });
 
     return result.toUIMessageStreamResponse();

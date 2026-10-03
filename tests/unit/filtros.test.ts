@@ -91,7 +91,7 @@ describe('getPaginas', () => {
   });
 
   it('incluye páginas adyacentes a la actual', () => {
-    const pags = getPaginas(10, 5) as number[];
+    const pags = getPaginas(10, 5);
     const nums = pags.filter((p): p is number => p !== '…');
     expect(nums).toContain(4);
     expect(nums).toContain(5);
