@@ -1,6 +1,6 @@
 ---
 import { Picture } from "astro:assets";
-import heroImg from "../../assets/img/backgrounds/tienda3.png";
+import heroImg from "../../assets/img/backgrounds/tienda4.png";
 import { TOTAL_MOTORCYCLES } from "../../lib/catalog/motorcycles";
 
 // Redondeo a la decena inferior: "Más de 60 modelos" con 67 en catálogo.
@@ -12,9 +12,10 @@ const modelos = Math.floor(TOTAL_MOTORCYCLES / 10) * 10;
     <Picture
       src={heroImg}
       formats={["avif", "webp"]}
-      widths={[480, 768, 1024]}
-      sizes="(max-width: 900px) 100vw, 58vw"
-      alt="Sherco de enduro en la tienda MOTOKASS de Ávila, con la pared de cascos al fondo"
+      widths={[640, 828, 1080, 1200, 1920]}
+      sizes="(max-width: 900px) 100vw, 60vw"
+      quality={90}
+      alt="Moto de enduro en la tienda MOTOKASS de Ávila, con la pared de cascos al fondo"
       loading="eager"
       fetchpriority="high"
     />
