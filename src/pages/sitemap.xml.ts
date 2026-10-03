@@ -4,7 +4,7 @@ import { getCollection } from "astro:content";
 import { getAllMotorcycles } from "@/lib/catalog/motorcycles";
 import { getActiveCategories } from "@/lib/catalog/equipment-categories";
 import { getEquipment } from "@/lib/catalog/equipment";
-import { BLOG_ENABLED } from "@/lib/site";
+import { BLOG_ENABLED, COMPARE_ENABLED } from "@/lib/site";
 
 /**
  * Sitemap dinámico (sustituye al public/sitemap.xml mantenido a mano).
@@ -28,11 +28,12 @@ export const GET: APIRoute = async () => {
     { path: "/equipamiento", priority: 0.9, changefreq: "weekly" },
     { path: "/taller", priority: 0.8, changefreq: "monthly" },
     { path: "/Ofertas", priority: 0.8, changefreq: "weekly" },
-    { path: "/comparar", priority: 0.6, changefreq: "monthly" },
     { path: "/contacto", priority: 0.7, changefreq: "monthly" },
     { path: "/CitaPrevia", priority: 0.7, changefreq: "monthly" },
     { path: "/faq", priority: 0.6, changefreq: "monthly" },
   ];
+
+  if (COMPARE_ENABLED) entries.push({ path: "/comparar", priority: 0.6, changefreq: "monthly" });
 
   for (const m of getAllMotorcycles()) entries.push({ path: m.url, priority: 0.6, changefreq: "monthly" });
 

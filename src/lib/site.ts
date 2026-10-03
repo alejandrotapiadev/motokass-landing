@@ -40,6 +40,12 @@ export const SITE = {
  */
 export const BLOG_ENABLED = false;
 
+/**
+ * Comparador de motos oculto temporalmente: sin enlaces (menú, footer), fuera
+ * del sitemap, y /comparar responde 404. Poner a true para reactivarlo.
+ */
+export const COMPARE_ENABLED = false;
+
 export const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${SITE.geo.lat},${SITE.geo.lng}`;
 
 /** Número WhatsApp (solo servidor: WHATSAPP_NUMBER no es PUBLIC_). */

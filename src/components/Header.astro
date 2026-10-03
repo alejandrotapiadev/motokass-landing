@@ -7,7 +7,7 @@ import CartCount from "./commerce/CartCount";
 import GlobalSearch from "./search/GlobalSearch";
 import { getMegaMenu, getActiveCategories, categoryUrl } from "../lib/catalog/equipment-categories";
 import { MOTO_SEGMENTS } from "../lib/catalog/motorcycles";
-import { SITE, whatsappUrl, BLOG_ENABLED } from "../lib/site";
+import { SITE, whatsappUrl, BLOG_ENABLED, COMPARE_ENABLED } from "../lib/site";
 
 const path = Astro.url.pathname.toLowerCase();
 const isActive = (prefix: string) => (prefix === "/" ? path === "/" : path.startsWith(prefix.toLowerCase()));
@@ -20,7 +20,7 @@ const NAV = [
   { label: "Motos", href: "/catalogo", match: "/catalogo" },
   { label: "Equipamiento", href: "/equipamiento", match: "/equipamiento", mega: true },
   { label: "Ofertas", href: "/Ofertas", match: "/ofertas" },
-  { label: "Comparar", href: "/comparar", match: "/comparar" },
+  ...(COMPARE_ENABLED ? [{ label: "Comparar", href: "/comparar", match: "/comparar" }] : []),
   { label: "Taller", href: "/taller", match: "/taller" },
   ...(BLOG_ENABLED ? [{ label: "Blog", href: "/blog", match: "/blog" }] : []),
 ];
@@ -117,7 +117,7 @@ const NAV = [
         <ul>
           <li><a href="/catalogo">Todo el catálogo</a></li>
           {MOTO_SEGMENTS.map((s) => <li><a href={`/catalogo?segmento=${s.slug}`}>{s.name}</a></li>)}
-          <li><a href="/comparar">Comparar motos</a></li>
+          {COMPARE_ENABLED && <li><a href="/comparar">Comparar motos</a></li>}
         </ul>
       </details>
       <details>

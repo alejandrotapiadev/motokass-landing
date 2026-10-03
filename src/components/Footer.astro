@@ -4,7 +4,7 @@ import logo from "../assets/img/brand/logo-mk.png";
 import Icon from "./ui/Icon.astro";
 import { getActiveCategories, categoryUrl } from "../lib/catalog/equipment-categories";
 import { getHelpTopics } from "../lib/commerce/help-topics";
-import { SITE, whatsappUrl, BLOG_ENABLED } from "../lib/site";
+import { SITE, whatsappUrl, BLOG_ENABLED, COMPARE_ENABLED } from "../lib/site";
 
 const categories = getActiveCategories();
 const helpTopics = getHelpTopics();
@@ -15,7 +15,7 @@ const columns = [
     links: [
       { label: "Catálogo", href: "/catalogo" },
       { label: "Ofertas", href: "/Ofertas" },
-      { label: "Comparar", href: "/comparar" },
+      ...(COMPARE_ENABLED ? [{ label: "Comparar", href: "/comparar" }] : []),
       { label: "Reservar prueba", href: "/CitaPrevia?motivo=prueba" },
     ],
   },
