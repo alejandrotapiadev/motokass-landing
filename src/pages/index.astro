@@ -29,7 +29,8 @@ import { BLOG_ENABLED } from "../lib/site";
   <EquipmentCategories />
   <FeaturedEquipment />
   <FeaturedMotorcycles />
-  <MotoSegments />
+  {/* Encuentra tu moto: oculta temporalmente (también su botón en el Hero) */}
+  {false && <MotoSegments />}
 
   <section class="section" aria-labelledby="offers-title">
     <div class="container">
@@ -44,7 +45,8 @@ import { BLOG_ENABLED } from "../lib/site";
     </div>
   </section>
 
-  <FinanceTestRide />
+  {/* Financiación y prueba de moto: oculta temporalmente */}
+  {false && <FinanceTestRide />}
   <WhyMotokass />
   <WorkshopTeaser />
   <Reviews />
