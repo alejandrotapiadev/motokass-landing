@@ -13,7 +13,6 @@ import WorkshopTeaser from "../components/home/WorkshopTeaser.astro";
 import Reviews from "../components/home/Reviews.astro";
 import Location from "../components/home/Location.astro";
 import BlogTeaser from "../components/home/BlogTeaser.astro";
-import FinalCta from "../components/home/FinalCta.astro";
 import Icon from "../components/ui/Icon.astro";
 import { BLOG_ENABLED } from "../lib/site";
 ---
@@ -52,7 +51,6 @@ import { BLOG_ENABLED } from "../lib/site";
   <Reviews />
   <Location />
   {BLOG_ENABLED && <BlogTeaser />}
-  <FinalCta />
 </MainLayout>
 
 <style>
